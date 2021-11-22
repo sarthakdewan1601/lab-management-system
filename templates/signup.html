@@ -7,7 +7,15 @@
     {% block head %} {% endblock head %}
     <link rel="stylesheet" href="">
 </head>
-<body>
-    {% block body %} {% endblock %}
-</body>
+
+{% block body %}
+
+<h2> Sign Up </h2>
+<form method = "POST">
+    {% csrf_token %}
+    {{ SignupForm.as_p }}
+    <button type="submit">Sign Up</button>
+</form>
+
+{% endblock body %}
 </html>

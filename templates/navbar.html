@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+
+<nav>
+    <div class="left">
+        <!--  -->
+    </div>
+    <div class="right">
+        <!-- login/logout -->
+        {% if user.is_authenticated %} 
+            <li>{{user.username}}</li>
+            <li>Logout</li>
+        {% else %}
+            <li>Login</li>
+    </div>
+
+</nav>
+
+
+{% endblock body %}
