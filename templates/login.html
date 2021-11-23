@@ -1,14 +1,120 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block style_css %}
+<style>
+
+.login-wrap{
+	width:100%;
+	margin:auto;
+	/* max-width:525px; */
+	min-height:670px;
+	position:absolute;
+	background:url(https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg) no-repeat;
+	box-shadow:0 12px 15px 0 rgba(0,0,0,.24),0 17px 50px 0 rgba(0,0,0,.19);
+}
+.login-html{
+	width:100%;
+	height:100%;
+	position:absolute;
+	padding:90px 70px 50px 70px;
+	background:rgba(40,57,101, 0.1);
+}
+.login-html .sign-in-htm,
+.login-html .sign-up-htm{
+	top:20%;
+	left:50%;
+	transform: translateX(-50%);
+	position:absolute;
+	transition:all .4s linear;
+}
+.login-html .sign-in,
+.login-html .sign-up,
+.login-form .group .check{
+	display:none;
+}
+.login-html .tab,
+.login-form .group .label,
+.login-form .group .button{
+	text-transform:uppercase;
+}
+.login-html .tab{
+	font-size:22px;
+	margin-right:15px;
+	padding-bottom:5px;
+	margin:0 15px 10px 0;
+	display:inline-block;
+	border-bottom:2px solid transparent;
+}
+.login-html .sign-in:checked + .tab,
+.login-html .sign-up:checked + .tab{
+	color:#fff;
+	border-color:#1161ee;
+}
+.login-form{
+	min-height:345px;
+	position:relative;
+	perspective:1000px;
+	transform-style:preserve-3d;
+}
+.login-form .group{
+	margin-bottom:15px;
+}
+.login-form .group .label,
+.login-form .group .input,
+.login-form .group .button{
+	width:100%;
+	color:#fff;
+	display:block;
+}
+.login-form .group .input,
+.login-form .group .button{
+	border:none;
+	padding:15px 20px;
+	border-radius:25px;
+	/* background:rgba(255,255,255,.1); */
+}
+.login-form .group input[data-type="password"]{
+	-webkit-text-security:circle;
+}
+.login-form .group .label{
+	color:#aaa;
+	font-size:12px;
+}
+.login-form .group .button{
+	background:#1161ee;
+}
+.login-form label .icon{
+	width:15px;
+	height:15px;
+	border-radius:2px;
+	position:relative;
+	display:inline-block;
+	background:rgba(255,255,255,.1);
+}
+
+
+</style>
+
+
+{% endblock style_css %}
+
 
 {% block body %}
 
 <h2> Log in </h2>
-<form method = "POST">
-    {% csrf_token %}
-    {{loginForm.as_p}}
-    <button type="submit">Log In</button>
-</form>
 
-
-
+<div class="login-wrap">
+	<div class="login-html">
+		<div class="login-form">
+			<div class="sign-in-htm">
+                <form method = "POST">
+                    {% csrf_token %}
+                    {{loginForm.as_p}}
+                    <button type="submit">Log In</button>
+                </form>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock body %}
