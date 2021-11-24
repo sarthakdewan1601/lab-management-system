@@ -1,17 +1,108 @@
 {% extends "base.html" %}
 
-{% block body %} 
+{% block head %}
+<style>
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
+.container{
+    margin: 10px auto;
+    justify-content: center; 
+    align-items: center;
+    position: relative;
+    background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    width: 50%;
+    height: 95vh;
+    padding: 25px;
+    z-index: 2;
+    border-radius: 5px;
+    box-shadow: 3px 7px 7px #51dfa4c0;
+  }
+  .control-label{
+    display: none;
+  }
+.control_form{
+	position: absolute;
+	top: 20%;
+	left: 50%;
+	transform: translate(-50%);
+	margin-bottom: 20px;
+}
 
+  h1{
+    margin-top: 0px;
+    color : #fff;
+    text-align: center;
+    font-size : 50px;
+    font-family: "Source Sans Pro", sans-serif;
+  }
+  .btn{ 
+    width: 100%;
+    padding: 10px 20px;
+    font-weight: 500;
+    font-size : 18px;
+    opacity : 0.8;
+    background-color: #000;
+    color: rgb(84, 227, 167);
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+  .btn:hover{
+    color: white;
+    background: rgba(14, 37, 25, 0.925);
+  }
+
+  .text-center{
+    position: absolute;
+    top: 83%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+    font-weight: bold;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: rgba(14, 37, 25, 0.925);
+  }
+
+  .textinput, .textInput{
+
+    display: block;
+    width: 100%;
+    border-radius: 5px;
+    padding: 10px 80px;
+    font-size : 18px;
+    outline: none;
+    margin-bottom: 10px;
+    border: 2px solid #fff;
+    text-align: center;
+    background-color: fade(white, 20%);
+    transition-duration: 0.25s;
+    opacity: 0.5;
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+
+  .text-center a{
+    color : black;
+  }
+
+</style>
+{% endblock head %}
+{% block body %} 
+{% include 'navbar.html' with user=user %}
 {% load crispy_forms_tags %}       
 
 <!--Register--> 
 <div class="container py-5">
 	<h1>Register</h1>
+	<div class="control_form">
 	<form method="POST">
 		{% csrf_token %}
 		{{ register_form|crispy }}                  
 		<button class="btn btn-primary" type="submit">Register</button>
 	</form>
+	</div>
 	<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
 </div>
 
