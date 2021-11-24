@@ -1,7 +1,7 @@
 from django import forms
 from . import models
 from .models import Staff
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
 class ComplaintForm(forms.ModelForm):
@@ -9,13 +9,25 @@ class ComplaintForm(forms.ModelForm):
         model = models.Complaint
         fields = ['computer', 'complaint']
 
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    class Meta:
+        model=User
+        fields=['username', 'password']
+
+
 class NewUserForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    name=forms.CharField(required=True)
-    mobile_number=forms.IntegerField(required=True)
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password Confirm'}))
+    name=forms.CharField(required=True, widget=forms.PasswordInput(attrs={'placeholder':'Full Name'}))
+    email = forms.EmailField(required=True, widget=forms.PasswordInput(attrs={'placeholder':'Email'}))  
+    mobile_number=forms.IntegerField(required=True, widget=forms.PasswordInput(attrs={'placeholder':'Mobile Number'}))
     class Meta:
         model = User
-        fields = ("username", "email", "password1","mobile_number","name", "password2")
+        fields = ("username", "name", "mobile_number","email", "password1", "password2")
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)
