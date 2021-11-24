@@ -1,5 +1,6 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.shortcuts import render, redirect
@@ -12,9 +13,11 @@ from django.contrib.auth import login, authenticate #add this
 
 # Create your views here.
 
+@login_required
 def home(request):
     return render(request, "home.html", {})
 
+@login_required
 def complaint(request):
 
     if request.method=='POST':
