@@ -1,5 +1,7 @@
 # lab-management-system
 
-## run virtual env
+## start virtual env
 
-## run: pip install -r requirements.txt
+## $ pip install -r requirements.txt
+
+## $ python manage.py runserver
