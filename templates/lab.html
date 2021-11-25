@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body %}
+
+{% include 'navbar.html' with user=user %}
+
+<h1>computers</h1>
+{% for computer in computers %}
+    <h5> {{computer}} <a href="{% url 'main:complaint' pk=computer.id %}">add complaint </a> </h5>
+{% endfor %}
+
+
+{% endblock body %}
+
+

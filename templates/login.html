@@ -94,6 +94,23 @@
   .text-center a:hover{
     color : rgb(14, 37, 25);
   }
+  .heading h1{
+    
+    /* margin : 50px; */
+    margin-left: 25%;
+    margin-right: 25%;
+    /* font-weight: bold; */
+    /* margin : 10px auto; */
+    /* font-style : italic; */
+    font-size : 50px;
+    font-family: 'Source Sans Pro',sans-serif;
+    box-shadow: 2px 2px 14px grey;
+    background-color: #000;
+    opacity : 0.8;
+    color: rgb(84, 227, 167);
+    border-radius: 5px;
+    box-shadow: 3px 7px 7px #51dfa4c0;
+  }
 </style>
 
 {% endblock head %}
@@ -103,6 +120,10 @@
 
 {% load crispy_forms_tags %}
 <!--Login--> 
+<div class = "heading">
+  <h1>LAB MANAGEMENT SYSTEM</h1>  
+</div>
+
 <div class="formContainer">
   <h1>Login</h1>
   <form method="POST">
@@ -114,5 +135,14 @@
   </form>
   <p class="text-center">Don't have an account? <a href="/register">Create an account</a>.</p>
 </div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {{ message.tags }} msg-style">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
 
 {% endblock %}

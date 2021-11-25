@@ -36,8 +36,11 @@
     text-align: center;
     font-size : 50px;
     font-family: "Source Sans Pro", sans-serif;
+    /* font-weight : bold;
+    font-size : 20px; */
+    /* font-weight: bold; */
   }
-  .btn{ 
+  .signupBtn{ 
     width: 100%;
     padding: 10px 20px;
     font-weight: 500;
@@ -50,7 +53,7 @@
     cursor: pointer;
     font-family: 'Source Sans Pro', sans-serif;
   }
-  .btn:hover{
+  .signupBtn:hover{
     color: white;
     background: rgba(14, 37, 25, 0.925);
   }
@@ -86,7 +89,27 @@
   .text-center a{
     color : black;
   }
+  .help-block{
+    display: none;
+  }
 
+  .heading h1{
+    
+    /* margin : 50px; */
+    margin-left: 6.5%;
+    margin-right: 6.5%;
+    /* font-weight: bold; */
+    /* margin : 10px auto; */
+    /* font-style : italic; */
+    font-size : 50px;
+    font-family: 'Source Sans Pro',sans-serif;
+    box-shadow: 2px 2px 14px grey;
+    background-color: #000;
+    opacity : 0.8;
+    color: rgb(84, 227, 167);
+    border-radius: 5px;
+    box-shadow: 3px 7px 7px #51dfa4c0;
+  }
 </style>
 {% endblock head %}
 {% block body %} 
@@ -94,16 +117,29 @@
 {% load crispy_forms_tags %}       
 
 <!--Register--> 
+<div class = "heading">
+  <h1>LAB MANAGEMENT SYSTEM</h1>  
+</div>
 <div class="container py-5">
 	<h1>Register</h1>
 	<div class="control_form">
 	<form method="POST">
 		{% csrf_token %}
 		{{ register_form|crispy }}                  
-		<button class="btn btn-primary" type="submit">Register</button>
+		<button class="signupBtn" type="submit">Register</button>
 	</form>
 	</div>
 	<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
 </div>
+
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {{ message.tags }} msg-style">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
 
 {% endblock %}
