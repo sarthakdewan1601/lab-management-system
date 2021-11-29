@@ -1,14 +1,35 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block body %}
 
 {% include 'navbar.html' with user=user %}
+<div class="wrapper_">
+<a>{{labid}}</a>
+<div class = "lab-h1">
+    <h1>computers</h1>
+</div>
+<div class = "lab-computers">
+    <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Computers</th>
+            <th scope="col">Button</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+        {% for computer in computers %}
+          <tr>
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{ computer }}</td>
+            <th><a href="{% url 'main:complaint' pk=computer.id %}">Add Complaint </a> </h5></th>
+          </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<h1>computers</h1>
-{% for computer in computers %}
-    <h5> {{computer}} <a href="{% url 'main:complaint' pk=computer.id %}">add complaint </a> </h5>
-{% endfor %}
-
-
+<h3> if you want to add Computers <a href="{% url 'main:add_computer' pk=labid %}">click here</a> </h3>
+</div>
 {% endblock body %}
-
-

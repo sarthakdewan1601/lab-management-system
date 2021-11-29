@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(max_length=1024)
 
+class NewComputerForm(forms.Form):
+    computer_id=forms.CharField(max_length=20)
+    floor_id=forms.CharField(max_length=10)
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))

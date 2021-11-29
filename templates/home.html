@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
-{% block body %}
+{% load static %}
 
+
+{% block body %}
 {% include 'navbar.html' with user=user %}
 
-{% for lab in userLabs %}
-    <h6> <a href="{% url 'main:lab' pk=lab.id %}"> {{ lab }} {{ lab.id }} </a> </h6>
-{% endfor %}
-
+<div class="wrapper_">
+    <div class="row">
+        {% for lab in userLabs %}
+            <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ lab }}</h5>
+                    <p class="card-text">floor number (later)</p>
+                    <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-primary">View Lab</a>
+                </div>
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock body %}
-
-
