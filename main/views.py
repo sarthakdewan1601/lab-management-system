@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
 from .models import Lab,Computers,Complaint,Staff
-from .forms import NewUserForm, LoginForm, ComplaintForm
+from .forms import NewUserForm, LoginForm, ComplaintForm, NewComputerForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
 from django.contrib.auth import login, authenticate #add this
@@ -40,6 +40,31 @@ def complaint(request, pk):
 			'computer': computer
 		}
 		return render(request, 'complaints.html', context)
+
+def add_computer(request,pk):
+	lab=Lab.objects.get(id=pk)
+	print(lab)
+	if request.method == 'POST':
+		form = NewComputerForm(request.POST)
+		if form.is_valid():
+			labid=lab
+			compid=form.cleaned_data['computer_id']
+			fid=form.cleaned_data['floor_id']
+			computer, was_created=Computers.objects.get_or_create(computer_id=compid,lab_id=labid,floor_id=fid)
+			computer.save()
+			
+		return redirect("main:home")
+	else:
+		form = NewComputerForm()
+
+		context={
+			'form': form,
+			'labid':lab,
+		}
+		return render(request, 'add_computer.html', context)
+	
+	
+
 
 
 def register_request(request):
@@ -82,7 +107,10 @@ def logout_request(request):
 
 
 def lab(request, pk):
+	print(pk)
 	computers = Computers.objects.filter(lab_id=pk).order_by('id').all()
 	print(computers)
-	return render(request, "lab.html", {'computers': computers})
+	return render(request, "lab.html", {
+				'computers': computers,
+				'labid': pk })
 
