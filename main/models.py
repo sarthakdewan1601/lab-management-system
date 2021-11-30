@@ -1,15 +1,30 @@
 from django.db import models
 from django.conf import settings
 # Create your models here.
+
+MEMBER = [
+    ('SM', 'StaffMember'),
+    ('Th', 'Technician')
+]
+
+
 class Staff(models.Model):
     staff_id = models.CharField(max_length=20, blank=False, null=False)
     name=models.CharField(max_length=100)
     mobile_number=models.IntegerField()
     email=models.EmailField()
-
+    
     def __str__(self):
         return self.name
 
+class Technician(models.Model):
+    tech_id = models.CharField(max_length=20, blank=False, null=False)
+    name=models.CharField(max_length=100)
+    mobile_number=models.IntegerField()
+    email=models.EmailField()
+    
+    def __str__(self):
+        return self.name
 
 class Complaint(models.Model):
     computer=models.ForeignKey('Computers', on_delete=models.CASCADE)

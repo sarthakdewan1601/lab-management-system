@@ -1,22 +1,32 @@
-from django.contrib.auth import login, logout
+from django import http
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Lab,Computers,Complaint,Staff
+from .models import Lab,Computers,Complaint,Staff, Technician
 from .forms import NewUserForm, LoginForm, ComplaintForm, NewComputerForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
-from django.contrib.auth import login, authenticate #add this
 
 # Create your views here.
 
 @login_required
 def home(request):
-	staff = Staff.objects.get(staff_id=request.user.username)
-	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs})
+	if request.user.is_staff:
+		return HttpResponse(200)
+
+	try:
+		staff = Staff.objects.get(staff_id=request.user.username)
+		userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+		return render(request, "home.html", {'userLabs': userLabs})
+
+	except:
+		tech = Technician.objects.get(tech_id=request.user.username)
+		complaints = Complaint.objects.all()
+		context = { "complaints": complaints}
+		return render(request, "tech_dashboard.html", context)
 
 @login_required
 def complaint(request, pk):
@@ -64,9 +74,6 @@ def add_computer(request,pk):
 		return render(request, 'add_computer.html', context)
 	
 	
-
-
-
 def register_request(request):
 	if request.method == "POST":
 		form = NewUserForm(request.POST)
@@ -92,11 +99,12 @@ def login_request(request):
 				messages.info(request, f"You are now logged in as {username}.")
 				return redirect("main:home")
 			else:
-				messages.error(request,"Invalid username or password.")
+				messages.error(request,"No user found !!")
 		else:
-			messages.error(request,"Invalid username or password.")
+			messages.error(request, "Invalid Values. Please fill correctly")
 	form = LoginForm()
-	return render(request=request, template_name="login.html", context={"login_form":form, 'messages':messages.get_messages(request)})
+	return render(request, "login.html", {"login_form":form, 'messages': messages.get_messages(request)})
+
 
 def logout_request(request):
 	logout(request)
@@ -109,8 +117,8 @@ def logout_request(request):
 def lab(request, pk):
 	print(pk)
 	computers = Computers.objects.filter(lab_id=pk).order_by('id').all()
+	
 	print(computers)
 	return render(request, "lab.html", {
 				'computers': computers,
 				'labid': pk })
-
