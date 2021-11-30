@@ -51,6 +51,3 @@ class Computers(models.Model):
 
     def __str__(self):
         return self.computer_id
-
-
-

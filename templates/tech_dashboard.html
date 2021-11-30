@@ -1,13 +1,33 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block body %}
 {% include 'navbar.html' with user=user %}
 
-{% for complaint in complaints %}
-    <p> {{complaint}} {{complaint.computer}} {{complaint.computer.lab_id}} </p>
 
-{% endfor %}
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Lab</th>
+        <th scope="col">Device</th>
+        <th scope="col">Complaint</th>
+        <th scope="col">click</th>
+      </tr>
+    </thead>
+        <tbody>
+        {% for complaint in complaints %}
+            {% if complaint.isActive %}
+        <tr>
+            <td>{{ complaint }}</td>
+            <td>{{ complaint.computer }}</td>
+            <td>{{ complaint.computer.lab_id }}</td>
+            <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: black;">Resolve</a></td>
+        </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+  </table>
+
+
 
 {% endblock body %}
