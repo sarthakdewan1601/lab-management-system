@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block head %}
+
+{% endblock head %}
+
+{% block body %}
+{% include 'navbar.html' with user=user%}
+
+<div class="container">
+    <div class="row" >
+            <div class="card" style="width: 18rem; margin-right: 16px;">
+                <div class="card-body">
+                <h5 class="card-title">Staff Members</h5>
+                <a href="{% url 'main:adminStaff' %}" class="btn btn-primary">View Staff</a>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem; margin-right: 16px;">
+                <div class="card-body">
+                <h5 class="card-title">Technicians</h5>
+                <a href="{% url 'main:adminTechnicians' %}" class="btn btn-primary">View Staff</a>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem; margin-right: 16px;">
+                <div class="card-body">
+                <h5 class="card-title">Labs</h5>
+                <a href="{% url 'main:adminLabs' %}" class="btn btn-primary">View Labs</a>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                <h5 class="card-title">Complaints</h5>
+                <a href="{% url 'main:adminComplaints' %}" class="btn btn-primary">View Complaints</a>
+            </div>
+
+
+    </div>
+</div>
+
+{% endblock %}
+

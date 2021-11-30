@@ -115,3 +115,34 @@
 }
 
 /* compaint form designing */
+
+
+
+.custom-card-list{
+    width: 50%;
+    left: 50%;
+    transform: translate(-50%);
+    
+}
+.custom-card-list .list-group-item{
+    font-size: 1.2rem;
+}
+.custom-card-list h2{
+    text-align: center;
+    font-size: 2.7rem;
+    padding: 1rem;
+}
+
+.new-user-form{
+    width: 30%;
+    margin: 0 auto;
+    padding: 20px;
+}
+.new-user-form h6{
+    font-size: 1.1rem;
+}
+
+.labs-table{
+    width: 50%;
+    margin: 0 auto;
+}

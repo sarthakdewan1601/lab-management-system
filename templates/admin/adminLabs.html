@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+
+<div class="container">
+<div class="labs-table">
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Lab</th>
+            <th scope="col" style="width: 50%;">Staff</th>
+          </tr>
+        </thead>
+
+        <tbody>
+            {% for lab in labs %}
+          <tr>
+            <td>{{lab.Lab_id}}</td>
+            <td>{{lab.staff}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    <div class="new-user-form">
+        <h6>Create new staff member <a href="#">click here</a></h6>
+    </div>
+    </div>
+</div>
+
+
+
+{% endblock body %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+
+<div class="container">
+    <div class="card custom-card-list">
+    <h2>Technicians</h2>
+    <ul class="list-group">
+        {% for tech in techs %}
+        <li class="list-group-item">{{tech.name}}</li>
+        {% endfor %}
+    </ul>
+    </div>
+    </div>
+    <div class="new-user-form">
+        <h6>Create new staff member <a href="#">click here</a></h6>
+    </div>
+</div>
+
+
+
+{% endblock body %}

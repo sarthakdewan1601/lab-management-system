@@ -15,11 +15,7 @@ from django.contrib.auth.forms import AuthenticationForm #add this
 @login_required
 def home(request):
 	if request.user.is_staff:
-		complaints = Complaint.objects.all().order_by('id')
-		context = {
-			"complaints":complaints
-		}
-		return render(request, "admin/admin.html", context)
+		return render(request, "admin/dashboard.html", {})
 
 	try:
 		staff = Staff.objects.get(staff_id=request.user.username)
@@ -135,3 +131,20 @@ def resolveConflict(request, pk):
 	complaint.isActive = False
 	complaint.save()
 	return redirect('main:home')
+
+
+def adminStaff(request):
+	staffs = Staff.objects.all()
+	return render(request, "admin/adminStaffs.html", {"staffs":staffs})
+
+def adminTechnicians(request):
+	techs = Technician.objects.all()
+	return render(request, "admin/adminTechnicians.html", {"techs": techs})
+
+def adminLabs(request):
+	labs=Lab.objects.all()
+	return render(request, "admin/adminLabs.html", {"labs": labs})
+
+def adminComplaints(request):
+	complaints = Complaint.objects.all().order_by('id')
+	return render(request, "admin/adminComplaints.html", {"complaints":complaints})
