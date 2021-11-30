@@ -5,9 +5,17 @@
 {% block body %}
 {% include 'navbar.html' with user=user %}
 
+<div class = "wrapper">
+    <div class = "table">
+        <table>
+            
+        </table>
+    </div>
+</div>
+
+
 {% for complaint in complaints %}
     <p> {{complaint}} {{complaint.computer}} {{complaint.computer.lab_id}} </p>
-
 {% endfor %}
 
 {% endblock body %}
