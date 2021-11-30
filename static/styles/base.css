@@ -39,6 +39,7 @@
 
   .lab-h1{
     margin-top: 0px;
+    /* font-weight: very bold; */
     color : black;
     text-align: center;
     font-size : 50px;
@@ -46,12 +47,51 @@
     text-transform: uppercase;
   }
   
- .lab-computers table {
-	border: 0.5px solid black;
+ .lab-computers .table {
+	/* border: none; */
 	/* width: 50%; */
     margin: 0 auto;
+    border-collapse: collapse;
+    text-align: center;
+    background-color: rgb(41, 38, 38);
+    color : white;
+    border-radius: 25px 50px;
+    /* position : relative; */
+    /* border-bottom: none; */
   }
+  .lab-computers .table .thead-dark{
+      border: none;
+      color: green;
+  }
+.lab-computers table th, table td, table tbody{
+    border-top: none;
+    border-bottom: none;
+}
+.lab-submitButton{
+    /* color:rgb(16, 16, 17); */
+    background-color: rgb(36, 25, 25);
+    color: rgb(84, 227, 167);
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    padding : 5px;
+    /* font-style: italic; */
+    /* font-weight : bold; */
+    font-family: 'Source Sans Pro', sans-serif;
+}
+.lab-submitButton:hover{
+    background-color: rgb(84, 227, 167);
+    color:black;
+    color: white;
+    background: rgba(14, 37, 25, 0.925);
+}
 
+.lab-add-h5{
+    /* padding-top: 200px; */
+    /* position : relative; */
+    text-align : right;
+    margin-top : 200px;
+}
 
 .navbar{
     padding: 0 3rem;
@@ -64,4 +104,19 @@
 .nav_text{
     font-size: 1.2rem;
 }
+
+.table a{
+    color : white;
+    text-decoration: none;
+}
+
+.lab-a2{
+    color : black;
+}
+
+/* compaint form designing */
+
+
+
+
 
