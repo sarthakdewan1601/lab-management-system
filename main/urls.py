@@ -10,5 +10,6 @@ urlpatterns = [
     path("register/", views.register_request, name="register"),
     path("login/", views.login_request, name="login"),
     path("lab/<pk>", views.lab, name='lab'),
-    path("add/<pk>",views.add_computer,name='add_computer')
+    path("add/<pk>",views.add_computer,name='add_computer'),
+    path('complaint-resolve/<pk>', views.resolveConflict, name='resolveConflict')
 ]
