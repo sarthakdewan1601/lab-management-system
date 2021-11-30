@@ -53,6 +53,7 @@ def complaint(request, pk):
 
 def add_computer(request,pk):
 	lab=Lab.objects.get(id=pk)
+
 	print(lab)
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
@@ -117,8 +118,10 @@ def logout_request(request):
 def lab(request, pk):
 	print(pk)
 	computers = Computers.objects.filter(lab_id=pk).order_by('id').all()
-	
+	lab_id=Lab.objects.get(id=pk)
 	print(computers)
 	return render(request, "lab.html", {
 				'computers': computers,
-				'labid': pk })
+				'labid': pk,
+				'labname':lab_id, })
+
