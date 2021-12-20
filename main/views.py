@@ -86,7 +86,8 @@ def register_request(request):
 		messages.error(request, "Unsuccessful registration. Invalid information.")
 	else:
 		form = NewUserForm()
-	return render (request=request, template_name="register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
+	return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
+
 
 def login_request(request):
 	if request.method == "POST":
@@ -104,7 +105,7 @@ def login_request(request):
 		else:
 			messages.error(request, "Invalid Values. Please fill correctly")
 	form = LoginForm()
-	return render(request, "login.html", {"login_form":form, 'messages': messages.get_messages(request)})
+	return render(request, "accounts/login.html", {"login_form":form, 'messages': messages.get_messages(request)})
 
 
 def logout_request(request):
