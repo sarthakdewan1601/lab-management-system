@@ -124,28 +124,22 @@
   window.onload = function() {
   var category = document.getElementById('category');
   var des = document.getElementById('designation');
-    
-  console.log(category);
+  
+  
   for(var i in designations ) {
-    category.options[designations.options.length] = new Option(i, i);
+    category.options[category.options.length] = new Option(i, i);
   }
 
   category.addEventListener('change', ()=> {
-
-    console.log(designations[category.value]);
-    for(var i=0; i<a.length; i++) {
-      des.option[des.options.length] = new Option(a[i], a[i]);
+    des.length = 1;
+    var arr = designations[category.value];
+    for(var i=0; i<arr.length; i++) {
+      des.options[des.options.length] = new Option(arr[i], arr[i]);
       }
   })
-  // category.addEventListener('onChange', ()=> {
     
-    // const a = designations[category.value][this.value];
-    // for(var i=0; i<a.length; i++) {
-    //   des.option[des.options.length] = new Option(a[i], a[i]);
-    //   }
-  //   });
-    
-  }
+
+}
 
 
   </script>
@@ -199,17 +193,11 @@
       <div class="mb-3 row">
       <select class="form-select" aria-label="Default select example" id="category">
         <option selected>Open this select menu</option>
-        <!-- <option value="1">Faculty</option>
-        <option value="2">Lab Staff</option>
-        <option value="3">Office Staff</option>
-        <option value="4">Student</option> -->
       </select>
     </div>
   <div class="mb-3 row">
-      <select class="form-select" aria-label="Default select example">
- id="designation"
+      <select class="form-select" aria-label="Default select example" id="designation">        
         <option> select first option </option>
-      </select>
     </div>
 
 {% if messages %}
