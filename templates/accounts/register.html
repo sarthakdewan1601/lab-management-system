@@ -12,9 +12,9 @@
     background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
     background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
     background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    width: 50%;
+    /* width: 50%; */
     height: 95vh;
-    padding: 25px;
+    /* padding: 25px; */
     z-index: 2;
     border-radius: 5px;
     box-shadow: 3px 7px 7px #51dfa4c0;
@@ -59,10 +59,10 @@
   }
 
   .text-center{
-    position: absolute;
-    top: 83%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* position: absolute; */
+    /* top: 83%; */
+    /* left: 50%; */
+    /* transform: translate(-50%, -50%); */
     font-size: 1rem;
     font-weight: bold;
     font-family: 'Source Sans Pro', sans-serif;
@@ -109,11 +109,50 @@
     color: rgb(84, 227, 167);
     border-radius: 5px;
     box-shadow: 3px 7px 7px #51dfa4c0;
+    
   }
 </style>
+
+<script>
+  const designations = {
+    "Faculty": ["Professor", "Associate Professor", "Assistant Professor"],
+    "Lab Staff": ["System Analyst", "Lab Supervisor", "Lab Associate", "Lab Technician", "Lab Attendant"],
+    "Office Staff" : ["Manager"],
+    "Student": ["PhD (TA)", "ME (TA)"]
+  }
+
+  window.onload = function() {
+  var category = document.getElementById('category');
+  var des = document.getElementById('designation');
+    
+  console.log(category);
+  for(var i in designations ) {
+    category.options[designations.options.length] = new Option(i, i);
+  }
+
+  category.addEventListener('change', ()=> {
+
+    console.log(designations[category.value]);
+    for(var i=0; i<a.length; i++) {
+      des.option[des.options.length] = new Option(a[i], a[i]);
+      }
+  })
+  // category.addEventListener('onChange', ()=> {
+    
+    // const a = designations[category.value][this.value];
+    // for(var i=0; i<a.length; i++) {
+    //   des.option[des.options.length] = new Option(a[i], a[i]);
+    //   }
+  //   });
+    
+  }
+
+
+  </script>
+
 {% endblock head %}
-{% block body %} 
 {% include 'navbar.html' with user=user %}
+{% block body %} 
 {% load crispy_forms_tags %}       
 
 <!--Register--> 
@@ -124,14 +163,54 @@
 	<h1>Register</h1>
 	<div class="control_form">
 	<form method="POST">
-		{% csrf_token %}
-		{{ register_form|crispy }}                  
-		<button class="signupBtn" type="submit">Register</button>
-	</form>
-	</div>
-	<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
-</div>
 
+    <div class="mb-3 row">
+      <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+      <div class="col-sm-10">
+        <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com" required style="background: #fff">
+      </div>
+    </div>
+
+    <div class="mb-3 row">
+      <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+      <div class="col-sm-10">
+        <input type="password" class="form-control" id="inputPassword" required>
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label for="inputPassword" class="col-sm-2 col-form-label">Confirm Password</label>
+      <div class="col-sm-10">
+        <input type="password" class="form-control" id="inputPassword" required>
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label for="mobileNumbe" class="col-sm-2 col-form-label">Mobile Number</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" id="mobileNumbe" required>
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label for="mobileNumbe" class="col-sm-2 col-form-label">Mobile Number</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" id="mobileNumbe" required>
+      </div>
+    </div>
+
+      <div class="mb-3 row">
+      <select class="form-select" aria-label="Default select example" id="category">
+        <option selected>Open this select menu</option>
+        <!-- <option value="1">Faculty</option>
+        <option value="2">Lab Staff</option>
+        <option value="3">Office Staff</option>
+        <option value="4">Student</option> -->
+      </select>
+    </div>
+  <div class="mb-3 row">
+      <select class="form-select" aria-label="Default select example">
+ id="designation"
+        <option> select first option </option>
+      </select>
+    </div>
 
 {% if messages %}
   {% for message in messages %}

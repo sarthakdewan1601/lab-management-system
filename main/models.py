@@ -3,29 +3,42 @@ from django.db import models, reset_queries
 from django.conf import settings
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.db.models.expressions import Case
+from django.db.models.fields import NullBooleanField
 # Create your models here.
 
 class Agency(models.Model):
     agency = models.CharField(max_length = 200)
+
+    def __str__(self):
+        return self.agency
     
 class Designation(models.Model):
+    category=models.ForeignKey("Category",on_delete = CASCADE)
     designation =models.CharField(max_length=400)
 
-class Category(models.Model):
+    def __str__(self):
+        return self.designation
+
+class Category(models.Model):               # faculty, lab staff, office staff, student
     category =models.CharField(max_length=400)
+
+    def __str__(self):
+        return self.category
 
 
     
 class Leaves(models.Model):
-    staff_id=models.ForeignKey('Staff',on_delete=CASCADE)
+    staff=models.ForeignKey('Staff',on_delete=CASCADE)
     casual=models.IntegerField()
     special=models.IntegerField()
     restricted=models.IntegerField()
     medical=models.IntegerField()
     earned=models.IntegerField()
 
+
+
 class Staff(models.Model):
-    staff_id = models.CharField(max_length=20, blank=False, null=False)
+    # staff_id = models.CharField(max_length=20, blank=False, null=False)
     name=models.CharField(max_length=100)
     mobile_number=models.IntegerField()
     email=models.EmailField()
@@ -40,7 +53,7 @@ class Staff(models.Model):
 
 
 class Complaint(models.Model):
-    device=models.ForeignKey('Devices', on_delete=models.CASCADE)
+    device=models.ForeignKey('Devices', on_delete=models.CASCADE,default=None)
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
     isActive=models.BooleanField()
@@ -62,6 +75,9 @@ class Lab(models.Model):
 class CategoryOfDevice(models.Model):
     category = models.CharField(max_length=100, null=False)
 
+    def __str__(self):
+        return self.category
+
 class Devices(models.Model):
     device_id = models.CharField(max_length=20, blank=False, null=False)
     name=models.ForeignKey("CategoryOfDevice",blank=False,null=False, on_delete=models.CASCADE)
@@ -69,9 +85,18 @@ class Devices(models.Model):
     lab = models.ForeignKey(Lab, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.device_id
+        return self.device_id +" "+ "(" + self.lab.lab + ")"
 
 
 
 # tech profile-> usne kitni complaints resolve kri uska count + which complaint
 # leaves -> saare users -> profile-> leave count (casual leave: 8, special casual leve: 10, restricted leave: 2)
+
+
+# email address se register
+# email, password confirm password, mobile no, category(faculty, lab staff, office staff, student), designation , agency
+# lab (system analys, lab sup, lab aasso, lab tech, lab attendant)
+# student (phd, me)
+# faulty (prof, assoc proff, assis proff)
+
+# agency: lab/office (regular, adhoc, )

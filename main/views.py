@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Lab,Computers,Complaint,Staff, Technician
-from .forms import NewUserForm, LoginForm, ComplaintForm, NewComputerForm
+from .models import Lab,Devices,Complaint,Staff
+from .forms import LoginForm, ComplaintForm, NewComputerForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
 
@@ -17,20 +17,19 @@ def home(request):
 	if request.user.is_staff:
 		return render(request, "admin/dashboard.html", {})
 
-	try:
-		staff = Staff.objects.get(staff_id=request.user.username)
-		userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-		return render(request, "home.html", {'userLabs': userLabs})
+	staff = Staff.objects.get(staff_id=request.user.username)
+	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+	return render(request, "home.html", {'userLabs': userLabs})
 
-	except:
-		tech = Technician.objects.get(tech_id=request.user.username)
-		complaints = Complaint.objects.all()
-		context = { "complaints": complaints}
-		return render(request, "tech_dashboard.html", context)
+	# except:
+	# 	tech = Technician.objects.get(tech_id=request.user.username)
+	# 	complaints = Complaint.objects.all()
+	# 	context = { "complaints": complaints}
+	# 	return render(request, "tech_dashboard.html", context)
 
 @login_required
 def complaint(request, pk):
-	computer = Computers.objects.get(id=pk)
+	computer = Devices.objects.get(id=pk)
 	if request.method == 'POST':
 		# print(request.POST)
 		# print(pk)
@@ -61,7 +60,7 @@ def add_computer(request,pk):
 			labid=lab
 			compid=form.cleaned_data['computer_id']
 			fid=form.cleaned_data['floor_id']
-			computer, was_created=Computers.objects.get_or_create(computer_id=compid,lab_id=labid,floor_id=fid)
+			computer, was_created=Devices.get_or_create(computer_id=compid,lab_id=labid,floor_id=fid)
 			computer.save()
 			
 		return redirect("main:home")
@@ -76,17 +75,19 @@ def add_computer(request,pk):
 	
 	
 def register_request(request):
-	if request.method == "POST":
-		form = NewUserForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			messages.success(request, "Registration successful.")
-			return redirect("main:home")
-		messages.error(request, "Unsuccessful registration. Invalid information.")
-	else:
-		form = NewUserForm()
-	return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
+	# if request.method == "POST":
+	# 	form = NewUserForm(request.POST)
+	# 	if form.is_valid():
+	# 		user = form.save()
+	# 		login(request, user)
+	# 		messages.success(request, "Registration successful.")
+	# 		return redirect("main:home")
+	# 	messages.error(request, "Unsuccessful registration. Invalid information.")
+	# else:
+	# 	form = NewUserForm()
+
+	# return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
+	return render (request=request, template_name="accounts/register.html", context={})
 
 
 def login_request(request):
@@ -149,3 +150,4 @@ def adminLabs(request):
 def adminComplaints(request):
 	complaints = Complaint.objects.all().order_by('id')
 	return render(request, "admin/adminComplaints.html", {"complaints":complaints})
+
