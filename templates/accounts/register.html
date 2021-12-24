@@ -120,15 +120,22 @@
     "Office Staff" : ["Manager"],
     "Student": ["PhD (TA)", "ME (TA)"]
   }
+  const agencys = {
+    "Regular": 1,
+    "Adhoc": 2,
+    "RandStad" : 3,
+  }
 
   window.onload = ()=> {
   var category = document.getElementById('category');
   var des = document.getElementById('designation');
+  var agency = document.getElementById('agency');
   
   
   for(var i in designations ) {
     category.options[category.options.length] = new Option(i, i);
   }
+  
 
   category.addEventListener('change', ()=> {
     des.length = 1;
@@ -137,6 +144,9 @@
       des.options[des.options.length] = new Option(arr[i], arr[i]);
       }
   }) 
+  for(var i in agencys ) {
+    agency.options[agency.options.length] = new Option(i, i);
+  }
 
 }
 
@@ -159,48 +169,24 @@
 
 
 	<form method="POST">
-    {% csrf_token %}
-    <div class="mb-3 row">
-      <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
-      <div class="col-sm-10">
-        <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com" required style="background: #fff">
-      </div>
-    </div>
-
-    <div class="mb-3 row">
-      <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-      <div class="col-sm-10">
-        <input type="password" class="form-control" id="inputPassword" required>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label for="inputPassword" class="col-sm-2 col-form-label">Confirm Password</label>
-      <div class="col-sm-10">
-        <input type="password" class="form-control" id="inputPassword" required>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label for="fullName" class="col-sm-2 col-form-label">Full Name</label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id="fullName" required>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label for="mobileNumbe" class="col-sm-2 col-form-label">Mobile Number</label>
-      <div class="col-sm-10">
-        <input type="number" class="form-control" id="mobileNumbe" required>
-      </div>
-    </div>
-
+   {% csrf_token %}
+    
+      {{ form|crispy }}
       <div class="mb-3 row">
-      <select class="form-select" aria-label="Default select example" id="category">
-        <option selected>Open this select menu</option>
+      <select class="form-select" aria-label="Default select example" id="category" name="category">
+        <option selected id="selectedCategory">Select Category</option>
       </select>
     </div>
     <div class="mb-3 row">
-      <select class="form-select" aria-label="Default select example" id="designation">        
-        <option> select first option </option>
+      <select class="form-select" aria-label="Default select example" id="designation" name="designation">        
+        <option id="selectedDesignation"> select Destination </option>
+        </select>
       </div>
+      <div class="mb-3 row">
+        <select class="form-select" aria-label="Default select example" id="agency" name="agency">        
+          <option id="selectedAgency"> select Agency </option>
+          </select>
+        </div>
 
       <div class="mb-3 row">
         <input type="submit" style="margin-top: 20px;" value="Register"/>

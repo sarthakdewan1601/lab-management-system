@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.fields import ChoiceField
 from .models import Designation, Staff
-from django.contrib.auth.forms import  AuthenticationForm
+from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 
 class ComplaintForm(forms.Form):
@@ -49,7 +49,8 @@ DESIGNATION = [
 #         model = User
 #         fields = ("username", "name", "mobile_number","email", "password1", "password2", "type")
 
-#     def save(self, commit=True):
+#     
+
 #         user = super(NewUserForm, self).save(commit=False)
 #         user.email = self.cleaned_data['email']
 
@@ -71,4 +72,32 @@ DESIGNATION = [
 #         return user
 
 
-# class SignupForm(forms.Form):
+class SignupForm(UserCreationForm):
+    name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
+    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder':'Email'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
+
+        
+    class Meta:
+        model = User
+        fields = ("email", "password1", "password2", "name", "mobile_number")
+        
+    def save(self, commit=True):
+        # save user in user model fields email password
+        email = self.cleaned_data['email']
+        password = self.cleaned_data['password1']
+        name= self.cleaned_data['name']
+
+        user = super(UserCreationForm, self).save(commit=False)
+
+        user.set_password(password)
+        user.email = email
+        user.username = name
+        if commit:
+          user.save()
+        return user
+
+
+        

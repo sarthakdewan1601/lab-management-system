@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
 from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm
+from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
 
@@ -111,6 +111,7 @@ def add_computer(request,pk):
 	
 	
 def register_request(request):
+	
 	# if request.method == "POST":
 	# 	form = NewUserForm(request.POST)
 	# 	if form.is_valid():
@@ -125,8 +126,33 @@ def register_request(request):
 	# return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
 	if request.method == "POST":
 		print(request.POST)
-		# print(email)
-	return render (request=request, template_name="accounts/register.html", context={})
+		form = SignupForm(request.POST)
+		if form.is_valid():
+			email=form.cleaned_data['email'] # check for @thapar.edu
+			res=email.split('@')[1]
+			if res!='thapar.edu':
+				messages.error(request, "Please enter you thapar email id")
+				return HttpResponse(400)
+			else:
+				user = form.save()
+				name=form.cleaned_data['name']
+				category1=request.POST['category']
+				designation=request.POST['designation']
+				agency=request.POST['agency']
+				mobile_number=form.cleaned_data['mobile_number']
+				Cat=Category.objects.get(category=category1)
+				Des=Designation.objects.get(designation=designation )
+				Agen=Agency.objects.get(agency=agency)
+				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+				staff.save()
+				
+				return redirect("main:login")
+		else:
+			messages.error(request, "some error")
+			return redirect("main:register")
+	else:
+		form = SignupForm()
+		return render (request=request, template_name="accounts/register.html", context={"form": form})
 
 
 def login_request(request):
