@@ -37,12 +37,12 @@ DESIGNATION = [
 ]
 
 # class NewUserForm(UserCreationForm):
-#     name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
-#     email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder':'Email'}))
-#     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
-#     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password Confirm'}))
-#     mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
-#     category=forms.ChoiceField(choices=CATEGORY)
+    # name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
+    # email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder':'Email'}))
+    # password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    # password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password Confirm'}))
+    # mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
+    # category=forms.ChoiceField(choices=CATEGORY)
 #     Designation=forms.ChoiceField(choices=DESIGNATION)
 
 #     class Meta:
@@ -69,3 +69,6 @@ DESIGNATION = [
 #         if commit:
 #             user.save()
 #         return user
+
+
+# class SignupForm(forms.Form):

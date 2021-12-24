@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Lab,Devices,Complaint,Staff
+from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
@@ -15,6 +15,7 @@ from django.contrib.auth.forms import AuthenticationForm #add this
 @login_required
 def home(request):
 	if request.user.is_staff:
+		print(request.user.email)
 		return render(request, "admin/dashboard.html", {})
 
 	staff = Staff.objects.get(staff_id=request.user.username)
@@ -28,6 +29,41 @@ def home(request):
 	# 	return render(request, "tech_dashboard.html", context)
 
 @login_required
+def user_profile(request):
+	print(request.user)
+	user_email=request.user.email
+	staff = Staff.objects.get(email=user_email)
+	if staff.category == "Lab Staff":
+		if staff.designation == "Lab Superviser":
+			pass
+		if staff.designation == "Lab Associate":
+			pass
+		if staff.designation == "Lab Attendent":
+			pass
+		if staff.designation == "Lab Technician":
+			pass
+		if staff.designation == " System Analyst":
+			pass
+	elif staff.category == "Office Staff":
+		if staff.designation == " Manager":
+			pass
+	elif staff.category == "Student":
+		if staff.designation == " Professor":
+			pass
+		if staff.designation == " Associate Professor":
+			pass
+		if staff.designation == " Assistant Professor":
+			pass
+		
+	else :
+		if staff.designation == " PHD":
+			pass
+		if staff.designation == " ME":
+			pass
+		
+
+
+	
 def complaint(request, pk):
 	computer = Devices.objects.get(id=pk)
 	if request.method == 'POST':
@@ -87,6 +123,9 @@ def register_request(request):
 	# 	form = NewUserForm()
 
 	# return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
+	if request.method == "POST":
+		print(request.POST)
+		# print(email)
 	return render (request=request, template_name="accounts/register.html", context={})
 
 
@@ -119,7 +158,7 @@ def logout_request(request):
 
 def lab(request, pk):
 	print(pk)
-	computers = Computers.objects.filter(lab_id=pk).order_by('id').all()
+	computers = Lab.objects.filter(lab_id=pk).order_by('id').all()
 	lab_id=Lab.objects.get(id=pk)
 	print(computers)
 	return render(request, "lab.html", {

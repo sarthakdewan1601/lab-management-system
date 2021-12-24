@@ -121,7 +121,7 @@
     "Student": ["PhD (TA)", "ME (TA)"]
   }
 
-  window.onload = function() {
+  window.onload = ()=> {
   var category = document.getElementById('category');
   var des = document.getElementById('designation');
   
@@ -136,10 +136,10 @@
     for(var i=0; i<arr.length; i++) {
       des.options[des.options.length] = new Option(arr[i], arr[i]);
       }
-  })
-    
+  }) 
 
 }
+
 
 
   </script>
@@ -156,8 +156,10 @@
 <div class="container py-5">
 	<h1>Register</h1>
 	<div class="control_form">
-	<form method="POST">
 
+
+	<form method="POST">
+    {% csrf_token %}
     <div class="mb-3 row">
       <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
       <div class="col-sm-10">
@@ -178,9 +180,9 @@
       </div>
     </div>
     <div class="mb-3 row">
-      <label for="mobileNumbe" class="col-sm-2 col-form-label">Mobile Number</label>
+      <label for="fullName" class="col-sm-2 col-form-label">Full Name</label>
       <div class="col-sm-10">
-        <input type="number" class="form-control" id="mobileNumbe" required>
+        <input type="text" class="form-control" id="fullName" required>
       </div>
     </div>
     <div class="mb-3 row">
@@ -195,10 +197,17 @@
         <option selected>Open this select menu</option>
       </select>
     </div>
-  <div class="mb-3 row">
+    <div class="mb-3 row">
       <select class="form-select" aria-label="Default select example" id="designation">        
         <option> select first option </option>
-    </div>
+      </div>
+
+      <div class="mb-3 row">
+        <input type="submit" style="margin-top: 20px;" value="Register"/>
+      </div>
+
+    </form>
+
 
 {% if messages %}
   {% for message in messages %}
