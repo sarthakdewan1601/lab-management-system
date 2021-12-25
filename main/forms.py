@@ -12,29 +12,20 @@ class NewComputerForm(forms.Form):
     floor_id=forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Floor ID'}))
 
 
-class LoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+class LoginForm(forms.Form):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder':'Email'}))
+    password = forms.CharField(required=True , widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    
     class Meta:
         model=User
-        fields=['username', 'password']
-
-MEMBER = [
-    ('SM', 'StaffMember'),
-    ('TH', 'Technician')
-]
-
-CATEGORY = [
-    ('FAC' , 'Faculty'),
-    ('LS' , 'LabStaff'),
-    ('OS' , 'office staff'),
-    ('ST' , 'student')
-]
-
-DESIGNATION = [
-    ('LA' , 'lab analyst'),
-    ('')
-]
+        fields=['email', 'password']
+        
+# class LoginForm(AuthenticationForm):
+#     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+#     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+#     class Meta:
+#         model=User
+#         fields=['username', 'password']
 
 # class NewUserForm(UserCreationForm):
     # name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
@@ -74,7 +65,7 @@ DESIGNATION = [
 
 class SignupForm(UserCreationForm):
     name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
-    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder':'Email'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder':'Email'}))
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
     mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))

@@ -4,8 +4,70 @@ from django.conf import settings
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.db.models.expressions import Case
 from django.db.models.fields import NullBooleanField
+from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
+from django.conf import settings
+from django.db import models
 import string
+
 # Create your models here.
+
+# class AuthManager(BaseUserManager):
+#     # email password -> check for existing user in table return that user
+#     def create_user(self, email, password=None):        
+#         if not email:
+#             raise ValueError("enter email id ")
+#         user = self.model(email=self.normalize_email(email));
+
+#         user.set_password(password)
+#         user.save(using=self._db)
+#         return user
+
+#     # fucntions: to create admin and staff
+#     def create_superuser(self, email, password):
+#         user = self.create_user(email, password=password)
+#         user.staff = True
+#         user.admin = True
+#         user.save(using=self._db)
+#         return user
+
+#     def create_staffuser(self, email, password):
+#         user = self.create_user(email, password=password)
+#         user.staff = True
+#         user.save(using=self._db)
+#         return user 
+
+
+# class Auth(AbstractUser):
+#     email = models.CharField(verbose_name='Email Id', max_length=255, unique=True)
+#     is_active = models.BooleanField(default=True)
+#     admin = models.BooleanField(default=False)
+#     staff = models.BooleanField(default=False)
+    
+#     objects = AuthManager()
+
+#     # default: email and password
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
+    
+#     class Meta(AbstractUser.Meta):
+#         swappable = 'AUTH_USER_MODEL'
+
+#     def __str__(self):
+#         return self.email
+
+#     @property
+#     def is_staff(self):
+#         return self.staff
+    
+#     @property
+#     def is_admin(self):
+#         return self.admin
+
+
+
+
+
+
 
 class Agency(models.Model):
     agency = models.CharField(max_length = 200)
@@ -108,3 +170,5 @@ class Devices(models.Model):
 # faulty (prof, assoc proff, assis proff)
 
 # agency: lab/office (regular, adhoc, )
+
+

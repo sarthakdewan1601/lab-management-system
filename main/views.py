@@ -132,7 +132,7 @@ def register_request(request):
 			res=email.split('@')[1]
 			if res!='thapar.edu':
 				messages.error(request, "Please enter you thapar email id")
-				return HttpResponse(400)
+				return redirect("main:register")
 			else:
 				user = form.save()
 				name=form.cleaned_data['name']
@@ -156,20 +156,37 @@ def register_request(request):
 
 
 def login_request(request):
+	# if request.method == "POST":
+	# 	form = LoginForm(request, data=request.POST)
+	# 	if form.is_valid():
+	# 		username = form.cleaned_data.get('username')
+	# 		password = form.cleaned_data.get('password')
+	# 		user = authenticate(username=username, password=password)
+	# 		if user is not None:
+	# 			login(request, user)
+	# 			messages.info(request, f"You are now logged in as {username}.")
+	# 			return redirect("main:home")
+	# 		else:
+	# 			messages.error(request,"No user found !!")
+	# 	else:
+	# 		messages.error(request, "Invalid Values. Please fill correctly")
 	if request.method == "POST":
-		form = LoginForm(request, data=request.POST)
+		form = LoginForm(request.POST)
 		if form.is_valid():
-			username = form.cleaned_data.get('username')
-			password = form.cleaned_data.get('password')
-			user = authenticate(username=username, password=password)
+			email = form.cleaned_data['email']
+			password = form.cleaned_data['password']
+			res=email.split('@')[1]
+			if res!='thapar.edu':
+				messages.error(request, "Please enter you thapar email id")
+				return HttpResponse(400)
+
+			user=ExtendedUserModelBackend.authenticate(username=email,password=password)
+			print(user)
 			if user is not None:
-				login(request, user)
-				messages.info(request, f"You are now logged in as {username}.")
-				return redirect("main:home")
-			else:
-				messages.error(request,"No user found !!")
-		else:
-			messages.error(request, "Invalid Values. Please fill correctly")
+				login(request,user)
+				messages.success(request, f"You are successfully logged in as {email}")
+				return HttpResponse(404)
+				
 	form = LoginForm()
 	return render(request, "accounts/login.html", {"login_form":form, 'messages': messages.get_messages(request)})
 
