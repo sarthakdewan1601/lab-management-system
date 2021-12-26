@@ -9,6 +9,8 @@ from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
 
 # Create your views here.
 
@@ -18,7 +20,7 @@ def home(request):
 		print(request.user.email)
 		return render(request, "admin/dashboard.html", {})
 
-	staff = Staff.objects.get(staff_id=request.user.username)
+	staff = Staff.objects.get(email=request.user.email)
 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 	return render(request, "home.html", {'userLabs': userLabs})
 
@@ -180,12 +182,23 @@ def login_request(request):
 				messages.error(request, "Please enter you thapar email id")
 				return HttpResponse(400)
 
-			user=ExtendedUserModelBackend.authenticate(username=email,password=password)
-			print(user)
+			#user=ExtendedUserModelBackend.authenticate(username=email,password=password)
+		#	print(res)
+			UserModel = get_user_model()
+		#	print(UserModel)
+			try:
+				user = UserModel.objects.get(email=email)
+			except UserModel.DoesNotExist:
+				user=None
+			else:
+				if user.check_password(password):
+					#print("passes")
+					pass
 			if user is not None:
 				login(request,user)
+			#	print("logged in") 
 				messages.success(request, f"You are successfully logged in as {email}")
-				return HttpResponse(404)
+				return redirect("main:home")
 				
 	form = LoginForm()
 	return render(request, "accounts/login.html", {"login_form":form, 'messages': messages.get_messages(request)})
