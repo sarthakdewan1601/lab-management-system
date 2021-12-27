@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+<style>
+    h1{
+        text-align: center;
+        color: black;
+        padding: 2px;
+    }
+    .request{
+        text-align: center;
+    }
+</style>
+
+<div class="wrapper_">
+    <div class = "leaves">
+        <h1>Leaves Remaining  </h1>
+        <br>
+        <br>
+        <div class = "table-leaves">
+            <table class = "table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Casual leaves</th>
+                        <th scope="col">Special leaves</th>
+                        <th scope="col">Restricted leaves</th>
+                        <th scope="col">Medical leaves</th>
+                        <th scope="col">Earned leaves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope = "row">{{leaves.casual}}</td>
+                        <td scope = "row">{{leaves.special}}</td>
+                        <td scope = "row">{{leaves.restricted}}</td>
+                        <td scope = "row">{{leaves.medical}}</td>
+                        <td scope = "row">{{leaves.earned}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr><br><br>
+        <div class = "request">
+            <a href="/" class="btn btn-primary">Request for a Leave</a>
+        </div>
+        <br><br>
+    </div>
+    
+    <div>
+        <h1>
+            Labs Asigned : 
+        </h1>
+    </div>
+    <div class="row">
+        {% for lab in userLabs %}
+            <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ lab }}</h5>
+                    <p class="card-text">floor - {{lab.floor}}</p>
+                    <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-primary">View Lab</a>
+                </div>
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock body %}
+
+
+<!--
+    navbar
+    NOTE : CURRENT LEAVES REMAINING
+    LABS ASSIGNED
+    VIEW PERSONAL DETAIL -- BUTTON
+-->

@@ -1,154 +1,153 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
 
-.card{
-	margin-top: 2rem;
+.card {
+  margin-top: 2rem;
 }
 
-.wrapper_{
-    padding: 2rem 3rem;
-    background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-	height : 100%;
-    /* height : 100vh; */
+.wrapper_ {
+  padding: 2rem 3rem;
+  background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+  background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+  background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+  background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+  height: 100%;
+  /* height : 100vh; */
 }
 /* .card{
     background-color : none;
 } */
-.card-body{
-    /* background-image: -moz-linear-gradient(top left,rgb(0, 0, 0), 10%,rgb(38, 41, 38) 100%);
+.card-body {
+  /* background-image: -moz-linear-gradient(top left,rgb(0, 0, 0), 10%,rgb(38, 41, 38) 100%);
     background-image: -webkit-linear-gradient(top left,rgb(0, 0, 0) 10%,rgb(38, 41, 38) 100%);
     background-image: -o-linear-gradient(top left,rgb(0, 0, 0) 10%,rgb(38, 41, 38) 100%);
     background-image: linear-gradient(top left,rgb(0, 0, 0) 10%,rgb(38, 41, 38)100%); */
-	background-color: black;
-	color : white;
-    /* border-radius: 20px 45px; */
+  background-color: black;
+  color: white;
+  /* border-radius: 20px 45px; */
 }
-.btn-primary{
-    font-weight: 500;
-    font-size : 18px;
-    color: white;
-    opacity : 0.8;
-    background-color: rgb(18, 32, 18);
-    color: rgb(84, 227, 167);
-    border: 0;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: 'Source Sans Pro', sans-serif;
-}
-
-.btn-primary:hover{
-    color: white;
-    background: rgba(36, 43, 39, 0.925)
-  }
-
-  .lab-h1{
-    margin-top: 0px;
-    /* font-weight: very bold; */
-    color : black;
-    text-align: center;
-    font-size : 50px;
-    font-family: "Source Sans Pro", sans-serif;
-    text-transform: uppercase;
-  }
-  
- .lab-computers .table {
-	/* border: none; */
-	/* width: 50%; */
-    margin: 0 auto;
-    border-collapse: collapse;
-    text-align: center;
-    background-color: rgb(41, 38, 38);
-    color : white;
-    border-radius: 25px 50px;
-    /* position : relative; */
-    /* border-bottom: none; */
-  }
-  .lab-computers .table .thead-dark{
-      border: none;
-      color: green;
-  }
-.lab-computers table th, table td, table tbody{
-    border-top: none;
-    border-bottom: none;
-}
-.lab-submitButton{
-    /* color:rgb(16, 16, 17); */
-    background-color: rgb(36, 25, 25);
-    color: rgb(84, 227, 167);
-    border: 0;
-    border-radius: 5px;
-    cursor: pointer;
-    padding : 5px;
-    /* font-style: italic; */
-    /* font-weight : bold; */
-    font-family: 'Source Sans Pro', sans-serif;
-}
-.lab-submitButton:hover{
-    background-color: rgb(84, 227, 167);
-    color:black;
-    color: white;
-    background: rgba(14, 37, 25, 0.925);
+.btn-primary {
+  font-weight: 500;
+  font-size: 18px;
+  color: white;
+  opacity: 0.8;
+  background-color: rgb(18, 32, 18);
+  color: rgb(84, 227, 167);
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Source Sans Pro", sans-serif;
 }
 
-.lab-add-h5{
-    /* padding-top: 200px; */
-    /* position : relative; */
-    text-align : right;
-    margin-top : 200px;
+.btn-primary:hover {
+  color: white;
+  background: rgba(36, 43, 39, 0.925);
 }
 
-.navbar{
-    padding: 0 3rem;
-    height: 80px;    
+.lab-h1 {
+  margin-top: 0px;
+  /* font-weight: very bold; */
+  color: black;
+  text-align: center;
+  font-size: 50px;
+  font-family: "Source Sans Pro", sans-serif;
+  text-transform: uppercase;
 }
 
-.fa-university{
-    font-size: 2.2rem;
+.lab-computers .table {
+  /* border: none; */
+  /* width: 50%; */
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: center;
+  background-color: rgb(41, 38, 38);
+  color: white;
+  border-radius: 25px 50px;
+  /* position : relative; */
+  /* border-bottom: none; */
 }
-.nav_text{
-    font-size: 1.2rem;
+.lab-computers .table .thead-dark {
+  border: none;
+  color: green;
+}
+.lab-computers table th,
+table td,
+table tbody {
+  border-top: none;
+  border-bottom: none;
+}
+.lab-submitButton {
+  /* color:rgb(16, 16, 17); */
+  background-color: rgb(36, 25, 25);
+  color: rgb(84, 227, 167);
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px;
+  /* font-style: italic; */
+  /* font-weight : bold; */
+  font-family: "Source Sans Pro", sans-serif;
+}
+.lab-submitButton:hover {
+  background-color: rgb(84, 227, 167);
+  color: black;
+  color: white;
+  background: rgba(14, 37, 25, 0.925);
 }
 
-.table a{
-    color : white;
-    text-decoration: none;
+.lab-add-h5 {
+  /* padding-top: 200px; */
+  /* position : relative; */
+  text-align: right;
+  margin-top: 200px;
 }
 
-.lab-a2{
-    color : black;
+.navbar {
+  padding: 0 3rem;
+  height: 80px;
+}
+
+.fa-university {
+  font-size: 2.2rem;
+}
+.nav_text {
+  font-size: 1.2rem;
+}
+
+.table a {
+  color: white;
+  text-decoration: none;
+}
+
+.lab-a2 {
+  color: black;
 }
 
 /* compaint form designing */
 
-
-
-.custom-card-list{
-    width: 50%;
-    left: 50%;
-    transform: translate(-50%);
-    
+.custom-card-list {
+  width: 50%;
+  left: 50%;
+  transform: translate(-50%);
 }
-.custom-card-list .list-group-item{
-    font-size: 1.2rem;
+.custom-card-list .list-group-item {
+  font-size: 1.2rem;
 }
-.custom-card-list h2{
-    text-align: center;
-    font-size: 2.7rem;
-    padding: 1rem;
+.custom-card-list h2 {
+  text-align: center;
+  font-size: 2.7rem;
+  padding: 1rem;
 }
 
-.new-user-form{
-    width: 30%;
-    margin: 0 auto;
-    padding: 20px;
+.new-user-form {
+  width: 30%;
+  margin: 0 auto;
+  padding: 20px;
 }
-.new-user-form h6{
-    font-size: 1.1rem;
+.new-user-form h6 {
+  font-size: 1.1rem;
 }
 
-.labs-table{
-    width: 50%;
-    margin: 0 auto;
+.labs-table {
+  width: 50%;
+  margin: 0 auto;
 }

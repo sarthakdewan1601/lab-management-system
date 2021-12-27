@@ -32,35 +32,46 @@ def home(request):
 
 @login_required
 def user_profile(request):
-	print(request.user)
+	# print(request.user)
 	user_email=request.user.email
+	#print(user_email)
 	staff = Staff.objects.get(email=user_email)
-	if staff.category == "Lab Staff":
-		if staff.designation == "Lab Superviser":
+	#print(staff.designation)
+	if staff.category.category == "Lab Staff":
+		if staff.designation.designation == "Lab Superviser":
 			pass
-		if staff.designation == "Lab Associate":
+		if staff.designation.designation == "Lab Associate":
 			pass
-		if staff.designation == "Lab Attendent":
+		if staff.designation.designation == "Lab Attendent":
+			#print("yay")
+			staff_1 = Staff.objects.get(email=request.user.email)
+			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+			leaves=Leaves.objects.get(staff=staff)
+			context = {
+				'userLabs' : userLabs,
+				'staff'	: staff_1,
+				'leaves' : leaves,
+			}
+			return render(request, 'user profiles/lab_attendent.html',context)
+		if staff.designation.designation == "Lab Technician":
 			pass
-		if staff.designation == "Lab Technician":
+		if staff.designation.designation == " System Analyst":
 			pass
-		if staff.designation == " System Analyst":
+	elif staff.category.category == "Office Staff":
+		if staff.designation.designation == " Manager":
 			pass
-	elif staff.category == "Office Staff":
-		if staff.designation == " Manager":
+	elif staff.category.category == "Student":
+		if staff.designation.designation == " Professor":
 			pass
-	elif staff.category == "Student":
-		if staff.designation == " Professor":
+		if staff.designation.designation == " Associate Professor":
 			pass
-		if staff.designation == " Associate Professor":
-			pass
-		if staff.designation == " Assistant Professor":
+		if staff.designation.designation == " Assistant Professor":
 			pass
 		
 	else :
-		if staff.designation == " PHD":
+		if staff.designation.designation == " PHD":
 			pass
-		if staff.designation == " ME":
+		if staff.designation.designation == " ME":
 			pass
 		
 
@@ -194,11 +205,15 @@ def login_request(request):
 				if user.check_password(password):
 					#print("passes")
 					pass
+				else :
+					messages.error(request, "Please enter a correct password")
+					return redirect("main:login")
+
 			if user is not None:
 				login(request,user)
 			#	print("logged in") 
 				messages.success(request, f"You are successfully logged in as {email}")
-				return redirect("main:home")
+				return redirect("main:user_profile")
 				
 	form = LoginForm()
 	return render(request, "accounts/login.html", {"login_form":form, 'messages': messages.get_messages(request)})
