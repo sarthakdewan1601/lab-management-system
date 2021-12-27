@@ -16,7 +16,10 @@
           <a class="nav-link nav_text" href="#">Edit Profile</a>
         </li>
         {% if user.is_authenticated %}
-          <li class="nav-link nav_text">Hi {{ user.username }}</li>
+          <li class="nav-link nav_text"> 
+            Hi <a href="/"> {{ user.username }} </a>
+          </li>
+          <!-- <li class = "nav-link"><a href = "/">View profile</a></li> -->
           <li class="nav-link"><a href="{% url 'main:logout' %}">Logout</a></li>
         {% else %}
           <li class="nav-item"><button class="btn"><a href="{% url 'main:login' %}">Login</a></button></li>
