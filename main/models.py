@@ -12,7 +12,7 @@ import string
 # Create your models here.
 
 # class AuthManager(BaseUserManager):
-#     # email password -> check for existing user in table return that user
+#     # email password -> chek for existing user in table return that user
 #     def create_user(self, email, password=None):        
 #         if not email:
 #             raise ValueError("enter email id ")
@@ -87,24 +87,7 @@ class Category(models.Model):               # faculty, lab staff, office staff, 
 
     def __str__(self):
         return self.category
-
-
     
-class Leaves(models.Model):
-    staff=models.ForeignKey('Staff',on_delete=CASCADE)
-    casual=models.IntegerField()
-    special=models.IntegerField()
-    restricted=models.IntegerField()
-    medical=models.IntegerField()
-    earned=models.IntegerField()
-    
-    def __str__(self):
-        totalLeaves = self.casual + self.special + self.restricted + self.medical + self.earned
-        return self.staff.name + " " + str(totalLeaves) + " Leaves left"
-
-    def countLeaves(self):
-        return self.casual + self.special + self.restricted + self.medical + self.earned
-
 
 class Staff(models.Model):
     # staff_id = models.CharField(max_length=20, blank=False, null=False)
@@ -119,6 +102,46 @@ class Staff(models.Model):
         return self.name
 
     # function to count leaves pending
+
+
+# done 
+class TotalLeaves(models.Model):
+    # admin access + isme ki saari leaves total
+
+    casual=models.IntegerField()    # 8
+    special=models.IntegerField()   # 10
+    restricted=models.IntegerField()# 2
+    medical=models.IntegerField()   # 0
+    earned=models.IntegerField()    # 0
+    
+
+# usne leave leli
+class UserLeaveStatus(models.Model):
+    staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
+    leave_type=models.CharField(max_length=255, )
+    date_time=models.DateTimeField()    # jis din chahiye
+    reason = models.TextField()
+    substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
+    substitute_reply = models.BooleanField(default=False)               # field -> substitute ka
+    approval = models.BooleanField(default=False)                       # field -> admin ka
+
+# 2 admin, adjustment
+# adjustment sbse phle vo verify
+# after verification -> admin 
+# admin approve
+
+
+class UserLeavesTaken(models.Model):
+    # get object of staff after admin verification
+    staff=models.ForeignKey('Staff',on_delete=CASCADE)
+    casual=models.IntegerField()
+    special=models.IntegerField()
+    restricted=models.IntegerField()
+    medical=models.IntegerField()
+    earned=models.IntegerField()
+
+    # reset to zero 
+
 
 
 class Complaint(models.Model):
@@ -170,5 +193,3 @@ class Devices(models.Model):
 # faulty (prof, assoc proff, assis proff)
 
 # agency: lab/office (regular, adhoc, )
-
-
