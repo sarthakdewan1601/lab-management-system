@@ -1,6 +1,8 @@
 from typing import cast
 from django.db import models, reset_queries
 from django.conf import settings
+from django.db.models.aggregates import Count
+from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.db.models.expressions import Case
 from django.db.models.fields import NullBooleanField
@@ -8,64 +10,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBa
 from django.conf import settings
 from django.db import models
 import string
-
-# Create your models here.
-
-# class AuthManager(BaseUserManager):
-#     # email password -> chek for existing user in table return that user
-#     def create_user(self, email, password=None):        
-#         if not email:
-#             raise ValueError("enter email id ")
-#         user = self.model(email=self.normalize_email(email));
-
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-
-#     # fucntions: to create admin and staff
-#     def create_superuser(self, email, password):
-#         user = self.create_user(email, password=password)
-#         user.staff = True
-#         user.admin = True
-#         user.save(using=self._db)
-#         return user
-
-#     def create_staffuser(self, email, password):
-#         user = self.create_user(email, password=password)
-#         user.staff = True
-#         user.save(using=self._db)
-#         return user 
-
-
-# class Auth(AbstractUser):
-#     email = models.CharField(verbose_name='Email Id', max_length=255, unique=True)
-#     is_active = models.BooleanField(default=True)
-#     admin = models.BooleanField(default=False)
-#     staff = models.BooleanField(default=False)
-    
-#     objects = AuthManager()
-
-#     # default: email and password
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = []
-    
-#     class Meta(AbstractUser.Meta):
-#         swappable = 'AUTH_USER_MODEL'
-
-#     def __str__(self):
-#         return self.email
-
-#     @property
-#     def is_staff(self):
-#         return self.staff
-    
-#     @property
-#     def is_admin(self):
-#         return self.admin
-
-
-
-
+from polymorphic.models import PolymorphicModel
 
 
 
@@ -105,14 +50,22 @@ class Staff(models.Model):
 
 
 # done 
+
 class TotalLeaves(models.Model):
     # admin access + isme ki saari leaves total
+    LeaveName = models.CharField(max_length=100, blank=True)
+    count = models.IntegerField(default=0)
+    year = models.IntegerField(default=2021)
 
-    casual=models.IntegerField()    # 8
-    special=models.IntegerField()   # 10
-    restricted=models.IntegerField()# 2
-    medical=models.IntegerField()   # 0
-    earned=models.IntegerField()    # 0
+    def __str__(self):
+        return self.LeaveName
+
+
+    # casual=models.IntegerField()    # 8
+    # special=models.IntegerField()   # 10
+    # restricted=models.IntegerField()# 2
+    # medical=models.IntegerField()   # 0
+    # earned=models.IntegerField()    # 0
     
 
 # usne leave leli
@@ -131,16 +84,18 @@ class UserLeaveStatus(models.Model):
 # admin approve
 
 
+
 class UserLeavesTaken(models.Model):
     # get object of staff after admin verification
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
-    casual=models.IntegerField()
-    special=models.IntegerField()
-    restricted=models.IntegerField()
-    medical=models.IntegerField()
-    earned=models.IntegerField()
-
-    # reset to zero 
+    # casual=models.IntegerField()
+    # special=models.IntegerField()
+    # restricted=models.IntegerField()
+    # medical=models.IntegerField()
+    # earned=models.IntegerField()
+   # leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)
+    leave_taken=models.CharField(max_length=100,blank=None)
+    count=models.IntegerField(default=0)
 
 
 
@@ -193,3 +148,8 @@ class Devices(models.Model):
 # faulty (prof, assoc proff, assis proff)
 
 # agency: lab/office (regular, adhoc, )
+
+
+
+
+   

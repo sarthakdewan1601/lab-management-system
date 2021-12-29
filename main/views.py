@@ -194,7 +194,7 @@ def login_request(request):
 				messages.error(request, "Please enter you thapar email id")
 				return HttpResponse(400)
 
-			#user=ExtendedUserModelBackend.authenticate(username=email,password=password)
+			# user=ExtendedUserModelBackend.authenticate(username=email,password=password)
 		#	print(res)
 			UserModel = get_user_model()
 		#	print(UserModel)
