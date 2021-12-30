@@ -58,7 +58,7 @@ class TotalLeaves(models.Model):
     year = models.IntegerField(default=2021)
 
     def __str__(self):
-        return self.LeaveName
+        return self.LeaveName + "("+ str(self.year) + ")"
 
 
     # casual=models.IntegerField()    # 8
@@ -93,8 +93,7 @@ class UserLeavesTaken(models.Model):
     # restricted=models.IntegerField()
     # medical=models.IntegerField()
     # earned=models.IntegerField()
-   # leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)
-    leave_taken=models.CharField(max_length=100,blank=None)
+    leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)
     count=models.IntegerField(default=0)
 
 
@@ -150,6 +149,6 @@ class Devices(models.Model):
 # agency: lab/office (regular, adhoc, )
 
 
-
+# pip freeze > .\requirements.txt
 
    

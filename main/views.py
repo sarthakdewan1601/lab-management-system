@@ -43,16 +43,16 @@ def user_profile(request):
 		if staff.designation.designation == "Lab Associate":
 			pass
 		if staff.designation.designation == "Lab Attendent":
-			#print("yay")
-			# staff_1 = Staff.objects.get(email=request.user.email)
-			# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-			# leaves=Leaves.objects.get(staff=staff)
-			# context = {
-			# 	'userLabs' : userLabs,
-			# 	'staff'	: staff_1,
-			# 	'leaves' : leaves,
-			# }
-			# return render(request, 'user profiles/lab_attendent.html',context)
+			print("yay")
+			staff_1 = Staff.objects.get(email=request.user.email)
+			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+			#leaves=Leaves.objects.get(staff=staff)
+			context = {
+				'userLabs' : userLabs,
+				'staff'	: staff_1,
+				#'leaves' : leaves,
+			}
+			return render(request, 'user profiles/lab_attendent.html',context)
 			pass
 		if staff.designation.designation == "Lab Technician":
 			pass
