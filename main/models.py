@@ -102,7 +102,7 @@ class Complaint(models.Model):
     device=models.ForeignKey('Devices', on_delete=models.CASCADE,default=None)
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
-    isActive=models.BooleanField()
+    isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
 
@@ -149,6 +149,43 @@ class Devices(models.Model):
 # agency: lab/office (regular, adhoc, )
 
 
-# pip freeze > .\requirements.txt
 
-   
+# sender (ek banda)
+# reciever (either ek banda or a group-> desigination)
+# active status
+# time (jis din notification crate hui)
+# text message
+# type of notification
+
+# leave, technician, time table change vala access
+
+NOTIFICATION_FIELDS = [
+    ('LEAVE', 'Leave'),
+    ('TECH', 'Technician'),
+    ('TTC', 'Time Table Change')
+]
+
+class Notification(models.Model):
+    sender = models.ForeignKey(Staff, blank=False, on_delete=CASCADE)
+    reciever = models.CharField(max_length=255, blank=False)
+    isActive = models.BooleanField(default=True)
+    time = models.DateTimeField(auto_now_add=True)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_FIELDS, default='LEAVE')
+
+    def __str__(self) -> str:
+        return str(self.time) + " " +  self.notification_type
+
+    #  add count notifications function here
+
+
+# tab -> click -> query -> display
+
+# tech -> click -> query -> technician -> display
+
+# lab tech -> filter from staff ? 
+
+# 3 forms 
+# -> leave regarding -> ek band vo dusre ko tag krega reciever fields -> user list 
+# -> complaint -> group notify -> reciever -> designation list
+# -> baad mein krte 

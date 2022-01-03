@@ -37,13 +37,19 @@ def user_profile(request):
 	#print(user_email)
 	staff = Staff.objects.get(email=user_email)
 	#print(staff.designation)
+
 	if staff.category.category == "Lab Staff":
-		if staff.designation.designation == "Lab Superviser":
+		
+		if staff.designation.designation == " System Analyst" or staff.designation.designation == "Lab Superviser":
+			# admin
+			# labs = Lab.objects.get().all()
 			pass
+
 		if staff.designation.designation == "Lab Associate":
 			pass
+
+
 		if staff.designation.designation == "Lab Attendent":
-			print("yay")
 			staff_1 = Staff.objects.get(email=request.user.email)
 			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 			#leaves=Leaves.objects.get(staff=staff)
@@ -54,10 +60,20 @@ def user_profile(request):
 			}
 			return render(request, 'user profiles/lab_attendent.html',context)
 			pass
+			
+			
 		if staff.designation.designation == "Lab Technician":
-			pass
-		if staff.designation.designation == " System Analyst":
-			pass
+			staff = Staff.objects.get(email=request.user.email)			
+			complaints = Complaint.objects.all()
+			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
+
+
+			context = { 
+				"complaints": complaints,
+				"notifications": current_notifications
+			}
+			return render(request, "user profiles/Lab_technician.html", context)
+
 	elif staff.category.category == "Office Staff":
 		if staff.designation.designation == " Manager":
 			pass
@@ -79,15 +95,23 @@ def user_profile(request):
 
 	
 def complaint(request, pk):
-	computer = Devices.objects.get(id=pk)
+	device = Devices.objects.get(id=pk)
 	if request.method == 'POST':
-		# print(request.POST)
-		# print(pk)
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
-			comp = computer
+			dev = device
 			complaint=form.cleaned_data['complaint']
-			complaint, was_created=Complaint.objects.get_or_create(computer=comp,complaint=complaint,isActive=True)
+
+			staff=Staff.objects.get(email=request.user.email)			
+			notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever="Lab Technician", 
+				message="You have a new Notification in complaints",
+				notification_type = 'TECH'
+			)			
+			notification.save()
+
+			complaint, was_created=Complaint.objects.get_or_create(device=dev,complaint=complaint,isActive=True)
 			complaint.save()
 			
 		return redirect("main:home")
@@ -96,9 +120,31 @@ def complaint(request, pk):
 
 		context={
 			'form': form,
-			'computer': computer
+			'name': device.name.category, 
+			'id': device.device_id
 		}
 		return render(request, 'complaints.html', context)
+
+@login_required
+def notifications(request):
+	staff = Staff.objects.get(email=request.user.email)			
+	designation = staff.designation.designation
+	notifications=[]
+	
+	if designation == 'Lab Technician':
+		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
+		notifications.extend(notification)
+	
+	
+	notification = Notification.objects.filter(reciever=staff, notification_type='LEAVE').order_by('-time').all()
+	notifications.extend(notification)
+	
+	# third type notificatoin baad mein okay? create another if condition
+	
+	return render(request, "notifications.html", {"notifications": notifications})
+
+
+
 
 def add_computer(request,pk):
 	lab=Lab.objects.get(id=pk)
@@ -125,19 +171,6 @@ def add_computer(request,pk):
 	
 	
 def register_request(request):
-	
-	# if request.method == "POST":
-	# 	form = NewUserForm(request.POST)
-	# 	if form.is_valid():
-	# 		user = form.save()
-	# 		login(request, user)
-	# 		messages.success(request, "Registration successful.")
-	# 		return redirect("main:home")
-	# 	messages.error(request, "Unsuccessful registration. Invalid information.")
-	# else:
-	# 	form = NewUserForm()
-
-	# return render (request=request, template_name="accounts/register.html", context={"register_form":form, 'messages':messages.get_messages(request)})
 	if request.method == "POST":
 		print(request.POST)
 		form = SignupForm(request.POST)
@@ -170,20 +203,6 @@ def register_request(request):
 
 
 def login_request(request):
-	# if request.method == "POST":
-	# 	form = LoginForm(request, data=request.POST)
-	# 	if form.is_valid():
-	# 		username = form.cleaned_data.get('username')
-	# 		password = form.cleaned_data.get('password')
-	# 		user = authenticate(username=username, password=password)
-	# 		if user is not None:
-	# 			login(request, user)
-	# 			messages.info(request, f"You are now logged in as {username}.")
-	# 			return redirect("main:home")
-	# 		else:
-	# 			messages.error(request,"No user found !!")
-	# 	else:
-	# 		messages.error(request, "Invalid Values. Please fill correctly")
 	if request.method == "POST":
 		form = LoginForm(request.POST)
 		if form.is_valid():
@@ -229,14 +248,18 @@ def logout_request(request):
 
 
 def lab(request, pk):
-	print(pk)
-	computers = Lab.objects.filter(lab_id=pk).order_by('id').all()
+	# listof all devices
+	
+	lab = Lab.objects.filter(lab=pk).order_by('id').all()
 	lab_id=Lab.objects.get(id=pk)
-	print(computers)
+
+	devices=Devices.objects.filter(lab=pk).order_by("id").all()
+	print(devices)
 	return render(request, "lab.html", {
-				'computers': computers,
+				'devices': devices,
 				'labid': pk,
-				'labname':lab_id, })
+				'labname': lab
+				})
 
 
 def resolveConflict(request, pk):
@@ -250,9 +273,9 @@ def adminStaff(request):
 	staffs = Staff.objects.all()
 	return render(request, "admin/adminStaffs.html", {"staffs":staffs})
 
-def adminTechnicians(request):
-	techs = Technician.objects.all()
-	return render(request, "admin/adminTechnicians.html", {"techs": techs})
+# def adminTechnicians(request):
+# 	techs = Technician.objects.all()
+# 	return render(request, "admin/adminTechnicians.html", {"techs": techs})
 
 def adminLabs(request):
 	labs=Lab.objects.all()

@@ -19,6 +19,9 @@
           <li class="nav-link nav_text"> 
             Hi <a href="/"> {{ user.username }} </a>
           </li>
+          <li class="nav-link nav_text">
+            <a href="{% url 'main:notification' %}"> Notifications</a> 
+          </li>
           <!-- <li class = "nav-link"><a href = "/">View profile</a></li> -->
           <li class="nav-link"><a href="{% url 'main:logout' %}">Logout</a></li>
         {% else %}

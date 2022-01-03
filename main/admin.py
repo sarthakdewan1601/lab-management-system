@@ -100,5 +100,6 @@ admin.site.register(TotalLeaves)
 admin.site.register(UserLeavesTaken)
 admin.site.register(UserLeaveStatus)
 admin.site.register(CategoryOfDevice)
+admin.site.register(Notification)
 # admin.site.register(YearWise)
 

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% include 'navbar.html' with user=user %}
+
+{% for complaint in complaints %}
+    {{complaint}}
+{% endfor %}
+
+
+
+{% endblock body %}
