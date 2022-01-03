@@ -14,23 +14,23 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Computers</th>
+            <th scope="col">Devices</th>
             <th scope="col">Button</th>
           </tr>
         </thead>
         
         <tbody>
-        {% for computer in computers %}
+        {% for device in devices %}
           <tr>
             <th scope="row">{{forloop.counter}}</th>
-            <td>{{ computer }}</td>
-            <th><a href="{% url 'main:complaint' pk=computer.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></th>
+            <td>{{ device }}</td>
+            <th><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></th>
           </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 
-<h5 class = "lab-add-h5"> If you want to add Computers <a href="{% url 'main:add_computer' pk=labid %}" class = "lab-a2">click here</a> </h5>
+<h5 class = "lab-add-h5"> If you want to add Devices <a href="{% url 'main:add_device' pk=labid %}" class = "lab-a2">click here</a> </h5>
 </div>
 {% endblock body %}

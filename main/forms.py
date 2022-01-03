@@ -1,8 +1,9 @@
 from django import forms
 from django.forms.fields import ChoiceField
-from .models import Designation, Staff
+from .models import Designation, Staff, Notification
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Enter complaint'}))
@@ -90,5 +91,12 @@ class SignupForm(UserCreationForm):
           user.save()
         return user
 
+# class ComplaintNotification(forms.Form):
+#     sender=forms.CharField(settings.AUTH_USER_MODEL)
+#     receiver=forms.CharField(widget=forms.CharField(attrs={'placeholder': 'Enter complaint'}))
 
-        
+
+
+# class LeaveNotification(forms.Form):
+#     sender = forms.CharField(settings.AUTH_USER_MODEL)
+#     reciever = 

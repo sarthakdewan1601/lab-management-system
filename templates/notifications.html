@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with user=user %}
+
+<h1> Notifications </h1>
+<br>
+{% for notification in notifications %}
+    {{notification.message}}
+    <br>
+{% endfor %}
+
+{% endblock body %}
