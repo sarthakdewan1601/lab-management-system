@@ -2,16 +2,17 @@ from django import http
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
 from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm
+from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, LeaveForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-
+import datetime
 # Create your views here.
 
 @login_required
@@ -40,18 +41,22 @@ def user_profile(request):
 
 	if staff.category.category == "Lab Staff":
 		
+		# for admin 
 		if staff.designation.designation == " System Analyst" or staff.designation.designation == "Lab Superviser":
 			# admin
 			# labs = Lab.objects.get().all()
 			pass
 
+		
 		if staff.designation.designation == "Lab Associate":
 			pass
 
-
+		
 		if staff.designation.designation == "Lab Attendent":
+
 			staff_1 = Staff.objects.get(email=request.user.email)
 			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+
 			#leaves=Leaves.objects.get(staff=staff)
 			context = {
 				'userLabs' : userLabs,
@@ -75,9 +80,16 @@ def user_profile(request):
 			return render(request, "user profiles/Lab_technician.html", context)
 
 	elif staff.category.category == "Office Staff":
-		if staff.designation.designation == " Manager":
+		if staff.designation.designation == " Program Manager":
 			pass
-	elif staff.category.category == "Student":
+		if staff.designation.designation == " Program Coordinator":
+			pass
+		if staff.designation.designation == " Senior Assistant":
+			pass
+		if staff.designation.designation == " Skilled Helper":
+			pass
+
+	elif staff.category.category == "Faculty":
 		if staff.designation.designation == " Professor":
 			pass
 		if staff.designation.designation == " Associate Professor":
@@ -92,8 +104,52 @@ def user_profile(request):
 			pass
 		
 
-
+@login_required
+def userLeaves(request):
+	staff = Staff.objects.get(email=request.user.email)	
+	year = datetime.datetime.now().year
+	leavesThisYear = TotalLeaves.objects.filter(year=year).all()
 	
+	userLeavesTaken = UserLeavesTaken.objects.filter(staff=staff)
+	
+	print(userLeavesTaken)
+	context = {
+		"totalLeaves" : leavesThisYear,
+		"year": year,
+		"userLeavesTaken":userLeavesTaken,
+	}
+	return render(request, "leaves.html", context)
+
+
+def requestleave(request):
+	staff= Staff.objects.get(email=request.user.email)
+	if request == 'POST':
+
+		form = LeaveForm(request.POST)
+		if form.is_valid():
+			pass
+			# leave_sender = request.cleaned_data['staff']
+			# leave_type= self.cleaned_data['leavetype']
+			# leave_date = self.cleaned_data['date']
+			# leave_reason = self.cleaned_data['reason']
+			# leave_substitute=self.cleaned_data['sunstitute']
+			
+			# leave_status,was_created=UserLeaveStatus.objects.get_or_create(staff=leave_sender,leave_type=leave_type,date_time=leave_date,reason=leave_reason,substitute=leave_substitute)
+			# leave_status.save()
+	else:
+
+		print("here")
+		form = LeaveForm(initial={'staff': staff})
+		print("passed form")
+		context={
+			'form': form,
+			'staff':staff,
+		}
+	
+	return render(request,"leaverequest.html",context)
+
+
+@login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
 	if request.method == 'POST':
@@ -135,7 +191,6 @@ def notifications(request):
 		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
 		notifications.extend(notification)
 	
-	
 	notification = Notification.objects.filter(reciever=staff, notification_type='LEAVE').order_by('-time').all()
 	notifications.extend(notification)
 	
@@ -144,8 +199,7 @@ def notifications(request):
 	return render(request, "notifications.html", {"notifications": notifications})
 
 
-
-
+@login_required
 def add_computer(request,pk):
 	lab=Lab.objects.get(id=pk)
 
@@ -169,7 +223,7 @@ def add_computer(request,pk):
 		}
 		return render(request, 'add_computer.html', context)
 	
-	
+
 def register_request(request):
 	if request.method == "POST":
 		print(request.POST)
@@ -247,6 +301,9 @@ def logout_request(request):
 
 
 
+
+
+@login_required
 def lab(request, pk):
 	# listof all devices
 	
@@ -261,7 +318,7 @@ def lab(request, pk):
 				'labname': lab
 				})
 
-
+@login_required
 def resolveConflict(request, pk):
 	complaint = Complaint.objects.get(id=pk)
 	complaint.isActive = False

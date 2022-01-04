@@ -71,7 +71,8 @@ class TotalLeaves(models.Model):
 # usne leave leli
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
-    leave_type=models.CharField(max_length=255, )
+    # leave_type=models.CharField(max_length=255, )
+    leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
     date_time=models.DateTimeField()    # jis din chahiye
     reason = models.TextField()
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
@@ -88,14 +89,10 @@ class UserLeaveStatus(models.Model):
 class UserLeavesTaken(models.Model):
     # get object of staff after admin verification
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
-    # casual=models.IntegerField()
-    # special=models.IntegerField()
-    # restricted=models.IntegerField()
-    # medical=models.IntegerField()
-    # earned=models.IntegerField()
-    leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)
+    leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)      
     count=models.IntegerField(default=0)
-
+    def __str__(self):
+        return self.staff.name + " " + str(self.leave_taken.LeaveName) + " "+ str(self.count)
 
 
 class Complaint(models.Model):

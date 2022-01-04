@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class="container">
+    <div class="form-control leaveForm">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-success">Send Request</button>
+        </form>
+    </div>
+</div>
+
+{% endblock body %}

@@ -1,9 +1,13 @@
+from typing import BinaryIO
 from django import forms
+from django.db import models
+from django.db.models import fields
 from django.forms.fields import ChoiceField
-from .models import Designation, Staff, Notification
+from .models import Designation, Staff, Notification, TotalLeaves,UserLeaveStatus
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.conf import settings
+import datetime
 
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Enter complaint'}))
@@ -52,8 +56,7 @@ class LoginForm(forms.Form):
 #         name = self.cleaned_data['name']
 #         type=self.cleaned_data['type']
         
-#         # participant, was_created=Participant.objects.get_or_create(email=user_email)
-#         # selected_meetup.participant.add(participant)
+
 
         
 #         staff,was_created=Staff.objects.get_or_create(staff_id=username, name=name,email=user_email,mobile_number= user_mobile, type=type)
@@ -62,6 +65,8 @@ class LoginForm(forms.Form):
 #         if commit:
 #             user.save()
 #         return user
+
+
 
 
 class SignupForm(UserCreationForm):
@@ -100,3 +105,37 @@ class SignupForm(UserCreationForm):
 # class LeaveNotification(forms.Form):
 #     sender = forms.CharField(settings.AUTH_USER_MODEL)
 #     reciever = 
+
+class LeaveForm(forms.ModelForm):
+    # staff=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Sender'}))
+    # leavetype=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'LeaveType'}))
+    # date=forms.DateTimeField(required=True, widget=forms.TextInput(attrs={'placeholder':'Date for Leave'}))
+    # reason=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Reason for Leave'}))
+    # substitute=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Select Substitute'}))
+    year = datetime.datetime.now().year
+    currentYearLeaves = TotalLeaves.objects.filter(year=year).all()
+    CHOICES=[]
+    i=0
+    print('0000')
+    for leave in currentYearLeaves:
+        print('aaaa')
+        print(leave.LeaveName)
+        tup=()
+        tup+=(i,)
+        tup+=(leave.LeaveName,)
+        CHOICES.append(tup)
+        i+=1
+    print(CHOICES)
+    print('zzzz')
+    type_of_leave=forms.ChoiceField(choices=CHOICES)
+    class Meta:
+        model = UserLeaveStatus
+        # fields = ("staff", "leavetype",  "date", "reason", "substitute")
+        fields = ("staff", "type_of_leave", "date_time", "reason", "substitute")
+
+
+FAVORITE_COLORS_CHOICES = [
+    ('blue', 'Blue'),
+    ('green', 'Green'),
+    ('black', 'Black'),
+]

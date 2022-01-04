@@ -16,6 +16,9 @@ urlpatterns = [
     path("add/<pk>",views.add_computer,name='add_device'),
     path('complaint-resolve/<pk>', views.resolveConflict, name='resolveConflict'),
     path('notifications/', views.notifications, name='notification'),
+    path('profile/leaves/', views.userLeaves, name="userLeaves"),
+    path('profile/leaves/request-leaves', views.requestleave, name="requestleave"),
+    
     
     # admin paths
     path('staff-members-list', views.adminStaff, name='adminStaff'),
