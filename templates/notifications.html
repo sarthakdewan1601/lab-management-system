@@ -3,12 +3,21 @@
 {% block body %}
 
 {% include 'navbar.html' with user=user %}
-
-<h1> Notifications </h1>
-<br>
-{% for notification in notifications %}
-    {{notification.message}}
+<div class="container">
+    <div class="text-primary">
+        <h1> Notifications </h1>
+    </div>
     <br>
-{% endfor %}
+    {% for notification in notifications %}
 
+        {% if notification %}
+            <a href="{% url 'main:notificationRequest' pk=notification.id %}">
+                {{notification.message}}
+            </a>
+            <br>
+        {% else %}
+            <h3>No new notificatoins !!</h3>
+        {% endif %}
+    {% endfor %}
+</div>
 {% endblock body %}

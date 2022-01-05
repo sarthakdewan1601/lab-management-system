@@ -88,7 +88,7 @@ class SignupForm(UserCreationForm):
         name= self.cleaned_data['name']
 
         user = super(UserCreationForm, self).save(commit=False)
-
+        
         user.set_password(password)
         user.email = email
         user.username = name
@@ -106,36 +106,22 @@ class SignupForm(UserCreationForm):
 #     sender = forms.CharField(settings.AUTH_USER_MODEL)
 #     reciever = 
 
-class LeaveForm(forms.ModelForm):
-    # staff=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Sender'}))
-    # leavetype=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'LeaveType'}))
-    # date=forms.DateTimeField(required=True, widget=forms.TextInput(attrs={'placeholder':'Date for Leave'}))
-    # reason=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Reason for Leave'}))
-    # substitute=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Select Substitute'}))
-    year = datetime.datetime.now().year
-    currentYearLeaves = TotalLeaves.objects.filter(year=year).all()
-    CHOICES=[]
-    i=0
-    print('0000')
-    for leave in currentYearLeaves:
-        print('aaaa')
-        print(leave.LeaveName)
-        tup=()
-        tup+=(i,)
-        tup+=(leave.LeaveName,)
-        CHOICES.append(tup)
-        i+=1
-    print(CHOICES)
-    print('zzzz')
-    type_of_leave=forms.ChoiceField(choices=CHOICES)
-    class Meta:
-        model = UserLeaveStatus
-        # fields = ("staff", "leavetype",  "date", "reason", "substitute")
-        fields = ("staff", "type_of_leave", "date_time", "reason", "substitute")
+# class LeaveForm(forms.ModelForm):
 
-
-FAVORITE_COLORS_CHOICES = [
-    ('blue', 'Blue'),
-    ('green', 'Green'),
-    ('black', 'Black'),
-]
+#     year = datetime.datetime.now().year
+#     currentYearLeaves = TotalLeaves.objects.filter(year=year).all()
+#     CHOICES=[]
+#     i=0
+#     for leave in currentYearLeaves:
+#         # print('aaaa')
+#         print(leave.LeaveName)
+#         tup=()
+#         tup+=(i,)
+#         tup+=(leave.LeaveName,)
+#         CHOICES.append(tup)
+#         i+=1
+#     type_of_leave=forms.ChoiceField(choices=CHOICES)
+#     class Meta:
+#         model = UserLeaveStatus
+#         # fields = ("staff", "leavetype",  "date", "reason", "substitute")
+#         fields = ("staff", "type_of_leave", "date_time", "reason", "substitute")

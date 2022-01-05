@@ -18,8 +18,9 @@
         <tbody>
             {% for lab in labs %}
           <tr>
-            <td>{{lab.Lab_id}}</td>
-            <td>{{lab.staff}}</td>
+            <td>{{lab.lab}}</td>
+            <td>{{lab.name}}</td>
+            <td>{{lab.staff.name}}</td>
           </tr>
           {% endfor %}
         </tbody>

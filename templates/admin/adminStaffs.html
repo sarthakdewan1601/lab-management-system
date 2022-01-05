@@ -8,11 +8,37 @@
 <div class="container">
     <div class="card custom-card-list">
     <h2>Staff Members</h2>
-    <ul class="list-group">
+    <!-- <ul class="list-group">
         {% for staff in staffs %}
-        <li class="list-group-item">{{staff.name}}</li>
+        <li class="list-group-item">{{staff.name}} {{staff.category}} {{staff.designation}} {{staff.agency}}</li>
+        
+
         {% endfor %}
-    </ul>
+    </ul> -->
+    <table>
+        <h5>User Information</h5>
+        <thead class="thead-dark">
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Designation</th>
+                <th>Agency</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                {% for staff in staffs %}
+                <tr>
+                    <th>{{staff.name}}</th>
+                    <th>{{staff.category.category}}</th>
+                    <th>{{staff.designation.designation}}</th>
+                    <th>{{staff.agency.agency}}</th>
+                </tr>
+                {% endfor %}
+
+            
+        </tbody>
+    </table>
     </div>
     </div>
     <div class="new-user-form">

@@ -1,3 +1,4 @@
+
 from django import http
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -7,12 +8,13 @@ from django.contrib.auth.models import User
 from django.db.models.base import Model
 from django.shortcuts import render, redirect, HttpResponse
 from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, LeaveForm
+from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm 
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm #add this
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 import datetime
+from  django.views.decorators.csrf import csrf_protect
 # Create your views here.
 
 @login_required
@@ -42,10 +44,11 @@ def user_profile(request):
 	if staff.category.category == "Lab Staff":
 		
 		# for admin 
-		if staff.designation.designation == " System Analyst" or staff.designation.designation == "Lab Superviser":
+		if staff.designation.designation == " System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# admin
 			# labs = Lab.objects.get().all()
-			pass
+			#notifications=Notification.objects.filter(reciever='admin').all()
+			return render(request, "admin/dashboard.html", {})
 
 		
 		if staff.designation.designation == "Lab Associate":
@@ -112,7 +115,7 @@ def userLeaves(request):
 	
 	userLeavesTaken = UserLeavesTaken.objects.filter(staff=staff)
 	
-	print(userLeavesTaken)
+	# print(userLeavesTaken)
 	context = {
 		"totalLeaves" : leavesThisYear,
 		"year": year,
@@ -120,33 +123,66 @@ def userLeaves(request):
 	}
 	return render(request, "leaves.html", context)
 
-
+@csrf_protect
 def requestleave(request):
 	staff= Staff.objects.get(email=request.user.email)
-	if request == 'POST':
+	if request.method == 'POST':
+		#request.POST
+		form=request.POST
+		applicant=form['applicant']
+		leaveSelection=form['leaveSelection']
+		date=form['date']
+		substitute=form['substitute']
+		reason=form['reason']
 
-		form = LeaveForm(request.POST)
-		if form.is_valid():
-			pass
-			# leave_sender = request.cleaned_data['staff']
-			# leave_type= self.cleaned_data['leavetype']
-			# leave_date = self.cleaned_data['date']
-			# leave_reason = self.cleaned_data['reason']
-			# leave_substitute=self.cleaned_data['sunstitute']
-			
-			# leave_status,was_created=UserLeaveStatus.objects.get_or_create(staff=leave_sender,leave_type=leave_type,date_time=leave_date,reason=leave_reason,substitute=leave_substitute)
-			# leave_status.save()
+		year=datetime.datetime.now().year
+		leave_type=TotalLeaves.objects.get(id=leaveSelection)
+		
+		substitute=Staff.objects.get(id=substitute)
+		userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,date_time=date,reason=reason,substitute=substitute)
+		userstatus.save()
+		##notification
+
+		customMessage1 = staff.name + " requested for leave"
+		notification, was_created = Notification.objects.get_or_create(
+			sender=staff, 
+			reciever=str(substitute.id)+' '+substitute.name, 
+			message=customMessage1,
+			notification_type = 'LEAVE'
+		)
+		notification.save()
+
+		customMessage2 = "your request for " + leave_type.LeaveName + " is placed"
+		notification, was_created = Notification.objects.get_or_create(
+			sender=staff, 
+			reciever=str(staff.id)+' '+staff.name, 
+			message=customMessage2,
+			notification_type = 'LEAVE'
+		)
+		notification.save()
+
+		return redirect("main:userLeaves")
+
+# leave req-> nofitification to substi
+#		   -> current user can check leave status
+#          -> substitute confirm leave
+#		   -> admin ke pass confirm leave 
+
+
 	else:
+		print("get")
+		year = datetime.datetime.now().year
+		totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+		substitutes = Staff.objects.exclude(name=staff.name).all()
+		# substitutes = Staff.objects.all()
 
-		print("here")
-		form = LeaveForm(initial={'staff': staff})
-		print("passed form")
 		context={
-			'form': form,
 			'staff':staff,
+			'totalLeavesCurrYear': totalLeavesCurrYear,
+			'substitutes': substitutes
 		}
 	
-	return render(request,"leaverequest.html",context)
+		return render(request,"leaverequest.html",context)
 
 
 @login_required	
@@ -190,13 +226,51 @@ def notifications(request):
 	if designation == 'Lab Technician':
 		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
 		notifications.extend(notification)
-	
-	notification = Notification.objects.filter(reciever=staff, notification_type='LEAVE').order_by('-time').all()
+	receiver=str(staff.id) +' '+staff.name
+	notification = Notification.objects.filter(reciever=receiver, notification_type='LEAVE').order_by('-time').all()
 	notifications.extend(notification)
-	
+
+	if request.user.is_staff:
+		notification=Notification.objects.filter(reciever='admin', notification_type='LEAVE').order_by('-time').all()
+		notifications.extend(notification)
+
+
 	# third type notificatoin baad mein okay? create another if condition
 	
 	return render(request, "notifications.html", {"notifications": notifications})
+
+@login_required
+def notificationRequest(request, pk):
+	staff = Staff.objects.get(email=request.user.email)			
+	notification = Notification.objects.get(id=pk)
+	reciever_id= int(notification.reciever.split(' ')[0])
+	substitue = Staff.objects.get(id=reciever_id)
+	leaveRequests = UserLeaveStatus.objects.filter(substitute=substitue).all()
+	
+
+	if notification.notification_type == "LEAVE":
+		if request.method == 'POST':
+			notification
+		else:
+			# if substitue==notification.sender:
+			# 	context= {
+			# 		"staff": staff,
+			# 		"notification" : notification, 
+			# 		"leaves": leaveRequests
+			# 	}
+			print(leaveRequests)
+			context = {
+				"staff": staff,
+				"notification" : notification, 
+				"leaves": leaveRequests,
+				"substitute": substitue,
+				}
+			return render(request, "notificationConfirm.html", context)
+
+	
+	if notification.notification_type == "TECH":
+		return HttpResponse(202)
+
 
 
 @login_required
@@ -245,6 +319,14 @@ def register_request(request):
 				Des=Designation.objects.get(designation=designation )
 				Agen=Agency.objects.get(agency=agency)
 				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+
+				if designation == 'System Analyst' or designation == 'Lab Supervisor':
+					user = User.objects.get(email=email)
+					print(user)
+					user.is_staff = True
+					user.is_admin = True
+					user.save()
+
 				staff.save()
 				
 				return redirect("main:login")

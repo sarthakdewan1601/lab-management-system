@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from typing import cast
 from django.db import models, reset_queries
 from django.conf import settings
@@ -44,7 +45,7 @@ class Staff(models.Model):
     agency = models.ForeignKey('Agency',on_delete=CASCADE)
     
     def __str__(self):
-        return self.name
+        return self.name + " " + self.designation.designation
 
     # function to count leaves pending
 
@@ -59,13 +60,6 @@ class TotalLeaves(models.Model):
 
     def __str__(self):
         return self.LeaveName + "("+ str(self.year) + ")"
-
-
-    # casual=models.IntegerField()    # 8
-    # special=models.IntegerField()   # 10
-    # restricted=models.IntegerField()# 2
-    # medical=models.IntegerField()   # 0
-    # earned=models.IntegerField()    # 0
     
 
 # usne leave leli
@@ -76,9 +70,12 @@ class UserLeaveStatus(models.Model):
     date_time=models.DateTimeField()    # jis din chahiye
     reason = models.TextField()
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
-    substitute_reply = models.BooleanField(default=False)               # field -> substitute ka
-    approval = models.BooleanField(default=False)                       # field -> admin ka
+    substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
+    admin_approval = models.BooleanField(default=False)                       # field -> admin ka
+    status = models.CharField(max_length=100, default="Pending", blank=False)
 
+    def __str__(self):
+        return self.staff.name +" --> "+ self.leave_type.LeaveName + " --> " +  self.substitute.name
 # 2 admin, adjustment
 # adjustment sbse phle vo verify
 # after verification -> admin 
@@ -171,7 +168,7 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=10, choices=NOTIFICATION_FIELDS, default='LEAVE')
 
     def __str__(self) -> str:
-        return str(self.time) + " " +  self.notification_type
+        return str(self.time.date()) + " " +  self.notification_type + " from "  + self.sender.name + " to " + self.reciever
 
     #  add count notifications function here
 

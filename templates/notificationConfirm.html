@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class="container">
+    
+
+    <H2>Leave Status</H2>
+
+    sender: {{notification.sender.name}}
+    <br/>
+    receiver: {{notification.reciever}}
+    <br/>
+    substitute: {{substitute.name}}
+
+   {% if notification.sender.name == substitute.name %}
+        <table class="table-bordered table">
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Substitute</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave in leaves %}
+            {% if not leave.substitute_approval %}
+            <tr>
+                <td>{{leave.staff.name}}</td>
+                <td>{{leave.substitute.name}}</td>
+                <td>{{leave.date_time|date}}</td>
+                <td>{{leave.status}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+        </table>
+   {% else %}
+        <table class="table-bordered table">
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Substitute</th>
+                <th>Date</th>
+                <th>Approve</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave in leaves %}
+            {% if not leave.substitute_approval %}
+            <tr>
+                <td>{{leave.staff.name}}</td>
+                <td>{{leave.substitute.name}}</td>
+                <td>{{leave.date_time|date}}</td>
+                <td>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input value="Approve" type="submit" style="background-color: #fff; border: none;text-decoration: underline;">
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+        </table>
+   {% endif %}
+
+</div>
+
+{% endblock body %}

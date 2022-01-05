@@ -18,7 +18,8 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notification'),
     path('profile/leaves/', views.userLeaves, name="userLeaves"),
     path('profile/leaves/request-leaves', views.requestleave, name="requestleave"),
-    
+    path('profile/request/<pk>', views.notificationRequest, name="notificationRequest"),
+
     
     # admin paths
     path('staff-members-list', views.adminStaff, name='adminStaff'),
