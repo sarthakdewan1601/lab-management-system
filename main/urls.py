@@ -19,11 +19,19 @@ urlpatterns = [
     path('profile/leaves/', views.userLeaves, name="userLeaves"),
     path('profile/leaves/request-leaves', views.requestleave, name="requestleave"),
     path('profile/request/<pk>', views.notificationRequest, name="notificationRequest"),
+    path('profile/leaves/check-leave-status/', views.checkLeaveStatus, name='checkLeaveStatus'),
+    path('profile/leaves/check-leave-status/<pk>' , views.checkLeaveStatusId, name="currleaveStatus"),
+    path('profile/leaves/check-leave-status/cancel/<pk>', views.cancelLeaveRequest, name='cancelLeaveRequest'),
+    path('profile/leaves/approve-leaves/', views.approveLeaves, name='approveLeaves'),
+    path('profile/leaves/approve-leaves/approve/<pk>', views.approveRequest, name='approveRequest'),
+    path('profile/leaves/approve-leaves/decline/<pk>', views.declineRequest, name='declineRequest'),
+    path('profile/view_complaints/' , views.view_complaints, name="viewcomplaints"),
 
-    
     # admin paths
     path('staff-members-list', views.adminStaff, name='adminStaff'),
     # path('technicians-list', views.adminTechnicians, name='adminTechnicians'),
     path('labs-list', views.adminLabs, name='adminLabs'),
     path('complaints-list', views.adminComplaints, name='adminComplaints')
+    # path('resolvecomplaint', views.resolveConflict, name='resolveConflict')
+
 ]

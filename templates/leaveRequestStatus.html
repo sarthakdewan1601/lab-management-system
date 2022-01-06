@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class="container mt-5">
+    <h2>Pending Leaves</h2>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Sender</th>
+        <th scope="col">Receiver</th>
+        <th scope="col">Date</th>
+        <th scope="col">Status</th>
+        <th scope="col">view</th>
+      </tr>
+    </thead>
+        <tbody>
+        {% for pendingRequest in pendingRequests %}
+        {% if not pendingRequest.admin_approval %}
+            <tr>
+                <td>{{ pendingRequest.staff.name }} (you)</td>
+                <td>{{ pendingRequest.substitute.name }}</td>
+                <td>{{ pendingRequest.date_time|date }}</td>
+                <td>{{ pendingRequest.status }}</td>
+                <td><a style="color: #000; text-decoration: underline;" href="{% url 'main:currleaveStatus' pk=pendingRequest.id %}">View request</a></td>
+            </tr>
+        {% else %}
+            <h2>No active requests for leave </h2>
+            <a href="#">Click to apply a new leave</a>
+        {% endif %}
+        {% endfor %}
+        </tbody>
+  </table>
+  </div>
+
+
+{% endblock body %}

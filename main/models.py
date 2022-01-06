@@ -73,9 +73,10 @@ class UserLeaveStatus(models.Model):
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
     admin_approval = models.BooleanField(default=False)                       # field -> admin ka
     status = models.CharField(max_length=100, default="Pending", blank=False)
+    rejected = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.staff.name +" --> "+ self.leave_type.LeaveName + " --> " +  self.substitute.name
+        return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name
 # 2 admin, adjustment
 # adjustment sbse phle vo verify
 # after verification -> admin 
@@ -93,12 +94,13 @@ class UserLeavesTaken(models.Model):
 
 
 class Complaint(models.Model):
+    created_by=models.ForeignKey(Staff,null=True,blank=False,related_name='sender',on_delete=CASCADE)
     device=models.ForeignKey('Devices', on_delete=models.CASCADE,default=None)
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
     isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
-    who_resolved = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
+    who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
 
     def __str__(self):
         return self.complaint[0:30]
@@ -156,7 +158,7 @@ class Devices(models.Model):
 NOTIFICATION_FIELDS = [
     ('LEAVE', 'Leave'),
     ('TECH', 'Technician'),
-    ('TTC', 'Time Table Change')
+    ('TTC', 'Time Table Change'),
 ]
 
 class Notification(models.Model):

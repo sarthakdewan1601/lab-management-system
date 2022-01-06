@@ -5,9 +5,11 @@
 {% include 'navbar.html' with user=user %}
 
 <div class="container mt-5">
-<table class="table">
+  <h1 style="text-align: center;"> Active Complaints</h1>
+<table class="table1">
     <thead>
       <tr>
+        <th scope="col">Sender</th>
         <th scope="col">Lab</th>
         <th scope="col">Device</th>
         <th scope="col">Complaint</th>
@@ -18,16 +20,50 @@
         <tbody>
         {% for complaint in complaints %}
         <tr>
-            <td>{{ complaint }}</td>
-            <td>{{ complaint.computer }}</td>
-            <td>{{ complaint.computer.lab_id }}</td>
-            {% if complaint.isActive == True %}
-              <td>Active</td>
-              {% else %}
-              <td>Resolved</td>
-            {% endif %}
+          {% if complaint.isActive%}
+            <td>{{ complaint.created_by.name }}</td>
+            <td>{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
+            <td>{{ complaint.device.name }}</td>
+            <td>{{ complaint.complaint }}</td>
+            <td>Active</td>
             <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
-        </tr>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+  <h1 style="text-align: center;"> Resolved Complaints</h1>
+<table class="table2">
+    <thead>
+      <tr>
+        <th scope="col">Sender</th>
+        <th scope="col">Lab</th>
+        <th scope="col">Device</th>
+        <th scope="col">Complaint</th>
+        <th scope="col">Active Status</th>
+        <th scope="col">Work Done</th>
+        <th scope="col">Resolved By</th>
+      </tr>
+    </thead>
+        <tbody>
+        {% for complaint in complaints %}
+          <tr>
+            {% if complaint.isActive == False %}
+              <td>{{ complaint.created_by.name }}</td>
+              <td>{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
+              <td>{{ complaint.device.name }}</td>
+              <td>{{ complaint.complaint }}</td>
+              <td>Resolved</td>
+              <td>{{ complaint.work_Done }}</td>
+
+              {%if complaint.who_resolved.designation.designation == 'Lab Supervisor' or complaint.who_resolved.designation.designation == 'Lab Analyst' %}
+                <td>{{ complaint.who_resolved.name }} (admin)</td>
+              {% else %}
+                <td>{{ complaint.who_resolved.name }} (Technician)</td>
+              {% endif %}
+              
+            {% endif %}
+          </tr>
         {% endfor %}
         </tbody>
   </table>

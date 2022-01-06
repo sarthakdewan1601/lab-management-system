@@ -9,6 +9,11 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import datetime
 
+
+# class ComplaintResolveFrom(forms.Form):
+#     WorkDone=forms.Textarea(widget=forms.Textarea(attrs={'placeholder': 'Enter Workdone'}))
+
+
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Enter complaint'}))
 

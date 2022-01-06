@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class="container mt-5">
+
+    <div class="card p-5 card-body bg-dark">
+        <h3 class="card-title">Leave Status</h3>
+        <p>Sender: {{leaveRequest.staff.name}}</p>
+        <p>Substitute: {{leaveRequest.substitute.name}}</p>
+        <p>Date: {{leaveRequest.date_time|date}}</p>
+        <p>Reason: {{leaveRequest.reason}}</p>
+        <p>Status: {{leaveRequest.status}}</p>
+        {% if not leaveRequest.rejected %}
+            <a href="{% url 'main:cancelLeaveRequest' pk=leaveRequest.id %}">Cancel Request</a>
+        {% else %}
+            <p>Leave request rejected </p>
+        {% endif %}
+    </div>
+
+</div>
+
+
+{% endblock body %}

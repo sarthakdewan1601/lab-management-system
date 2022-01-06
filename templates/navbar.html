@@ -25,10 +25,13 @@
           <li class="nav-link nav_text">
             <a href="{% url 'main:userLeaves' %}"> Check Leaves</a> 
           </li>
+          <li class="nav-link nav_text">
+              <a href = "{% url 'main:viewcomplaints' %}">View Complaints</a>
+          </li>
           <!-- <li class = "nav-link"><a href = "/">View profile</a></li> -->
-          <li class="nav-link"><a href="{% url 'main:logout' %}">Logout</a></li>
+          <li class="nav-link nav_text"><a href="{% url 'main:logout' %}">Logout</a></li>
         {% else %}
-          <li class="nav-item"><button class="btn"><a href="{% url 'main:login' %}">Login</a></button></li>
+          <li class="nav-link nav_text"><a href="{% url 'main:login' %}">Login</a></li>
         {% endif %}
       </ul>
     </div>

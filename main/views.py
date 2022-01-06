@@ -67,8 +67,7 @@ def user_profile(request):
 				#'leaves' : leaves,
 			}
 			return render(request, 'user profiles/lab_attendent.html',context)
-			pass
-			
+			# pass
 			
 		if staff.designation.designation == "Lab Technician":
 			staff = Staff.objects.get(email=request.user.email)			
@@ -81,6 +80,13 @@ def user_profile(request):
 				"notifications": current_notifications
 			}
 			return render(request, "user profiles/Lab_technician.html", context)
+			
+			# complaint resolve form details
+			# static-> device id, lab id, complaint, jisne complaint kri hai vo user, 
+			# dynamic -> message kya problem thi
+			# who resolved = staff (obv tech hoga koi) 			
+			# that complaint -> isActive = False
+			# notification remove isActive = False
 
 	elif staff.category.category == "Office Staff":
 		if staff.designation.designation == " Program Manager":
@@ -126,6 +132,7 @@ def userLeaves(request):
 @csrf_protect
 def requestleave(request):
 	staff= Staff.objects.get(email=request.user.email)
+
 	if request.method == 'POST':
 		#request.POST
 		form=request.POST
@@ -155,7 +162,7 @@ def requestleave(request):
 		customMessage2 = "your request for " + leave_type.LeaveName + " is placed"
 		notification, was_created = Notification.objects.get_or_create(
 			sender=staff, 
-			reciever=str(staff.id)+' '+staff.name, 
+			reciever=str(staff.id) + ' ' + staff.name, 
 			message=customMessage2,
 			notification_type = 'LEAVE'
 		)
@@ -171,7 +178,7 @@ def requestleave(request):
 
 	else:
 		print("get")
-		year = datetime.datetime.now().year
+		year = datetime.datetime.now().year  # 2022
 		totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
 		substitutes = Staff.objects.exclude(name=staff.name).all()
 		# substitutes = Staff.objects.all()
@@ -185,16 +192,83 @@ def requestleave(request):
 		return render(request,"leaverequest.html",context)
 
 
+@login_required
+def checkLeaveStatus(request):
+	staff = Staff.objects.get(email=request.user.email)
+	print(staff)
+
+	pendingRequests = UserLeaveStatus.objects.filter(staff=staff).order_by("-date_time")
+	# get all the pending requests 
+	context = {
+		"pendingRequests": pendingRequests
+	}
+	return render(request, "leaveRequestStatus.html", context)
+
+@login_required
+def checkLeaveStatusId(request, pk):
+	leaveRequest = UserLeaveStatus.objects.get(id=pk)
+	context = {
+		'leaveRequest':leaveRequest
+	}
+	return render(request, "leaveRequestStatusId.html", context)
+
+@login_required
+def cancelLeaveRequest(request, pk): 
+	# get object and remove
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.delete()
+	return redirect('main:checkLeaveStatus')
+
+@login_required
+def approveLeaves(request):
+	staff=Staff.objects.get(email=request.user.email)
+	# get leaves in which current user is substitute
+
+	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-date_time")
+	context = {
+		"leaves": leaves
+	}
+	return render(request, 'leaveapproval.html', context)
+
+@login_required
+def approveRequest(request, pk):
+	# get leave
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.substitute_approval = True
+	leave.rejected = False
+	leave.status = "Waiting for admin to respond, approved by " + str(leave.substitute.name)
+	leave.save()
+
+	notification_receiver = Staff.objects.get(id=leave.staff.id)
+	notification, was_created = Notification.objects.get_or_create(
+		sender=leave.staff,
+		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
+		message="your " + str(leave.leave_type.LeaveName) + " leave application was approved by " + str(leave.substitute.name),
+		notification_type="LEAVE"
+	)
+	notification.save()
+
+	return redirect("main:approveLeaves")
+
+@login_required
+def declineRequest(request, pk):
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.status = "Declined by " + str(leave.substitute.name)
+	leave.rejected = True
+	leave.save()
+	return redirect("main:approveLeaves")
+
 @login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
+
 	if request.method == 'POST':
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
 			complaint=form.cleaned_data['complaint']
+			staff=Staff.objects.get(email=request.user.email)	
 
-			staff=Staff.objects.get(email=request.user.email)			
 			notification, was_created = Notification.objects.get_or_create(
 				sender=staff, 
 				reciever="Lab Technician", 
@@ -203,11 +277,12 @@ def complaint(request, pk):
 			)			
 			notification.save()
 
-			complaint, was_created=Complaint.objects.get_or_create(device=dev,complaint=complaint,isActive=True)
+			complaint, was_created=Complaint.objects.get_or_create(created_by=staff,device=dev,complaint=complaint)
 			complaint.save()
 			
 		return redirect("main:home")
-	else:
+
+	else:   #get
 		form = ComplaintForm()
 
 		context={
@@ -216,6 +291,20 @@ def complaint(request, pk):
 			'id': device.device_id
 		}
 		return render(request, 'complaints.html', context)
+
+def view_complaints(request):
+	staff = Staff.objects.get(email=request.user.email)
+	complaint = Complaint.objects.all()
+	
+	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+	# # complaint -> device
+	# deviceNo = Complaint.objects.filter(complaint = complaint)
+
+	
+	context = {
+		'complaints' : complaint,
+	}
+	return render(request,'view_complaints.html', context)
 
 @login_required
 def notifications(request):
@@ -242,30 +331,40 @@ def notifications(request):
 @login_required
 def notificationRequest(request, pk):
 	staff = Staff.objects.get(email=request.user.email)			
+	
 	notification = Notification.objects.get(id=pk)
 	reciever_id= int(notification.reciever.split(' ')[0])
-	substitue = Staff.objects.get(id=reciever_id)
-	leaveRequests = UserLeaveStatus.objects.filter(substitute=substitue).all()
 	
+	# jisne notification receice kro + jo leave mei substitute hai vooo	
+	notification_receiver = Staff.objects.get(id=reciever_id)
 
 	if notification.notification_type == "LEAVE":
 		if request.method == 'POST':
-			notification
+			leaveRequest = UserLeaveStatus.objects.filter(staff=notification_receiver, substitute=notification.sender)
+			print(leaveRequest.substitute_approval)
+			# leaveRequest.status = " waiting for admin to respond"
+			# print(leaveRequest)
+			return HttpResponse(200)
 		else:
-			# if substitue==notification.sender:
-			# 	context= {
-			# 		"staff": staff,
-			# 		"notification" : notification, 
-			# 		"leaves": leaveRequests
-			# 	}
-			print(leaveRequests)
-			context = {
-				"staff": staff,
-				"notification" : notification, 
-				"leaves": leaveRequests,
-				"substitute": substitue,
+			if notification_receiver==notification.sender:
+				# if same person gets notification
+				leaveRequest = UserLeaveStatus.objects.get(staff=notification_receiver)
+				context= {
+					"staff": staff,
+					"notification" : notification, 
+					"leaves": leaveRequest,
+					"substitute": notification_receiver,
 				}
-			return render(request, "notificationConfirm.html", context)
+				return render(request, "notificationConfirm.html", context)
+			else:
+				leaveRequest = UserLeaveStatus.objects.filter(substitute=notification_receiver)
+				context = {
+					"staff": staff,
+					"notification" : notification, 
+					"leaves": leaveRequest,
+					"substitute": notification_receiver,
+					}
+				return render(request, "notificationConfirm.html", context)
 
 	
 	if notification.notification_type == "TECH":
@@ -322,9 +421,10 @@ def register_request(request):
 
 				if designation == 'System Analyst' or designation == 'Lab Supervisor':
 					user = User.objects.get(email=email)
-					print(user)
+					# print(user)
 					user.is_staff = True
 					user.is_admin = True
+					user.is_superuser=True
 					user.save()
 
 				staff.save()
@@ -403,9 +503,27 @@ def lab(request, pk):
 @login_required
 def resolveConflict(request, pk):
 	complaint = Complaint.objects.get(id=pk)
-	complaint.isActive = False
-	complaint.save()
-	return redirect('main:home')
+	resolver=Staff.objects.get(email=request.user.email)
+	#complaint.isActive = False
+	if request.method == 'POST':
+		# print(request.POST)
+		complaint.work_Done=request.POST['workdone']
+		# print(complaint.work_Done)
+		complaint.isActive=False
+		complaint.who_resolved=resolver
+		complaint.save()
+		if request.user.is_staff:
+			return redirect("main:adminComplaints")
+		else:
+			return HttpResponse(201)
+		
+	else:   #get
+		admin_status = request.user.is_staff
+		context={
+			'complaint':complaint,
+			'admin_status': admin_status
+		}
+		return render(request, 'admin/adminResolveComplaint.html', context)
 
 
 def adminStaff(request):

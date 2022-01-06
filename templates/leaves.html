@@ -8,7 +8,16 @@
 <div class = "wrapper">
     <div class = "leaves container">
         <h1>Leaves Status</h1>
-        <br><br>
+
+        <div class="card w-50 flex">
+            <div  class="nav-link nav_text">
+                <a href="{% url 'main:approveLeaves' %}">Leave Approval</a>
+            </div>
+            <div  class="nav-link nav_text">
+                <a href="{% url 'main:checkLeaveStatus' %}">Pending Leaves</a>
+            </div>
+        </div>
+
         <div class = "tables-leaves card">
             <table>
                 <h5>Leaves for: {{year}}</h5>
