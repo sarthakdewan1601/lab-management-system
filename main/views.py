@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.db.models.base import Model
+from django.http.response import Http404
 from django.shortcuts import render, redirect, HttpResponse
 from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm 
@@ -412,20 +413,19 @@ def handleNotification(request, pk):
 	notification = Notification.objects.get(id=pk)
 	taskId = notification.taskId
 	
-	reciever_id= int(notification.reciever.split(' ')[0])
+	# reciever_id= int(notification.reciever.split(' ')[0])
 
 	# get notification get leave from that notification
 	# display that leave
-	leave = UserLeaveStatus.objects.get(id=taskId)
-	
-	if notification.notification_type == 'LEAVE':
-		pass
-	if notification.notification_type == 'LEAVE_ACCEPTED':
-		pass
-	if notification.notification_type == 'LEAVE_REJECTED':
-		pass
+
+	# leave = UserLeaveStatus.objects.get(id=taskId, )
+
+	if notification.notification_type == 'LEAVE' or notification.notification_type == 'LEAVE_ACCEPTED' or notification.notification_type == 'LEAVE_REJECTED':
+		leave = UserLeaveStatus.objects.get(id=taskId)
+		return render(request, "leaveRequestStatusNotification.html", {"leave":leave, "notification":notification})
 	if notification.notification_type == 'TECH':
-		pass
+		complaint = Complaint.objects.get(id=taskId)
+		return render(request, 'complaintNotification.html', {"complaint":complaint})
 	if notification.notification_type == 'TTC':
 		pass
 	
