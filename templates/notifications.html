@@ -11,7 +11,7 @@
     {% for notification in notifications %}
 
         {% if notification %}
-            <a href="{% url 'main:notificationRequest' pk=notification.id %}">
+            <a href="{% url 'main:handleNotification' pk=notification.id %}">
                 {{notification.message}}
             </a>
             <br>

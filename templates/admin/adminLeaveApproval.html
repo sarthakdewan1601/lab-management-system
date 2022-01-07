@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class="container mt-5">
+    <h2>Pending Leaves</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Sender</th>
+            <th scope="col">Sunstitute</th>
+            <th scope="col">Substitue Approval</th>
+            <th scope="col">Date</th>
+            <th scope="col">Reason</th>
+            
+            <th scope="col">Status</th>
+            
+            <th scope="col">Approve/Decline</th>
+        </tr>
+        </thead>
+            <tbody>
+            {% for leave in requestedleaves %}
+                <tr>
+                    <td>{{ leave.staff.name }}</td>
+                    <td>{{ leave.substitute.name }} </td>
+                    <td>{{ leave.substitute_approval }}  </td>
+                    <td>{{ leave.date_time|date }}</td>
+                    <td>{{leave.reason}}</td>
+                    <td>{{ leave.status }}</td>
+                    {% if not leave.admin_approval and not leave.rejected%}
+                    <td>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:adminapproveRequest' pk=leave.id%}">Approve/</a>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:admindeclineRequest' pk=leave.id%}">Decline</a>
+                    </td>
+                    {% elif leave.admin_approval %}
+                        <td>Already Approved</tr>
+                    {% elif leave.rejected %}
+                        <td>Declined</tr>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+    </table>
+    <h2>Approved Leaves</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Sender</th>
+            <th scope="col">Substitute</th>
+            <th scope="col">Substitue Approval</th>
+            <th scope="col">Date</th>
+            <th scope="col">Reason</th>
+            
+            <th scope="col">Status</th>
+            
+            <th scope="col">Admin Approved by</th>
+        </tr>
+        </thead>
+            <tbody>
+            {% for leave in approvedleaves %}
+                <tr>
+                    <td>{{ leave.staff.name }}</td>
+                    <td>{{ leave.substitute.name }} </td>
+                    <td>{{ leave.substitute_approval }}  </td>
+                    <td>{{ leave.date_time|date }}</td>
+                    <td>{{leave.reason}}</td>
+                    <td>{{ leave.status }}</td>
+                    <td> {{leave.admin.name}}(admin)</td> 
+                </tr>
+            {% endfor %}
+            </tbody>
+</table>
+<h2>Rejected Leaves</h2>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Sender</th>
+        <th scope="col">Substitute</th>
+        <th scope="col">Substitue Approval</th>
+        <th scope="col">Date</th>
+        <th scope="col">Reason</th>
+        <th scope="col">Status</th>
+        <th scope="col">Rejected By</th>
+    </tr>
+    </thead>
+        <tbody>
+        {% for leave in rejectedleaves %}
+            <tr>
+                <td>{{ leave.staff.name }}</td>
+                <td>{{ leave.substitute.name }} </td>
+                <td>{{ leave.substitute_approval }}  </td>
+                <td>{{ leave.date_time|date }}</td>
+                <td>{{leave.reason}}</td>
+                <td>{{ leave.status }}</td>
+                <td> {{leave.admin.name}}(admin)</td> 
+            </tr>
+        {% endfor %}
+        </tbody>
+</table>
+    
+
+  </div>
+
+
+{% endblock body %}

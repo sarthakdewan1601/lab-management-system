@@ -155,7 +155,8 @@ def requestleave(request):
 			sender=staff, 
 			reciever=str(substitute.id)+' '+substitute.name, 
 			message=customMessage1,
-			notification_type = 'LEAVE'
+			notification_type = 'LEAVE',
+			taskId = userstatus.id
 		)
 		notification.save()
 
@@ -164,7 +165,8 @@ def requestleave(request):
 			sender=staff, 
 			reciever=str(staff.id) + ' ' + staff.name, 
 			message=customMessage2,
-			notification_type = 'LEAVE'
+			notification_type = 'LEAVE',
+			taskId=userstatus.id
 		)
 		notification.save()
 
@@ -222,6 +224,22 @@ def cancelLeaveRequest(request, pk):
 @login_required
 def approveLeaves(request):
 	staff=Staff.objects.get(email=request.user.email)
+	#for admin
+	if request.user.is_staff:
+		#return HttpResponse(201)
+		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False)
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
+		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
+		print(requestedleaves)
+		print(approvedleaves)
+		print(rejectedleaves)
+		context={
+			"requestedleaves":requestedleaves,
+			"approvedleaves":approvedleaves,
+			"rejectedleaves":rejectedleaves
+		}
+		return render(request,'admin/adminLeaveApproval.html',context)
+
 	# get leaves in which current user is substitute
 
 	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-date_time")
@@ -241,11 +259,64 @@ def approveRequest(request, pk):
 
 	notification_receiver = Staff.objects.get(id=leave.staff.id)
 	notification, was_created = Notification.objects.get_or_create(
-		sender=leave.staff,
+		sender=leave.substitute,
 		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
 		message="your " + str(leave.leave_type.LeaveName) + " leave application was approved by " + str(leave.substitute.name),
-		notification_type="LEAVE"
+		notification_type="LEAVE_ACCEPTED",
+		taskId=str(leave.id)
 	)
+	notification.save()
+
+	return redirect("main:approveLeaves")
+
+@login_required
+def adminapproveRequest(request, pk):
+	# get leave
+	print("Hello")
+	sender=Staff.objects.get(email=request.user.email)
+
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.admin_approval = True
+	leave.rejected = False
+	leave.status = "Approved"
+	leave.admin=sender 
+	leave.save()
+	print(leave)
+	notification_receiver = Staff.objects.get(id=leave.staff.id)
+	notification, was_created = Notification.objects.get_or_create(
+		sender=sender,
+		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
+		message="your " + str(leave.leave_type.LeaveName) + " leave application was approved by admin",
+		notification_type="LEAVE_ACCEPTED",
+		taskId=str(leave.id)
+	)
+	print(notification)
+	notification.save()
+
+	return redirect("main:approveLeaves")
+
+@login_required
+def admindeclineRequest(request, pk):
+	# get leave
+	sender=Staff.objects.get(email=request.user.email)
+
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.admin_approval = False
+	leave.rejected = True
+	leave.status = "Rejected" 
+	leave.admin=sender
+	leave.save()
+	print(leave)
+
+	notification_receiver = Staff.objects.get(id=leave.staff.id)
+	notification, was_created = Notification.objects.get_or_create(
+		sender=sender,
+		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
+		message="your " + str(leave.leave_type.LeaveName) + " leave application was declined by admin",
+		notification_type="LEAVE_Rejected",
+		taskId=str(leave.id)
+	)
+	print(notification)
 	notification.save()
 
 	return redirect("main:approveLeaves")
@@ -268,17 +339,21 @@ def complaint(request, pk):
 			dev = device
 			complaint=form.cleaned_data['complaint']
 			staff=Staff.objects.get(email=request.user.email)	
+			complaint, was_created = Complaint.objects.get_or_create(
+				created_by=staff,
+				device=dev,
+				complaint=complaint
+			)
+			complaint.save()
 
 			notification, was_created = Notification.objects.get_or_create(
 				sender=staff, 
 				reciever="Lab Technician", 
 				message="You have a new Notification in complaints",
-				notification_type = 'TECH'
+				notification_type = 'TECH',
+				taskId=complaint.id
 			)			
 			notification.save()
-
-			complaint, was_created=Complaint.objects.get_or_create(created_by=staff,device=dev,complaint=complaint)
-			complaint.save()
 			
 		return redirect("main:home")
 
@@ -315,60 +390,82 @@ def notifications(request):
 	if designation == 'Lab Technician':
 		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
 		notifications.extend(notification)
+
 	receiver=str(staff.id) +' '+staff.name
-	notification = Notification.objects.filter(reciever=receiver, notification_type='LEAVE').order_by('-time').all()
+	notification = Notification.objects.filter(reciever=receiver).order_by('-time').all()
 	notifications.extend(notification)
 
 	if request.user.is_staff:
-		notification=Notification.objects.filter(reciever='admin', notification_type='LEAVE').order_by('-time').all()
+		notification=Notification.objects.filter(reciever='admin').order_by('-time').all()
 		notifications.extend(notification)
 
 
 	# third type notificatoin baad mein okay? create another if condition
 	
-	return render(request, "notifications.html", {"notifications": notifications})
+	return render(request, "notifications.html", {"notifications": notifications, "staff":staff})
 
 @login_required
-def notificationRequest(request, pk):
+def handleNotification(request, pk):
+	# get notification and userleavestatus objects
+	# compare and render 
 	staff = Staff.objects.get(email=request.user.email)			
-	
 	notification = Notification.objects.get(id=pk)
+	taskId = notification.taskId
+	
 	reciever_id= int(notification.reciever.split(' ')[0])
-	
-	# jisne notification receice kro + jo leave mei substitute hai vooo	
-	notification_receiver = Staff.objects.get(id=reciever_id)
 
-	if notification.notification_type == "LEAVE":
-		if request.method == 'POST':
-			leaveRequest = UserLeaveStatus.objects.filter(staff=notification_receiver, substitute=notification.sender)
-			print(leaveRequest.substitute_approval)
-			# leaveRequest.status = " waiting for admin to respond"
-			# print(leaveRequest)
-			return HttpResponse(200)
-		else:
-			if notification_receiver==notification.sender:
-				# if same person gets notification
-				leaveRequest = UserLeaveStatus.objects.get(staff=notification_receiver)
-				context= {
-					"staff": staff,
-					"notification" : notification, 
-					"leaves": leaveRequest,
-					"substitute": notification_receiver,
-				}
-				return render(request, "notificationConfirm.html", context)
-			else:
-				leaveRequest = UserLeaveStatus.objects.filter(substitute=notification_receiver)
-				context = {
-					"staff": staff,
-					"notification" : notification, 
-					"leaves": leaveRequest,
-					"substitute": notification_receiver,
-					}
-				return render(request, "notificationConfirm.html", context)
+	# get notification get leave from that notification
+	# display that leave
+	leave = UserLeaveStatus.objects.get(id=taskId)
+	
+	if notification.notification_type == 'LEAVE':
+		pass
+	if notification.notification_type == 'LEAVE_ACCEPTED':
+		pass
+	if notification.notification_type == 'LEAVE_REJECTED':
+		pass
+	if notification.notification_type == 'TECH':
+		pass
+	if notification.notification_type == 'TTC':
+		pass
+	
+
+	return redirect("main:notification")
 
 	
-	if notification.notification_type == "TECH":
-		return HttpResponse(202)
+	# # jisne notification receice kro + jo leave mei substitute hai vooo	
+	# notification_receiver = Staff.objects.get(id=reciever_id)
+
+	# if notification.notification_type == "LEAVE":
+	# 	if request.method == 'POST':
+	# 		leaveRequest = UserLeaveStatus.objects.get(staff=notification_receiver, substitute=notification.sender, id=notification.taskId)
+	# 		print(leaveRequest.substitute_approval)
+	# 		# leaveRequest.status = " waiting for admin to respond"
+	# 		# print(leaveRequest)
+	# 		return HttpResponse(200)
+	# 	else:
+	# 		if notification_receiver==notification.sender:
+	# 			# if same person gets notification
+	# 			leaveRequest = UserLeaveStatus.objects.get(staff=notification_receiver, id=notification.taskId)
+	# 			context= {
+	# 				"staff": staff,
+	# 				"notification" : notification, 
+	# 				"leaves": leaveRequest,
+	# 				"substitute": notification_receiver,
+	# 			}
+	# 			return render(request, "notificationConfirm.html", context)
+	# 		else:
+	# 			leaveRequest = UserLeaveStatus.objects.get(substitute=notification_receiver, id=notification.taskId)
+	# 			context = {
+	# 				"staff": staff,
+	# 				"notification" : notification, 
+	# 				"leaves": leaveRequest,
+	# 				"substitute": notification_receiver,
+	# 				}
+	# 			return render(request, "notificationConfirm.html", context)
+	
+	# if notification.notification_type == "TECH":
+	# 	return HttpResponse(202)
 
 
 

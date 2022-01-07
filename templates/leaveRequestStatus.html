@@ -26,10 +26,7 @@
                 <td>{{ pendingRequest.status }}</td>
                 <td><a style="color: #000; text-decoration: underline;" href="{% url 'main:currleaveStatus' pk=pendingRequest.id %}">View request</a></td>
             </tr>
-        {% else %}
-            <h2>No active requests for leave </h2>
-            <a href="#">Click to apply a new leave</a>
-        {% endif %}
+        {% endif %}        
         {% endfor %}
         </tbody>
   </table>

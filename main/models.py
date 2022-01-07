@@ -72,8 +72,9 @@ class UserLeaveStatus(models.Model):
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
     admin_approval = models.BooleanField(default=False)                       # field -> admin ka
+    admin=models.ForeignKey("Staff", on_delete=models.SET_DEFAULT, default=None, blank=True, related_name='admin', null=True)
     status = models.CharField(max_length=100, default="Pending", blank=False)
-    rejected = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False) 
 
     def __str__(self):
         return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name
@@ -159,6 +160,8 @@ NOTIFICATION_FIELDS = [
     ('LEAVE', 'Leave'),
     ('TECH', 'Technician'),
     ('TTC', 'Time Table Change'),
+    ('LEAVE_ACCEPTED', 'Leave Accepted'),
+    ('LEAVE_REJECTED', 'Leave Rejected')
 ]
 
 class Notification(models.Model):
@@ -167,7 +170,8 @@ class Notification(models.Model):
     isActive = models.BooleanField(default=True)
     time = models.DateTimeField(auto_now_add=True)
     message = models.TextField()
-    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_FIELDS, default='LEAVE')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_FIELDS, default='LEAVE')
+    taskId = models.CharField(max_length=100, blank=True, null=True, default=None)
 
     def __str__(self) -> str:
         return str(self.time.date()) + " " +  self.notification_type + " from "  + self.sender.name + " to " + self.reciever
@@ -185,3 +189,5 @@ class Notification(models.Model):
 # -> leave regarding -> ek band vo dusre ko tag krega reciever fields -> user list 
 # -> complaint -> group notify -> reciever -> designation list
 # -> baad mein krte 
+
+

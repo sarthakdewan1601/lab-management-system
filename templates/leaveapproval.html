@@ -18,6 +18,7 @@
     </thead>
         <tbody>
         {% for leave in leaves %}
+
         {% if not leave.admin_approval %}
             <tr>
                 <td>{{ leave.staff.name }}</td>
@@ -36,9 +37,11 @@
                 {% endif %}
             </tr>
         {% else %}
+
             <h2>No active requests for leave </h2>
             <a href="#">Click to apply a new leave</a>
         {% endif %}
+        
         {% endfor %}
         </tbody>
   </table>
