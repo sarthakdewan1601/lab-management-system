@@ -370,7 +370,7 @@ def complaint(request, pk):
 
 def view_complaints(request):
 	staff = Staff.objects.get(email=request.user.email)
-	complaint = Complaint.objects.all()
+	complaint = Complaint.objects.all().order_by('-date_created')
 	
 	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 	# # complaint -> device
@@ -601,20 +601,23 @@ def lab(request, pk):
 def resolveConflict(request, pk):
 	complaint = Complaint.objects.get(id=pk)
 	resolver=Staff.objects.get(email=request.user.email)
-	#complaint.isActive = False
 	if request.method == 'POST':
-		# print(request.POST)
 		complaint.work_Done=request.POST['workdone']
-		# print(complaint.work_Done)
 		complaint.isActive=False
 		complaint.who_resolved=resolver
 		complaint.save()
 		if request.user.is_staff:
 			return redirect("main:adminComplaints")
+
 		else:
-			return HttpResponse(201)
+		# after resolving complaint remove the previous notification and add a new notification
+			notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
+			notification.reciever = str(resolver.id) + " " + str(resolver.name)
+			notification.messsage = "You successfully resolved the complaint "
+			notification.save()
+			return redirect("main:user_profile")
 		
-	else:   #get
+	else:   
 		admin_status = request.user.is_staff
 		context={
 			'complaint':complaint,

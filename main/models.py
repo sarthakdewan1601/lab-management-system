@@ -102,9 +102,10 @@ class Complaint(models.Model):
     isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
-        return self.complaint[0:30]
+        return "Complaint for lab " + str(self.device.lab.lab)
    
 class Lab(models.Model):
     lab = models.CharField(max_length=20, blank=False)
