@@ -10,13 +10,11 @@
     <br>
     {% for notification in notifications %}
 
-        {% if notification %}
+        {% if notification.isActive %}
             <a href="{% url 'main:handleNotification' pk=notification.id %}">
-                {{notification.message}}
+                {{ notification.message }}
             </a>
-            <br>
-        {% else %}
-            <h3>No new notificatoins !!</h3>
+            <br/>
         {% endif %}
     {% endfor %}
 </div>

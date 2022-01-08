@@ -5,6 +5,9 @@
 {% include 'navbar.html' with user=user %}
 
 <div class="container mt-5">
+
+<h1> Active Complaints </h1>
+
 <table class="table">
     <thead>
       <tr>
@@ -13,31 +16,67 @@
         <th scope="col">Device Number</th>
         <th scope="col">Complaint</th>
         <th scope="col" style="text-align: center;">Resolve Complaint</th>
+        {% comment %}
         <th scope="col" style="text-align: center;">Complaint Status</th>
+        {% endcomment %}
       </tr>
     </thead>
         <tbody>
 
-        {% for complaint in complaints %}
+        {% for active_complaint in active_complaints %}
         <tr>
-            <td>{{ complaint.device.lab.lab }}</td>
-            <td>{{ complaint.device.lab.name }}</td>
-            <td>{{ complaint.device.device_id }} </td>
-            <td>{{ complaint.complaint }}</td>
-            <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
-            {% if complaint.isActive %}
-              <td>Active</td>
-              {% else %}
-              <td>Resolved</td>
-            {% endif %}
-            
+            <td>{{ active_complaint.device.lab.lab }}</td>
+            <td>{{ active_complaint.device.lab.name }}</td>
+            <td>{{ active_complaint.device.device_id }} </td>
+            <td>{{ active_complaint.complaint }}</td>
+            <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+
             {% comment %}
-                <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td> 
+
+            {% if complaint.isActive %}
+            <td>Active</td>
+            {% else %}
+            <td>Resolved</td>
+            {% endif %}
+
             {% endcomment %}
+
+
         </tr>
         {% endfor %}
         </tbody>
   </table>
+  <br>
+  <h1> Resolved Complaints </h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Lab ID</th>
+        <th scope="col">Lab Name</th>
+        <th scope="col">Device Number</th>
+        <th scope="col">Complaint</th>
+        <th scope = "col"> Work Done </th>
+        {% comment %}
+        <th scope="col" style="text-align: center;">Resolve Complaint</th>
+        <th scope="col" style="text-align: center;">Complaint Status</th>
+        {% endcomment %}
+      </tr>
+    </thead>
+        <tbody>
+
+        {% for resolved_complaint in resolved_complaints %}
+        <tr>
+            <td>{{ resolved_complaint.device.lab.lab }}</td>
+            <td>{{ resolved_complaint.device.lab.name }}</td>
+            <td>{{ resolved_complaint.device.device_id }} </td>
+            <td>{{ resolved_complaint.complaint }}</td>
+            <td>{{ resolved_complaint.work_Done }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+
   </div>
 
 

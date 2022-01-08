@@ -4,11 +4,11 @@ from django.db import models
 from django.db.models import fields
 from django.forms.fields import ChoiceField
 from .models import Designation, Staff, Notification, TotalLeaves,UserLeaveStatus
-from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
 from django.conf import settings
 import datetime
-
+from django.forms import ModelForm
 
 # class ComplaintResolveFrom(forms.Form):
 #     WorkDone=forms.Textarea(widget=forms.Textarea(attrs={'placeholder': 'Enter Workdone'}))
@@ -130,3 +130,16 @@ class SignupForm(UserCreationForm):
 #         model = UserLeaveStatus
 #         # fields = ("staff", "leavetype",  "date", "reason", "substitute")
 #         fields = ("staff", "type_of_leave", "date_time", "reason", "substitute")
+
+# class EditProfileForm(ModelForm):
+#         class Meta:
+#             model = User
+#             fields = (
+#                  'email',
+#                  'first_name',
+#                  'last_name'
+#                 )
+# class ProfileForm(ModelForm):
+#          class Meta:
+#             model = Staff
+#             fields = ('name','mobile_number','email', 'category', 'designation', 'agency') #Note that we didn't mention user field here.

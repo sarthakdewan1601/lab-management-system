@@ -30,10 +30,10 @@
                     <td>{{ leave.date_time|date }}</td>
                     <td>{{leave.reason}}</td>
                     <td>{{ leave.status }}</td>
-                    {% if not leave.admin_approval and not leave.rejected%}
+                    {% if not leave.admin_approval and not leave.rejected %}
                     <td>
-                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:adminapproveRequest' pk=leave.id%}">Approve/</a>
-                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:admindeclineRequest' pk=leave.id%}">Decline</a>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
                     </td>
                     {% elif leave.admin_approval %}
                         <td>Already Approved</tr>

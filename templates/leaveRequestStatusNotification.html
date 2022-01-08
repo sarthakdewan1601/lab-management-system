@@ -10,39 +10,48 @@
     <thead>
       <tr>
         <th scope="col">Sender</th>
-        <th scope="col">Receiver</th>
+        <th scope="col">Substitute</th>
         <th scope="col">Date</th>
         <th scope="col">Status</th>
-        {% if not leave.substitute_approval and not leave.rejected%}
-        <th>Accept/Decline</th>
-        {% elif leave.substitute_approval %}
-            <th>Cancel </th>
-        {% elif leave.rejected %}
-            <td>Declined</tr>
+        {% if staff == leave.substitute %}
+
+            {% if not leave.substitute_approval and not leave.rejected%}
+            <th>Accept/Decline</th>
+            {% elif leave.substitute_approval %}
+                <th>Cancel </th>
+            {% elif leave.rejected %}
+                <td>Declined</tr>
+            {% endif %}
+        {% elif %}
+            <th>Cancel</th>
         {% endif %}
       </tr>
     </thead>
         <tbody>
 
-        {% if not leave.admin_approval %}
-            <tr>
-                <td>{{ leave.staff.name }}</td>
-                <td>{{ leave.substitute.name }} (you) </td>
-                <td>{{ leave.date_time|date }}</td>
-                <td>{{ leave.status }}</td>
+        {% if staff = leave.substitute %}
+            {% if not leave.admin_approval %}
+                <tr>
+                    <td>{{ leave.staff.name }}</td>
+                    <td>{{ leave.substitute.name }} </td>
+                    <td>{{ leave.date_time|date }}</td>
+                    <td>{{ leave.status }}</td>
 
-                {% if not leave.substitute_approval and not leave.rejected%}
-                <td>
-                    <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
-                    <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
-                </td>
-                {% elif leave.substitute_approval %}
-                    <td><a style="color: #000; text-decoration: underline;" href="{% url 'main:cancelLeaveRequest' pk=leave.id %}">Cancel Request</a></tr>
-                {% elif leave.rejected %}
-                    <td>Declined</tr>
-                {% endif %}
-            </tr>
+                    {% if not leave.substitute_approval and not leave.rejected%}
+                    <td>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
+                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
+                    </td>
+                    {% elif leave.substitute_approval %}
+                        <td><a style="color: #000; text-decoration: underline;" href="{% url 'main:cancelLeaveRequest' pk=leave.id %}">Cancel Request</a></tr>
+                    {% elif leave.rejected %}
+                        <td>Declined</tr>
+                    {% endif %}
+                </tr>
 
+            {% endif %}
+        {% elif %}
+                <td><a href="{% url 'main:cancelRequest' pk=leave.id %}">Cancel Request</a></td>
         {% endif %}
         
         </tbody>

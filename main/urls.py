@@ -23,8 +23,6 @@ urlpatterns = [
     path('profile/leaves/check-leave-status/<pk>' , views.checkLeaveStatusId, name="currleaveStatus"),
     path('profile/leaves/check-leave-status/cancel/<pk>', views.cancelLeaveRequest, name='cancelLeaveRequest'),
     path('profile/leaves/approve-leaves/', views.approveLeaves, name='approveLeaves'),
-    path('profile/leaves/approve-leaves/adminapprove/<pk>', views.adminapproveRequest, name='adminapproveRequest'),
-    path('profile/leaves/approve-leaves/admindecline/<pk>', views.admindeclineRequest, name='admindeclineRequest'),
     path('profile/leaves/approve-leaves/approve/<pk>', views.approveRequest, name='approveRequest'),
     path('profile/leaves/approve-leaves/decline/<pk>', views.declineRequest, name='declineRequest'),
     path('profile/view_complaints/' , views.view_complaints, name="viewcomplaints"),
@@ -37,3 +35,6 @@ urlpatterns = [
     # path('resolvecomplaint', views.resolveConflict, name='resolveConflict')
 
 ]
+
+    # path('profile/leaves/approve-leaves/adminapprove/<pk>', views.adminapproveRequest, name='adminapproveRequest'),
+    # path('profile/leaves/approve-leaves/admindecline/<pk>', views.admindeclineRequest, name='admindeclineRequest'),
