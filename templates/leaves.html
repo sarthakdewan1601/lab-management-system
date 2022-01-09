@@ -16,36 +16,29 @@
             <div  class="nav-link nav_text">
                 <a href="{% url 'main:checkLeaveStatus' %}">Pending Leaves</a>
             </div>
+            <div  class="nav-link nav_text">
+                <a href="{% url 'main:viewprevleaves' %}">View Previous Leaves taken</a>
+            </div>
         </div>
 
         <div class = "tables-leaves card">
             <table>
                 <h5>Leaves for: {{year}}</h5>
                 <thead class="thead-dark">
-                    <tr>
-                        {% for leave in totalLeaves %}
-                            <th>{{leave.LeaveName}} &nbsp;&nbsp;&nbsp;</th>
-                        {% endfor %}
-                    </tr>
+                    <th>Leaves Name</th>
+                    <th>Total Leaves Alloted</th>
+                    <th>Leaves Taken</th>
                 </thead>
                 <tbody>
+                    {% for leave in userLeavesTaken %}
                     <tr>
-                        {% for leave in totalLeaves %}
-                            <th>{{leave.count}} &nbsp;&nbsp;&nbsp;</th>
-                        {% endfor %}
-
+                        <td>{{leave.leave_taken.LeaveName}}</td>
+                        <td> {{leave.leave_taken.count}}</td>
+                        <td> {{leave.count}}</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-        </div>
-        <div class="container mt-5">
-            <h5>Leaves Taken</h5>
-            <div>
-                {% for leavetaken in userLeavesTaken %}
-                    <h6> {{leavetaken.leave_taken}}</h6> <p>{{leavetaken.count}}</p>
-                {% endfor %}
-            </div>
-
         </div>
         <div class = "request-leave-button">
             <a href="{% url 'main:requestleave' %}"><button class="leave-submitButton" type="submit">Request Leave </button></a>

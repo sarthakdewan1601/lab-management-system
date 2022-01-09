@@ -26,6 +26,7 @@ urlpatterns = [
     path('profile/leaves/approve-leaves/approve/<pk>', views.approveRequest, name='approveRequest'),
     path('profile/leaves/approve-leaves/decline/<pk>', views.declineRequest, name='declineRequest'),
     path('profile/view_complaints/' , views.view_complaints, name="viewcomplaints"),
+    path('profile/viewprevleaves',views.viewprevleaves,name='viewprevleaves'),
 
     # admin paths
     path('staff-members-list', views.adminStaff, name='adminStaff'),

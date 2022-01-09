@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block body %}
+{% include 'navbar.html' with user=user %}
+
+<div class='Wrapper'>
+    <div class="all-leaves-container">
+        <h1 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h1>
+        <div class = "tables-leaves card">
+            <table>
+                <thead class="thead-dark">
+                    <th>Sender</th>
+                    <th>Substitute</th>
+                    <th>Leave Type</th>
+                    <th>Date for Leave</th>
+                    <th>Reason </th>
+                    <th>Substitute Approval </th>
+                    <th>Admin Approval </th>
+                    <th>Status</th>
+                </thead>
+                <tbody>
+                    <tr>
+                    {% for leave in all_leaves %}
+                        <td>{{leave.staff.name}}</td>
+                        <td>{{leave.substitute.name}}</td>
+                        <td>{{leave.leave_type.LeaveName}}</td>
+                        <td>{{leave.date_time}}</td>
+                        <td>{{leave.reason}}</td>
+                        <td>{{leave.substitute_approval}}</td>
+                        <td>{{leave.admin_approval}}</td>
+                        <td>{{leave.status}}</td>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+{% endblock body %}
