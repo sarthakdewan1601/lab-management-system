@@ -187,7 +187,14 @@ def requestleave(request):
 		year = datetime.datetime.now().year  # 2022
 		totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
 		# check ki if any leave category is  > 0 then display
-
+		userleavetaken=UserLeavesTaken.objects.filter(staff=staff)
+		user_leaves_remaining=[]
+		for leave in userleavetaken:
+			if leave.count<leave.leave_taken.count:
+				user_leaves_remaining.append(leave.leave_taken.LeaveName)
+		totalLeavesCurrYear=[leaves for leaves in totalLeavesCurrYear if leaves.LeaveName in user_leaves_remaining]
+		# print(user_leaves_remaining)
+		# print(totalLeavesCurrYear)
 		substitutes = Staff.objects.exclude(name=staff.name).all()
 		# substitutes = Staff.objects.all()
 
@@ -274,7 +281,12 @@ def approveRequest(request, pk):
 		)
 		notification.save()
 
+		
 		# 1) ki user leaves taken hai uss user ka usko update 
+		userleavetaken=UserLeavesTaken.objects.get(staff=leave.staff,leave_taken=leave.leave_type)
+		userleavetaken.count+=1
+		userleavetaken.save()
+
 		
 
 		return redirect("main:approveLeaves")
@@ -343,6 +355,15 @@ def declineRequest(request, pk):
 		notification.save()
 
 	return redirect("main:approveLeaves")
+
+def viewprevleaves(request):
+	staff=Staff.objects.get(email=request.user.email)
+	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True)
+	context={
+		'staff':staff,
+		'all_leaves':all_leaves,
+	}
+	return render(request,"viewprevleaves.html",context)
 
 @login_required	
 def complaint(request, pk):
