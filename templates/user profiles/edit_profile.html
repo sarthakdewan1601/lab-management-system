@@ -1,69 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Edit Profile {% endblock %}
 
 {% block body %}
 {% include 'navbar.html' with user=user %}
 
-<div class="container">
-    <div class="form-control container">
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-3 row">
-                <label for="user" class="col-sm-2 col-form-label">User</label>
-                <div class="col-sm-10 col-lg-4">
-                  <input type="text" readonly class="form-control-plaintext" name="user" id="user" value="{{staff.name}}" onclick="abcd()">
-                </div>
-            </div>
+<h1> Edit Profile </h1>
+<br/><br/>
 
-            <div class="mb-3 row">
-                <label for="mobile" class="col-sm-2 col-form-label">Mobile Number</label>
-                <input class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="mobile" id="mobile">{{staff.mobile_number}}</input>
-                    </div>
-            </div>
-                
-            <div class="mb-3 row">
-                <label for="email" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="email" id="email" value="{{staff.email}}">
-                    </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label for="category" class="col-sm-2 col-form-label">Category</label>
-                <div class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="category" id="category" value="{{staff.category}}">
-                    </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="designation" class="col-sm-2 col-form-label">Designation</label>
-                <div class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="designation" id="designation" value="{{staff.designation}}">
-                    </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="mobile" class="col-sm-2 col-form-label">Mobile Number</label>
-                <div class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="mobile" id="mobile" value="{{staff.mobile_number}}">
-                    </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="mobile" class="col-sm-2 col-form-label">Mobile Number</label>
-                <div class="col-sm-10 col-lg-4">
-                    <input type="text" readonly class="form-control-plaintext" name="mobile" id="mobile" value="{{staff.mobile_number}}">
-                    </div>
-            </div>
-
-            <div class="mb-3 row">
-                <div class="col-sm-10 col-lg-4">
-                <button type="submit" class="btn-success">Send Request</button>
-                </div>
-            </div>
-
-        </form>
-    </div>
-
+<div class = "form-group">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-secondary"> Edit Pofile </button>
 </div>
 
 {% endblock body %}

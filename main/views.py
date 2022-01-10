@@ -8,14 +8,16 @@ from django.contrib.auth.models import User
 from django.db.models.base import Model
 from django.http.response import Http404
 from django.shortcuts import render, redirect, HttpResponse
-from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm 
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm #add this
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm #add this
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 import datetime
 from  django.views.decorators.csrf import csrf_protect
+from django.views import generic
+from django.urls import reverse_lazy
+from .models import *
+from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, ChangeStaffForm
 # Create your views here.
 
 @login_required
@@ -45,8 +47,8 @@ def user_profile(request):
 	if staff.category.category == "Lab Staff":
 		
 		# for admin 
-		if staff.designation.designation == " System Analyst" or staff.designation.designation == "Lab Supervisor":
-			# admin
+
+		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
 			return render(request, "admin/dashboard.html", {})
@@ -112,7 +114,35 @@ def user_profile(request):
 			pass
 		if staff.designation.designation == " ME":
 			pass
+
+class UserEditView(generic.UpdateView):
+	ex = UserChangeForm
+	form_class = ChangeStaffForm	
+	template_name = "user profiles/edit_profile.html"
+	success_urls = reverse_lazy('/')
+
+	# def edit_profile(request):
+	# 	staff = Staff.objects.get(email=request.user.email)	
+
+	# 	context = {
+	# 		"staff":staff
+	# 	}
 		
+	# 	return render(request, "user profiles/edit_profile.html", context)
+	def form_invalid(self, form):
+		return super().form_invalid(form)
+
+	def post(self, request, *args, **kwargs):		
+		object = self.get_object()
+		print(object)
+		
+		return HttpResponse(201)
+
+	def get_success_url(self):
+		return self.success_urls
+		
+	def get_object(self):
+		return self.request.user
 
 @login_required
 def userLeaves(request):
@@ -183,18 +213,18 @@ def requestleave(request):
 
 
 	else:
-		print("get")
 		year = datetime.datetime.now().year  # 2022
 		totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
 		# check ki if any leave category is  > 0 then display
 		userleavetaken=UserLeavesTaken.objects.filter(staff=staff)
 		user_leaves_remaining=[]
+
 		for leave in userleavetaken:
 			if leave.count<leave.leave_taken.count:
 				user_leaves_remaining.append(leave.leave_taken.LeaveName)
 		totalLeavesCurrYear=[leaves for leaves in totalLeavesCurrYear if leaves.LeaveName in user_leaves_remaining]
 		# print(user_leaves_remaining)
-		# print(totalLeavesCurrYear)
+		print(totalLeavesCurrYear)
 		substitutes = Staff.objects.exclude(name=staff.name).all()
 		# substitutes = Staff.objects.all()
 
@@ -283,12 +313,10 @@ def approveRequest(request, pk):
 
 		
 		# 1) ki user leaves taken hai uss user ka usko update 
-		userleavetaken=UserLeavesTaken.objects.get(staff=leave.staff,leave_taken=leave.leave_type)
-		userleavetaken.count+=1
+		userleavetaken = UserLeavesTaken.objects.get(staff=leave.staff,leave_taken=leave.leave_type)
+		userleavetaken.count += 1
 		userleavetaken.save()
-
 		
-
 		return redirect("main:approveLeaves")
 
 	leave = UserLeaveStatus.objects.get(id=pk)
@@ -409,8 +437,7 @@ def view_complaints(request):
 	resolved_complaints=Complaint.objects.filter(isActive = False).order_by('-date_created')
 	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 	# # complaint -> device
-	# deviceNo = Complaint.objects.filter(complaint = complaint)
-	
+	# deviceNo = Complaint.objects.filter(complaint = complaint)	
 	context = {
 		'active_complaints' : active_complaints,
 		'resolved_complaints' :resolved_complaints,
@@ -507,7 +534,7 @@ def handleNotification(request, pk):
 
 
 @login_required
-def add_computer(request,pk):
+def add_computer(request, pk):
 	lab=Lab.objects.get(id=pk)
 
 	print(lab)
@@ -532,7 +559,6 @@ def add_computer(request,pk):
 	
 def register_request(request):
 	if request.method == "POST":
-		print(request.POST)
 		form = SignupForm(request.POST)
 		if form.is_valid():
 			email=form.cleaned_data['email'] # check for @thapar.edu
@@ -548,19 +574,31 @@ def register_request(request):
 				agency=request.POST['agency']
 				mobile_number=form.cleaned_data['mobile_number']
 				Cat=Category.objects.get(category=category1)
-				Des=Designation.objects.get(designation=designation )
+				Des=Designation.objects.get(designation=designation)
+				
 				Agen=Agency.objects.get(agency=agency)
 				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
 
 				if designation == 'System Analyst' or designation == 'Lab Supervisor':
 					user = User.objects.get(email=email)
-					# print(user)
 					user.is_staff = True
 					user.is_admin = True
 					user.is_superuser=True
 					user.save()
 
 				staff.save()
+
+				# get all leaves create leave taken objects
+				year = datetime.datetime.now().year 
+				totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+
+				for leave in totalLeavesCurrYear:
+					userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+						staff=staff,
+						leave_taken=leave
+					)
+					userLeavesTaken.save()
+					
 				
 				return redirect("main:login")
 		else:
@@ -658,18 +696,44 @@ def resolveConflict(request, pk):
 
 
 def adminStaff(request):
-	staffs = Staff.objects.all()
-	return render(request, "admin/adminStaffs.html", {"staffs":staffs})
-
-# def adminTechnicians(request):
-# 	techs = Technician.objects.all()
-# 	return render(request, "admin/adminTechnicians.html", {"techs": techs})
+	if request.user.is_staff:
+		staffs = Staff.objects.all()
+		return render(request, "admin/adminStaffs.html", {"staffs":staffs})
+	else:
+		return render(request, "pagenotfound.html")
 
 def adminLabs(request):
-	labs=Lab.objects.all()
-	return render(request, "admin/adminLabs.html", {"labs": labs})
+	if request.user.is_staff:
+		labs=Lab.objects.all()
+		return render(request, "admin/adminLabs.html", {"labs": labs})
+	else:
+		return render(request, "pagenotfound.html")
 
 def adminComplaints(request):
-	complaints = Complaint.objects.all().order_by('id')
-	return render(request, "admin/adminComplaints.html", {"complaints":complaints})
+	if request.user.is_staff:
+		complaints = Complaint.objects.all().order_by('id')
+		return render(request, "admin/adminComplaints.html", {"complaints":complaints})
+	else:
+		return render(request, "pagenotfound.html")
 
+@login_required
+def adminLeaves(request):
+	if request.user.is_staff:
+		year = datetime.datetime.now().year
+		leavesThisYear = TotalLeaves.objects.filter(year=year).all()
+
+		context = {
+			"leavesThisYear": leavesThisYear
+		}
+
+		return render(request, "admin/adminLeaves.html", context)
+	else:
+		return render(request, "pagenotfound.html")
+
+@login_required
+def newLeave(request):
+	if request.method == "POST":
+		pass
+	else:
+		form = AddNewLeave()
+		return render(request, "admin/addLeaveForm.html", {"form":form})

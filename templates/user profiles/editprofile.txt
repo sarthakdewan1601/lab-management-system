@@ -1,0 +1,56 @@
+<div class="container">
+    <div class="form-control container">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3 row" >
+                <label for="user" class="col-sm-2 col-form-label">User</label>
+                <div class="col-sm-10 col-lg-4" >
+                  <input type="text" readonly class="form-control-plaintext" name="user" id="user" value="{{staff.name}}" onclick="abcd()"><button type="button" id="updateUser" class="btn-success">Edit User</button>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="mobile" class="col-sm-2 col-form-label">Mobile Number</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="text" readonly class="form-control-plaintext" name="mobile" id="mobile" value="{{staff.mobile_number}}" /><button type="button" id="updateMobile" class="btn-success">Edit Mobile Number</button>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="text" readonly class="form-control-plaintext" name="email" id="email" value="{{staff.email}}"/><button type="button" id="updateEmail" class="btn-success">Edit Email</button>
+                    </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="category" class="col-sm-2 col-form-label">Category</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="text" readonly class="form-control-plaintext" name="category" id="category" value="{{staff.category}}"/><button type="button" id="updateCategory" class="btn-success">Edit Email</button>
+                    </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="designation" class="col-sm-2 col-form-label">Designation</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="text" readonly class="form-control-plaintext" name="designation" id="designation" value="{{staff.designation}}"/><button type="button" id="updateEmail" class="btn-success">Edit Email</button>
+                    </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="agency" class="col-sm-2 col-form-label">Agency</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="text" readonly class="form-control-plaintext" name="agency" id="agency" value="{{staff.agency}}"/><button type="button" id="updateEmail" class="btn-success">Edit Email</button>
+                    </div>
+            </div>
+        
+
+            <div class="mb-3 row">
+                <div class="col-sm-10 col-lg-4">
+                <button type="submit" class="btn-success">Update Profile</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+</div>

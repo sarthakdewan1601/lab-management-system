@@ -12,10 +12,13 @@
         <li class="nav-item">
           <a class="nav-link nav_text" href="{% url 'main:home' %}">Dashboard</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link nav_text" href="#">Edit Profile</a>
-        </li>
+        
         {% if user.is_authenticated %}
+
+          <li class="nav-item">
+            <a class="nav-link nav_text" href="{% url 'main:editProfile' %}">Edit Profile</a>
+          </li>
+
           <li class="nav-link nav_text"> 
             Hi <a href="/"> {{ user.username }} </a>
           </li>

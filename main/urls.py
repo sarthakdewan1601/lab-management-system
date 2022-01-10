@@ -11,6 +11,9 @@ urlpatterns = [
 
     path('', views.home, name='home'),
     path('profile/',views.user_profile, name='user_profile'),
+
+    path('profile/edit-profile',views.UserEditView.as_view(), name='editProfile'),
+    
     path('complaint/<pk>',views.complaint, name='complaint'),
     path("lab/<pk>", views.lab, name='lab'),
     path("add/<pk>",views.add_computer,name='add_device'),
@@ -29,12 +32,12 @@ urlpatterns = [
     path('profile/viewprevleaves',views.viewprevleaves,name='viewprevleaves'),
 
     # admin paths
-    path('staff-members-list', views.adminStaff, name='adminStaff'),
-    # path('technicians-list', views.adminTechnicians, name='adminTechnicians'),
-    path('labs-list', views.adminLabs, name='adminLabs'),
-    path('complaints-list', views.adminComplaints, name='adminComplaints')
+    path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
+    path('admin-dashboard/current-year-leaves/new-leave-form', views.newLeave, name='newLeave'),
+    path('admin-dashboard/current-year-leaves/', views.adminLeaves, name='adminLeaves'),
+    path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
+    path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
     # path('resolvecomplaint', views.resolveConflict, name='resolveConflict')
-
 ]
 
     # path('profile/leaves/approve-leaves/adminapprove/<pk>', views.adminapproveRequest, name='adminapproveRequest'),

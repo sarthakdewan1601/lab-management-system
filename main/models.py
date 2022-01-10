@@ -83,7 +83,16 @@ class UserLeaveStatus(models.Model):
 # after verification -> admin 
 # admin approve
 
-
+# leave request UserLeavesTaken initially null  -> 
+# leave request -> form us page pe taken leaves display -> null > count -> error
+# # request sent
+# approve tick 
+# subs -done adin -done
+# 
+# admin
+# userleavetaken-> staff  -> 3 -> 2 -> 2(objects)
+# check type of leave in these 2leaves -> count ++
+# else create a new leavetaken object
 
 class UserLeavesTaken(models.Model):
     # get object of staff after admin verification
@@ -93,6 +102,9 @@ class UserLeavesTaken(models.Model):
     def __str__(self):
         return self.staff.name + " " + str(self.leave_taken.LeaveName) + " "+ str(self.count)
 
+    # staff unique 
+    # get staff object -> set of taken leaves
+    #   
 
 class Complaint(models.Model):
     created_by=models.ForeignKey(Staff,null=True,blank=False,related_name='sender',on_delete=CASCADE)

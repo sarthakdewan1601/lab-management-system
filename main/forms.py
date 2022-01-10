@@ -72,6 +72,10 @@ class LoginForm(forms.Form):
 #         return user
 
 
+class ChangeStaffForm(forms.ModelForm):
+    class Meta:
+        model = Staff
+        fields =  ('name', 'mobile_number')
 
 
 class SignupForm(UserCreationForm):
@@ -100,6 +104,13 @@ class SignupForm(UserCreationForm):
         if commit:
           user.save()
         return user
+
+
+class AddNewLeave(forms.ModelForm):
+    class Meta:
+        model = TotalLeaves
+        fields = '__all__'
+
 
 # class ComplaintNotification(forms.Form):
 #     sender=forms.CharField(settings.AUTH_USER_MODEL)
