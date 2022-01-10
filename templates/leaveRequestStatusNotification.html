@@ -13,7 +13,7 @@
         <th scope="col">Substitute</th>
         <th scope="col">Date</th>
         <th scope="col">Status</th>
-        {% if staff == leave.substitute %}
+        {% if not same %}
 
             {% if not leave.substitute_approval and not leave.rejected%}
             <th>Accept/Decline</th>
@@ -22,14 +22,14 @@
             {% elif leave.rejected %}
                 <td>Declined</tr>
             {% endif %}
-        {% elif %}
+        {% else %}
             <th>Cancel</th>
         {% endif %}
       </tr>
     </thead>
         <tbody>
 
-        {% if staff = leave.substitute %}
+        {% if same %}
             {% if not leave.admin_approval %}
                 <tr>
                     <td>{{ leave.staff.name }}</td>
@@ -48,10 +48,9 @@
                         <td>Declined</tr>
                     {% endif %}
                 </tr>
-
             {% endif %}
-        {% elif %}
-                <td><a href="{% url 'main:cancelRequest' pk=leave.id %}">Cancel Request</a></td>
+        {% else %}
+                <td><a href="{% url 'main:cancelLeaveRequest' pk=leave.id %}">Cancel Request</a></td>
         {% endif %}
         
         </tbody>

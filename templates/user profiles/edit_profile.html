@@ -11,9 +11,25 @@
 
 <div class = "form-group">
     <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-secondary"> Edit Pofile </button>
+            {% csrf_token %}
+            <div class="mb-3 row">
+              <label for="applicant" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10 col-lg-4">
+                <input type="text" name="name" placeholder="Full Name" required id="id_name" value="{{staff.name}}">
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label for="applicant" class="col-sm-2 col-form-label">Mobile Number</label>
+              <div class="col-sm-10 col-lg-4">
+                <input type="text" name="mobile_number" placeholder="Mobile Number" value="{{staff.mobile_number}}">
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <div class="col-sm-10 col-lg-4">
+                <button type="submit" class="btn btn-secondary"> Edit Pofile </button>
+             </div>
+          </div>
+    </form>
 </div>
 
 {% endblock body %}

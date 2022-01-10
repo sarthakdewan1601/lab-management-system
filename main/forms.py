@@ -72,10 +72,11 @@ class LoginForm(forms.Form):
 #         return user
 
 
-class ChangeStaffForm(forms.ModelForm):
-    class Meta:
-        model = Staff
-        fields =  ('name', 'mobile_number')
+class EditProfileForm(forms.Form):
+    name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
+    mobile_number = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
+
+            
 
 
 class SignupForm(UserCreationForm):

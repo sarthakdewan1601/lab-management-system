@@ -12,7 +12,8 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('profile/',views.user_profile, name='user_profile'),
 
-    path('profile/edit-profile',views.UserEditView.as_view(), name='editProfile'),
+    # path('profile/edit-profile',views.UserEditView.as_view(), name='editProfile'),
+    path('profile/edit-profile',views.editProfile, name='editProfile'),
     
     path('complaint/<pk>',views.complaint, name='complaint'),
     path("lab/<pk>", views.lab, name='lab'),
@@ -33,8 +34,8 @@ urlpatterns = [
 
     # admin paths
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
-    path('admin-dashboard/current-year-leaves/new-leave-form', views.newLeave, name='newLeave'),
     path('admin-dashboard/current-year-leaves/', views.adminLeaves, name='adminLeaves'),
+    path('admin-dashboard/current-year-leaves/new-leave-form', views.newLeave, name='newLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
     # path('resolvecomplaint', views.resolveConflict, name='resolveConflict')

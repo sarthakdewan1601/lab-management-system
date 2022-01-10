@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{%load crispy_forms_tags %} 
 
 {% block body %}
 {% include 'navbar.html' with user=user %}
@@ -8,7 +9,7 @@
 <div class="container">
     <form method="post">
         {% csrf_token %}
-        {{ form }}
+        {{ form|crispy }}
         <button type="submit" class="btn btn-success">Save person</button>
       </form>
 </div>

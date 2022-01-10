@@ -12,12 +12,12 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, UserChangeForm #add this
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-import datetime
 from  django.views.decorators.csrf import csrf_protect
 from django.views import generic
 from django.urls import reverse_lazy
 from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, ChangeStaffForm
+from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, EditProfileForm
+import datetime
 # Create your views here.
 
 @login_required
@@ -115,34 +115,23 @@ def user_profile(request):
 		if staff.designation.designation == " ME":
 			pass
 
-class UserEditView(generic.UpdateView):
-	ex = UserChangeForm
-	form_class = ChangeStaffForm	
-	template_name = "user profiles/edit_profile.html"
-	success_urls = reverse_lazy('/')
+@login_required
+def editProfile(request):
+	staff = Staff.objects.get(email=request.user.email)
+	if request.method == "POST":
+		name = request.POST['name']
+		mobile_number = request.POST['mobile_number']
+		staff.name = name
+		staff.mobile_number = mobile_number
+		staff.save()
+		return redirect('/')
 
-	# def edit_profile(request):
-	# 	staff = Staff.objects.get(email=request.user.email)	
+	else:
+		context = {
+			"staff": staff
+		}
+		return render(request, "user profiles/edit_profile.html", context)
 
-	# 	context = {
-	# 		"staff":staff
-	# 	}
-		
-	# 	return render(request, "user profiles/edit_profile.html", context)
-	def form_invalid(self, form):
-		return super().form_invalid(form)
-
-	def post(self, request, *args, **kwargs):		
-		object = self.get_object()
-		print(object)
-		
-		return HttpResponse(201)
-
-	def get_success_url(self):
-		return self.success_urls
-		
-	def get_object(self):
-		return self.request.user
 
 @login_required
 def userLeaves(request):
@@ -481,10 +470,12 @@ def handleNotification(request, pk):
 	# display that leave
 
 	# leave = UserLeaveStatus.objects.get(id=taskId, )
-
+	same = False
 	if notification.notification_type == 'LEAVE' or notification.notification_type == 'LEAVE_ACCEPTED' or notification.notification_type == 'LEAVE_REJECTED':
 		leave = UserLeaveStatus.objects.get(id=taskId)
-		return render(request, "leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff})
+		if staff == leave.substitute:
+			same = True
+		return render(request, "leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same})
 
 	if notification.notification_type == 'TECH':
 		complaint = Complaint.objects.get(id=taskId)
@@ -733,7 +724,30 @@ def adminLeaves(request):
 @login_required
 def newLeave(request):
 	if request.method == "POST":
-		pass
+		# create a new leave type and assign it to all the users with their initial count = 0
+		form = AddNewLeave(request.POST)
+		if form.is_valid():
+			leaveName = form.cleaned_data['LeaveName']
+			count = form.cleaned_data['count']
+			year = form.cleaned_data['year']
+			newLeave = TotalLeaves.objects.get_or_create(
+				LeaveName=leaveName, 
+				count=count, 
+				year=year
+			)
+			newLeave.save()
+
+			staffs = Staff.objects.all()
+			print(staffs)
+			# for staff in staffs:
+			# 	userLeaveTaken = UserLeavesTaken.objects.get_or_create(
+			# 		staff=staff,
+			# 		leave_taken=newLeave,
+			# 	)
+			# 	userLeaveTaken.save()
+			
+			return redirect('main:adminLeaves')
+
 	else:
 		form = AddNewLeave()
 		return render(request, "admin/addLeaveForm.html", {"form":form})
