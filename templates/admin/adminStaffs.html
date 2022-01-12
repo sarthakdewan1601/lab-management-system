@@ -2,41 +2,35 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with user=user %}
+{% include 'navbar.html' with staff=staff%}
 
 
 <div class="container">
     <div class="card custom-card-list">
     <h2>Staff Members</h2>
-    <!-- <ul class="list-group">
-        {% for staff in staffs %}
-        <li class="list-group-item">{{staff.name}} {{staff.category}} {{staff.designation}} {{staff.agency}}</li>
-        
-
-        {% endfor %}
-    </ul> -->
-    <table>
-        <h5>User Information</h5>
+    
+    <table class="table">
         <thead class="thead-dark">
             <tr>
                 <th>Name</th>
                 <th>Category</th>
                 <th>Designation</th>
                 <th>Agency</th>
+                <th>Edit</th>
             </tr>
         </thead>
         <tbody>
             
                 {% for staff in staffs %}
                 <tr>
-                    <th>{{staff.name}}</th>
-                    <th>{{staff.category.category}}</th>
-                    <th>{{staff.designation.designation}}</th>
-                    <th>{{staff.agency.agency}}</th>
+                    <td>{{staff.name}}</td>
+                    <td>{{staff.category.category}}</td>
+                    <td>{{staff.designation.designation}}</td>
+                    <td>{{staff.agency.agency}}</td>
                     <!-- edit -->
+                    <td><a href=" {% url 'main:editProfile' pk=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
                 </tr>
                 {% endfor %}
-
             
         </tbody>
     </table>

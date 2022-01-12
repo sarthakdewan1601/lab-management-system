@@ -1,4 +1,3 @@
-
 from django import http
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -18,8 +17,8 @@ from django.urls import reverse_lazy
 from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, EditProfileForm
 import datetime
-# Create your views here.
 
+# Create your views here.
 @login_required
 def home(request):
 	if request.user.is_staff:
@@ -28,13 +27,17 @@ def home(request):
 
 	staff = Staff.objects.get(email=request.user.email)
 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs})
+	return render(request, "home.html", {'userLabs': userLabs, "staff":staff})
 
 	# except:
 	# 	tech = Technician.objects.get(tech_id=request.user.username)
 	# 	complaints = Complaint.objects.all()
 	# 	context = { "complaints": complaints}
 	# 	return render(request, "tech_dashboard.html", context)
+
+def user_profile_details(request):
+	staff=Staff.objects.get(email=request.user.email)
+	return render(request, "user profiles/user_profile.html", {'staff':staff})
 
 @login_required
 def user_profile(request):
@@ -51,7 +54,7 @@ def user_profile(request):
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
-			return render(request, "admin/dashboard.html", {})
+			return render(request, "admin/dashboard.html", {"staff":staff})
 
 		
 		if staff.designation.designation == "Lab Associate":
@@ -79,6 +82,7 @@ def user_profile(request):
 
 
 			context = { 
+				"staff":staff,
 				"complaints": complaints,
 				"notifications": current_notifications
 			}
@@ -116,21 +120,57 @@ def user_profile(request):
 			pass
 
 @login_required
-def editProfile(request):
-	staff = Staff.objects.get(email=request.user.email)
-	if request.method == "POST":
-		name = request.POST['name']
-		mobile_number = request.POST['mobile_number']
-		staff.name = name
-		staff.mobile_number = mobile_number
-		staff.save()
-		return redirect('/')
+def editProfile(request, pk):
+	staff = Staff.objects.get(id=pk)
+	if request.user.is_staff:
+		admin=Staff.objects.get(email=request.user.email)
+		if request.method=="POST":
+			form=request.POST
+			name=form['name']
+			designationId = form['designation']
+			agencyId=form['agency']
+			mobile_number=form['mobile_number']
+			updatedAgency = Agency.objects.get(id=agencyId)
+			updatedDesgination = Designation.objects.get(id=designationId)
+			staff.name=name
+			staff.designation=updatedDesgination
+			staff.agency = updatedAgency
+			staff.mobile_number=mobile_number
+			staff.save()
+			return redirect('main:adminStaff')
+		else:
+			category=Category.objects.get(category=staff.category)
+			designations=Designation.objects.filter(category=category)
+			desig=[]
+			for des in designations:
+				if des != staff.designation:
+					desig.append(des)
+
+			agency=Agency.objects.exclude(agency=staff.agency)
+			context = {
+				"staff": admin,
+				"staff1": staff,
+				"designations":desig,
+				"agency":agency
+
+			}
+			return render(request, "user profiles/edit_profile.html", context)
+
 
 	else:
-		context = {
-			"staff": staff
-		}
-		return render(request, "user profiles/edit_profile.html", context)
+		if request.method == "POST":
+			name = request.POST['name']
+			mobile_number = request.POST['mobile_number']
+			staff.name = name
+			staff.mobile_number = mobile_number
+			staff.save()
+			return redirect('/')
+
+		else:
+			context = {
+				"staff": staff
+			}
+			return render(request, "user profiles/edit_profile.html", context)
 
 
 @login_required
@@ -143,11 +183,12 @@ def userLeaves(request):
 	
 	# print(userLeavesTaken)
 	context = {
+		"staff":staff,
 		"totalLeaves" : leavesThisYear,
 		"year": year,
 		"userLeavesTaken":userLeavesTaken,
 	}
-	return render(request, "leaves.html", context)
+	return render(request, "leaves/leaves.html", context)
 
 @csrf_protect
 def requestleave(request):
@@ -161,39 +202,73 @@ def requestleave(request):
 		form=request.POST
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
-		date=form['date']
-		substitute=form['substitute']
+		substitute=form['substitute']		
+		fromDate=form['fromDate']
 		reason=form['reason']
-
+		substitute=Staff.objects.get(id=substitute)
 		year=datetime.datetime.now().year
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
 
-		substitute=Staff.objects.get(id=substitute)
-		userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,date_time=date,reason=reason,substitute=substitute)
-		userstatus.save()
-		##notification
+		try:
+			print("dates")
+			multipleLeaves = form['multipleLeaveCheckbox']
+			toDate=form['toDate']
 
-		customMessage1 = staff.name + " requested for leave"
-		notification, was_created = Notification.objects.get_or_create(
-			sender=staff, 
-			reciever=str(substitute.id)+' '+substitute.name, 
-			message=customMessage1,
-			notification_type = 'LEAVE',
-			taskId = userstatus.id
-		)
-		notification.save()
+			# countdays = toDate.date - fromDate.date
+			print(toDate.date, fromDate.date)
 
-		customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
-		notification, was_created = Notification.objects.get_or_create(
-			sender=staff, 
-			reciever=str(staff.id) + ' ' + staff.name, 
-			message=customMessage2,
-			notification_type = 'LEAVE',
-			taskId=userstatus.id
-		)
-		notification.save()
+			# userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substitute)
+			# userstatus.save()
+			# ##notification
 
-		return redirect("main:userLeaves")
+			# customMessage1 = staff.name + " requested for leave"
+			# notification, was_created = Notification.objects.get_or_create(
+			# 	sender=staff, 
+			# 	reciever=str(substitute.id)+' '+substitute.name, 
+			# 	message=customMessage1,
+			# 	notification_type = 'LEAVE',
+			# 	taskId = userstatus.id
+			# )
+			# notification.save()
+
+			# customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+			# notification, was_created = Notification.objects.get_or_create(
+			# 	sender=staff, 
+			# 	reciever=str(staff.id) + ' ' + staff.name, 
+			# 	message=customMessage2,
+			# 	notification_type = 'LEAVE',
+			# 	taskId=userstatus.id
+			# )
+			# notification.save()
+			return HttpResponse(200)
+
+		except:
+			# userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate, reason=reason,substitute=substitute)
+			# userstatus.save()
+			# ##notification
+
+			# customMessage1 = staff.name + " requested for leave"
+			# notification, was_created = Notification.objects.get_or_create(
+			# 	sender=staff, 
+			# 	reciever=str(substitute.id)+' '+substitute.name, 
+			# 	message=customMessage1,
+			# 	notification_type = 'LEAVE',
+			# 	taskId = userstatus.id
+			# )
+			# notification.save()
+
+			# customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+			# notification, was_created = Notification.objects.get_or_create(
+			# 	sender=staff, 
+			# 	reciever=str(staff.id) + ' ' + staff.name, 
+			# 	message=customMessage2,
+			# 	notification_type = 'LEAVE',
+			# 	taskId=userstatus.id
+			# )
+			# notification.save()
+
+
+			return HttpResponse(200)
 
 # leave req-> nofitification to substi
 #		   -> current user can check leave status
@@ -212,8 +287,6 @@ def requestleave(request):
 			if leave.count<leave.leave_taken.count:
 				user_leaves_remaining.append(leave.leave_taken.LeaveName)
 		totalLeavesCurrYear=[leaves for leaves in totalLeavesCurrYear if leaves.LeaveName in user_leaves_remaining]
-		# print(user_leaves_remaining)
-		print(totalLeavesCurrYear)
 		substitutes = Staff.objects.exclude(name=staff.name).all()
 		# substitutes = Staff.objects.all()
 
@@ -223,7 +296,7 @@ def requestleave(request):
 			'substitutes': substitutes
 		}
 	
-		return render(request,"leaverequest.html",context)
+		return render(request,"leaves/leaverequest.html",context)
 
 
 @login_required
@@ -234,17 +307,20 @@ def checkLeaveStatus(request):
 	pendingRequests = UserLeaveStatus.objects.filter(staff=staff).order_by("-id")
 	# get all the pending requests 
 	context = {
+		'staff':staff,
 		"pendingRequests": pendingRequests
 	}
-	return render(request, "leaveRequestStatus.html", context)
+	return render(request, "leaves/leaveRequestStatus.html", context)
 
 @login_required
 def checkLeaveStatusId(request, pk):
+	staff = Staff.objects.get(email=request.user.email)
 	leaveRequest = UserLeaveStatus.objects.get(id=pk)
 	context = {
+		'staff':staff,
 		'leaveRequest':leaveRequest
 	}
-	return render(request, "leaveRequestStatusId.html", context)
+	return render(request, "leaves/leaveRequestStatusId.html", context)
 
 # user cancels its posted leave
 @login_required
@@ -265,6 +341,7 @@ def approveLeaves(request):
 		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
 	
 		context={
+			'staff':staff,
 			"requestedleaves":requestedleaves,
 			"approvedleaves":approvedleaves,
 			"rejectedleaves":rejectedleaves
@@ -275,9 +352,11 @@ def approveLeaves(request):
 
 	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-date_time")
 	context = {
+		'staff':staff,
 		"leaves": leaves
 	}
-	return render(request, 'leaveapproval.html', context)
+	return render(request, 'leaves/leaveapproval.html', context)
+
 
 @login_required
 def approveRequest(request, pk):
@@ -380,18 +459,18 @@ def viewprevleaves(request):
 		'staff':staff,
 		'all_leaves':all_leaves,
 	}
-	return render(request,"viewprevleaves.html",context)
+	return render(request,"leaves/viewprevleaves.html",context)
 
 @login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
-
+	staff=Staff.objects.get(email=request.user.email)
 	if request.method == 'POST':
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
 			complaint=form.cleaned_data['complaint']
-			staff=Staff.objects.get(email=request.user.email)	
+			# staff=Staff.objects.get(email=request.user.email)	
 			complaint, was_created = Complaint.objects.get_or_create(
 				created_by=staff,
 				device=dev,
@@ -414,11 +493,12 @@ def complaint(request, pk):
 		form = ComplaintForm()
 
 		context={
+			'staff':staff,
 			'form': form,
 			'name': device.name.category, 
 			'id': device.device_id
 		}
-		return render(request, 'complaints.html', context)
+		return render(request, 'Complaints/complaints.html', context)
 
 def view_complaints(request):
 	staff = Staff.objects.get(email=request.user.email)
@@ -428,10 +508,11 @@ def view_complaints(request):
 	# # complaint -> device
 	# deviceNo = Complaint.objects.filter(complaint = complaint)	
 	context = {
+		'staff':staff,
 		'active_complaints' : active_complaints,
 		'resolved_complaints' :resolved_complaints,
 	}
-	return render(request,'view_complaints.html', context)
+	return render(request,'Complaints/view_complaints.html', context)
 
 @login_required
 def notifications(request):
@@ -454,7 +535,7 @@ def notifications(request):
 
 	# third type notificatoin baad mein okay? create another if condition
 	
-	return render(request, "notifications.html", {"notifications": notifications, "staff":staff})
+	return render(request, "Notifications/notifications.html", {"notifications": notifications, "staff":staff})
 
 @login_required
 def handleNotification(request, pk):
@@ -475,11 +556,11 @@ def handleNotification(request, pk):
 		leave = UserLeaveStatus.objects.get(id=taskId)
 		if staff == leave.substitute:
 			same = True
-		return render(request, "leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same})
+		return render(request, "Notifications/leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same})
 
 	if notification.notification_type == 'TECH':
 		complaint = Complaint.objects.get(id=taskId)
-		return render(request, 'complaintNotification.html', {"complaint":complaint})
+		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,})
 
 	if notification.notification_type == 'TTC':
 		pass
@@ -527,7 +608,7 @@ def handleNotification(request, pk):
 @login_required
 def add_computer(request, pk):
 	lab=Lab.objects.get(id=pk)
-
+	staff=Staff.objects.get(email=request.user.email)
 	print(lab)
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
@@ -543,10 +624,11 @@ def add_computer(request, pk):
 		form = NewComputerForm()
 
 		context={
+			'staff': staff,
 			'form': form,
 			'labid':lab,
 		}
-		return render(request, 'add_computer.html', context)
+		return render(request, 'Labs/add_computer.html', context)
 	
 def register_request(request):
 	if request.method == "POST":
@@ -653,7 +735,7 @@ def lab(request, pk):
 
 	devices=Devices.objects.filter(lab=pk).order_by("id").all()
 	print(devices)
-	return render(request, "lab.html", {
+	return render(request, "Labs/lab.html", {
 				'devices': devices,
 				'labid': pk,
 				'labname': lab
@@ -723,6 +805,7 @@ def adminLeaves(request):
 
 @login_required
 def newLeave(request):
+	staff=Staff.objects.get(email=request.user.email)
 	if request.method == "POST":
 		# create a new leave type and assign it to all the users with their initial count = 0
 		form = AddNewLeave(request.POST)
@@ -730,7 +813,7 @@ def newLeave(request):
 			leaveName = form.cleaned_data['LeaveName']
 			count = form.cleaned_data['count']
 			year = form.cleaned_data['year']
-			newLeave = TotalLeaves.objects.get_or_create(
+			newLeave, was_created = TotalLeaves.objects.get_or_create(
 				LeaveName=leaveName, 
 				count=count, 
 				year=year
@@ -738,16 +821,42 @@ def newLeave(request):
 			newLeave.save()
 
 			staffs = Staff.objects.all()
-			print(staffs)
-			# for staff in staffs:
-			# 	userLeaveTaken = UserLeavesTaken.objects.get_or_create(
-			# 		staff=staff,
-			# 		leave_taken=newLeave,
-			# 	)
-			# 	userLeaveTaken.save()
+			for staff in staffs:
+				userLeaveTaken, was_created = UserLeavesTaken.objects.get_or_create(
+					staff=staff,
+					leave_taken=newLeave,
+				)
+				userLeaveTaken.save()
 			
 			return redirect('main:adminLeaves')
 
 	else:
 		form = AddNewLeave()
-		return render(request, "admin/addLeaveForm.html", {"form":form})
+		return render(request, "admin/addLeaveForm.html", {"form":form, "staff":staff})
+
+@login_required
+def adminEditLeave(request, pk):
+	staff=Staff.objects.get(email=request.user.email)
+	if request.user.is_staff:
+		leave = TotalLeaves.objects.get(id=pk)
+		if request.method == "POST":
+			count = request.POST['leaveCount']
+			leave.count = count
+			leave.save()
+			return redirect('main:adminLeaves')
+		else:
+			return render(request, "admin/adminEditLeaveForm.html", {"staff":staff, "leave":leave})
+	else:
+		return render(request, "pagenotfound.html")
+
+@login_required
+def removeLeave(request, pk):
+	if request.user.is_staff:
+		leave = TotalLeaves.objects.get(id=pk)
+		leave.delete()
+		return redirect('main:adminLeaves')
+		
+	else:
+		return render(request, "pagenotfound.html")
+
+

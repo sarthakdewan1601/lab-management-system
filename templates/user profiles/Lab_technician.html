@@ -2,7 +2,8 @@
 
 {% block body %}
 
-{% include 'navbar.html' with user=user %}
+{% include 'navbar.html' with staff=staff %}
+
 
 {% for complaint in complaints %}
     {{complaint}}

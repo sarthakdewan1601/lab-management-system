@@ -4,17 +4,17 @@ from . import views
 app_name='main'
 
 urlpatterns = [
-    # user paths
+
+    # auth paths
     path("register/", views.register_request, name="register"),
     path("login/", views.login_request, name="login"),
     path("logout/", views.logout_request, name= "logout"),
-
-    path('', views.home, name='home'),
-    path('profile/',views.user_profile, name='user_profile'),
-
-    # path('profile/edit-profile',views.UserEditView.as_view(), name='editProfile'),
-    path('profile/edit-profile',views.editProfile, name='editProfile'),
     
+    # user paths
+    path('', views.home, name='home'),
+    path('profile/user-profile/',views.user_profile, name='user_profile'),
+    path('profile/user-profile-details/',views.user_profile_details, name='userProfileDetails'),
+    path('profile/edit-profile/<pk>',views.editProfile, name='editProfile'),
     path('complaint/<pk>',views.complaint, name='complaint'),
     path("lab/<pk>", views.lab, name='lab'),
     path("add/<pk>",views.add_computer,name='add_device'),
@@ -36,10 +36,8 @@ urlpatterns = [
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
     path('admin-dashboard/current-year-leaves/', views.adminLeaves, name='adminLeaves'),
     path('admin-dashboard/current-year-leaves/new-leave-form', views.newLeave, name='newLeave'),
+    path('admin-dashboard/current-year-leaves/leave/<pk>', views.adminEditLeave, name='adminEditLeave'),
+    path('admin-dashboard/current-year-leaves/remove-leave/<pk>', views.removeLeave, name='removeLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
-    # path('resolvecomplaint', views.resolveConflict, name='resolveConflict')
 ]
-
-    # path('profile/leaves/approve-leaves/adminapprove/<pk>', views.adminapproveRequest, name='adminapproveRequest'),
-    # path('profile/leaves/approve-leaves/admindecline/<pk>', views.admindeclineRequest, name='admindeclineRequest'),

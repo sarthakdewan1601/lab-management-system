@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with user=user %}
+{% include 'navbar.html' with staff=staff%}
 
 
 <div class="container">
@@ -21,7 +21,9 @@
             <tr>
                 <td>{{leave.LeaveName}}</td>
                 <td>{{leave.count}}</td>
-                <td><a href="#" style="color: black; text-decoration: underline;">Edit Leave</a></td>
+                <td>
+                 <button class="btn"> <a href="{% url 'main:adminEditLeave' pk=leave.id %}" style="color: black; text-decoration: underline;">Edit Leave</a> </button>
+                </td>
             </tr>
             {% endfor %}
             </tbody>

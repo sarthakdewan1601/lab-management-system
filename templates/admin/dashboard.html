@@ -4,7 +4,7 @@
 {% endblock head %}
 
 {% block body %}
-{% include 'navbar.html' with user=user%}
+{% include 'navbar.html' with staff=staff%}
 
 <div class="container">
     <div class="row" >
@@ -34,7 +34,6 @@
                     <a href="{% url 'main:adminLeaves' %}" class="btn btn-primary">View Complaints</a>
                 </div>
             </div>
-
 
     </div>
 </div>

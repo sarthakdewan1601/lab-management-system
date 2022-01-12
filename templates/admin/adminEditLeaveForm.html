@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{%load crispy_forms_tags %} 
+
+{% block body %}
+{% include 'navbar.html' with staff=staff %}
+
+<div class="container">
+    <div class="align-center">
+    <div class="card w-50">
+        <div class="card-body bg-light text-dark">
+            <form method="POST">
+                {% csrf_token %}
+                <h3 class="card-title">{{leave.LeaveName}}</h3>
+                <label for="leaveCount">Leave Count</label>
+                <input type="number" id="leaveCount" name="leaveCount" value="{{leave.count}}">                
+                <br/><br/>
+                <button type="submit" class="btn btn-dark"><a>Update</a></button>
+                <button class="btn btn-dark"><a href="{% url 'main:removeLeave' pk=leave.id %}" style="color: white; text-decoration: none;">Remove</a></button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+{% endblock body %}

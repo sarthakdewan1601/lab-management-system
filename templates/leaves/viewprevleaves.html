@@ -3,7 +3,7 @@
 
 
 {% block body %}
-{% include 'navbar.html' with user=user %}
+{% include 'navbar.html' with staff=staff %}
 
 <div class='Wrapper'>
     <div class="all-leaves-container">
@@ -14,10 +14,9 @@
                     <th>Sender</th>
                     <th>Substitute</th>
                     <th>Leave Type</th>
-                    <th>Date for Leave</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
                     <th>Reason </th>
-                    <th>Substitute Approval </th>
-                    <th>Admin Approval </th>
                     <th>Status</th>
                 </thead>
                 <tbody>
@@ -26,10 +25,9 @@
                         <td>{{leave.staff.name}}</td>
                         <td>{{leave.substitute.name}}</td>
                         <td>{{leave.leave_type.LeaveName}}</td>
-                        <td>{{leave.date_time}}</td>
+                        <td>{{leave.from_date}}</td>
+                        <td>{{leave.to_date}}</td>
                         <td>{{leave.reason}}</td>
-                        <td>{{leave.substitute_approval}}</td>
-                        <td>{{leave.admin_approval}}</td>
                         <td>{{leave.status}}</td>
                     {% endfor %}
                     </tr>

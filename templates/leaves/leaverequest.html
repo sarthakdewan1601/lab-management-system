@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+  <script>
+    const toDateToggle = ()=> {
+      const checkbox = document.getElementById('multipleLeaveCheckbox');
+      const toDateDisplay = document.getElementById('toDate');
+       
+      if(checkbox.checked ) {
+        toDateDisplay.style.display = "block";
+        checkbox.value = 'checked';
+        
+      } else {
+        toDateDisplay.style.display = "none";
+        checkbox.value = 'uncheck';
+       } 
+      //  console.log(checkbox.value)
+    }
+  </script>
+{% endblock head %}
 
 {% block body %}
-{% include 'navbar.html' with user=user %}
+{% include 'navbar.html' with staff=staff %}
 
 <div class="container">
     <div class="form-control container">
@@ -27,12 +45,28 @@
                   </select>
                 </div>
               </div>
+
               <div class="mb-3 row">
-                <label for="date" class="col-sm-2 col-form-label">Date</label>
+                <label for="multipleLeaveCheckbox" class="col-sm-2 col-form-label">Multiple Leaves? </label>
                 <div class="col-sm-10 col-lg-4">
-                    <input type="date" id="date" name="date">
+                    <input type="checkbox" id="multipleLeaveCheckbox" name="multipleLeaveCheckbox" onclick="toDateToggle()" value="uncheck">
                 </div>
               </div>
+
+              <div class="mb-3 row" id="fromDate">
+                <label for="dateFrom" class="col-sm-2 col-form-label">From Date</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="date" id="dateFrom" name="fromDate">
+                </div>
+              </div>
+              
+              <div class="mb-3 row" id="toDate" style="display: none;">
+                <label for="toDate" class="col-sm-2 col-form-label">To Date</label>
+                <div class="col-sm-10 col-lg-4">
+                    <input type="date" id="date" name="toDate">
+                </div>  
+              </div>
+
               <div class="mb-3 row">
                 <label for="substitute" class="col-sm-2 col-form-label">substitutes</label>
                 <div class="col-sm-10 col-lg-4">

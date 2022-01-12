@@ -13,6 +13,8 @@ from django.db import models
 import string
 from polymorphic.models import PolymorphicModel
 
+from django.utils import timezone
+
 
 
 class Agency(models.Model):
@@ -26,7 +28,7 @@ class Designation(models.Model):
     designation =models.CharField(max_length=400)
 
     def __str__(self):
-        return self.designation +" ("+  self.category.category+")"
+        return self.designation
 
 class Category(models.Model):               # faculty, lab staff, office staff, student
     category =models.CharField(max_length=400)
@@ -36,7 +38,6 @@ class Category(models.Model):               # faculty, lab staff, office staff, 
     
 
 class Staff(models.Model):
-    # staff_id = models.CharField(max_length=20, blank=False, null=False)
     name=models.CharField(max_length=100)
     mobile_number=models.IntegerField()
     email=models.EmailField()
@@ -67,7 +68,8 @@ class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
     # leave_type=models.CharField(max_length=255, )
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
-    date_time=models.DateTimeField()    # jis din chahiye
+    from_date=models.DateTimeField()    # jis din chahiye
+    to_date=models.DateTimeField(null=True)
     reason = models.TextField()
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
@@ -203,4 +205,23 @@ class Notification(models.Model):
 # -> complaint -> group notify -> reciever -> designation list
 # -> baad mein krte 
 
+
+class YearLeaves(models.Model):
+    # admin access + isme ki saari leaves total
+    # LeaveName = models.CharField(max_length=100, blank=True)
+    # count = models.IntegerField(default=0)
+    # year = models.IntegerField(default=2021)
+
+    publishDate = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return str(self.publishDate.year)
+
+class CurrentTypeLeaves(models.Model):
+    year = models.ForeignKey(YearLeaves, on_delete=CASCADE)
+    leaveName = models.CharField(max_length=100, blank=True)
+    count = models.IntegerField(default = 0)
+    
+    def __str__(self):
+        return self.leaveName
 

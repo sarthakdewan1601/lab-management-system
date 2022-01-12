@@ -15,12 +15,12 @@
         
         {% if user.is_authenticated %}
 
-          <li class="nav-item">
+          {% comment %}<li class="nav-item">
             <a class="nav-link nav_text" href="{% url 'main:editProfile' %}">Edit Profile</a>
-          </li>
+          </li> {% endcomment %}
 
           <li class="nav-link nav_text"> 
-            Hi <a href="/"> {{ user.username }} </a>
+            Hi <a href="{% url 'main:userProfileDetails' %}"> {{ staff.name }} </a>
           </li>
           <li class="nav-link nav_text">
             <a href="{% url 'main:notification' %}"> Notifications</a> 
