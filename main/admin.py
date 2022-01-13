@@ -10,12 +10,7 @@ from django.contrib.auth import get_user_model
 from .models import *
 
 
-class CurrentTypeLeavesInline(admin.TabularInline):
-    model = CurrentTypeLeaves
 
-class YearLeavesAdmin(admin.ModelAdmin):
-    fieldsets = [(None, {'fields':['publishDate'], }), ]
-    inlines = [CurrentTypeLeavesInline]
 
 
 # Register your models here.
@@ -33,4 +28,4 @@ admin.site.register(CategoryOfDevice)
 admin.site.register(Notification)
 # admin.site.register(YearLeaves)
 # admin.site.register(CurrentTypeLeaves)
-admin.site.register(YearLeaves, YearLeavesAdmin)
+# admin.site.register(YearLeaves, YearLeavesAdmin)

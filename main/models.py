@@ -204,24 +204,3 @@ class Notification(models.Model):
 # -> leave regarding -> ek band vo dusre ko tag krega reciever fields -> user list 
 # -> complaint -> group notify -> reciever -> designation list
 # -> baad mein krte 
-
-
-class YearLeaves(models.Model):
-    # admin access + isme ki saari leaves total
-    # LeaveName = models.CharField(max_length=100, blank=True)
-    # count = models.IntegerField(default=0)
-    # year = models.IntegerField(default=2021)
-
-    publishDate = models.DateTimeField(default=timezone.now())
-
-    def __str__(self):
-        return str(self.publishDate.year)
-
-class CurrentTypeLeaves(models.Model):
-    year = models.ForeignKey(YearLeaves, on_delete=CASCADE)
-    leaveName = models.CharField(max_length=100, blank=True)
-    count = models.IntegerField(default = 0)
-    
-    def __str__(self):
-        return self.leaveName
-

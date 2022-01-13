@@ -141,18 +141,13 @@ def editProfile(request, pk):
 		else:
 			category=Category.objects.get(category=staff.category)
 			designations=Designation.objects.filter(category=category)
-			desig=[]
-			for des in designations:
-				if des != staff.designation:
-					desig.append(des)
-
+			designations=designations.exclude(designation=staff.designation)
 			agency=Agency.objects.exclude(agency=staff.agency)
 			context = {
 				"staff": admin,
 				"staff1": staff,
-				"designations":desig,
+				"designations":designations,
 				"agency":agency
-
 			}
 			return render(request, "user profiles/edit_profile.html", context)
 
@@ -771,6 +766,7 @@ def resolveConflict(request, pk):
 def adminStaff(request):
 	if request.user.is_staff:
 		staffs = Staff.objects.all()
+		
 		return render(request, "admin/adminStaffs.html", {"staffs":staffs})
 	else:
 		return render(request, "pagenotfound.html")
