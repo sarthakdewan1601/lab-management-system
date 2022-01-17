@@ -1,17 +1,33 @@
 from typing import BinaryIO
+from xml.dom import ValidationErr
 from django import forms
 from django.db import models
 from django.db.models import fields
 from django.forms.fields import ChoiceField
 from .models import Designation, Staff, Notification, TotalLeaves,UserLeaveStatus
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
-from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 import datetime
 from django.forms import ModelForm
 
+User = get_user_model()
+
 # class ComplaintResolveFrom(forms.Form):
 #     WorkDone=forms.Textarea(widget=forms.Textarea(attrs={'placeholder': 'Enter Workdone'}))
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm):
+        model = User
+        fields = ['email',]
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ['email']
 
 
 class ComplaintForm(forms.Form):
@@ -76,13 +92,11 @@ class EditProfileForm(forms.Form):
     name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
     mobile_number = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
 
-            
-
 
 class SignupForm(UserCreationForm):
     name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder':'Email'}))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}), validators=[validate_password])
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
     mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
 
@@ -91,20 +105,32 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ("email", "password1", "password2", "name", "mobile_number")
         
-    def save(self, commit=True):
-        # save user in user model fields email password
-        email = self.cleaned_data['email']
-        password = self.cleaned_data['password1']
-        name= self.cleaned_data['name']
+    # def cleaned_emal(self):
+    #     email = self.cleaned_data['email']
+    #     try:
+    #         account = User.objects.get(email=email)
+    #     except Exception as e:
+    #         return email
+    #     raise forms.ValidationError(f"{email} already in use")
 
-        user = super(UserCreationForm, self).save(commit=False)
+
+    # def cleaned_password(self):
+    #     return self.cleaned_data['password1']
         
-        user.set_password(password)
-        user.email = email
-        user.username = name
-        if commit:
-          user.save()
-        return user
+    # def save(self, commit=True):
+    #     # save user in user model fields email password
+    #     email = self.cleaned_data['email']
+    #     password = self.cleaned_data['password1']
+    #     name= self.cleaned_data['name']
+
+    #     user = super(UserCreationForm, self).save(commit=False)
+        
+    #     user.set_password(password)
+    #     user.email = email
+    #     user.username = name
+    #     if commit:
+    #       user.save()
+    #     return user
 
 
 class AddNewLeave(forms.ModelForm):

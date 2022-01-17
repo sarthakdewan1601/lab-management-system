@@ -1,8 +1,11 @@
+import email
+from urllib import response
+from verify_email.email_handler import send_verification_email
 from django import http
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 from django.db.models.base import Model
 from django.http.response import Http404
@@ -12,17 +15,28 @@ from django.contrib.auth.forms import AuthenticationForm, UserChangeForm #add th
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from  django.views.decorators.csrf import csrf_protect
-from django.views import generic
+from django.db import IntegrityError
 from django.urls import reverse_lazy
 from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, EditProfileForm
 import datetime
+from .utils import send_email 
+
+from django_email_verification import send_email
+
+# from django.contrib.auth import get_user_model
+
+
+UserModel = get_user_model()
+
 
 # Create your views here.
 @login_required
 def home(request):
 	if request.user.is_staff:
-		print(request.user.email)
+		# email='a@thaapr.edu'
+		a = User.objects.get(email=request.user)
+		print(a)
 		return render(request, "admin/dashboard.html", {})
 
 	staff = Staff.objects.get(email=request.user.email)
@@ -121,9 +135,10 @@ def user_profile(request):
 
 @login_required
 def editProfile(request, pk):
-	staff = Staff.objects.get(id=pk)
+	staff = Staff.objects.get(id=pk)		#jo user h
+
 	if request.user.is_staff:
-		admin=Staff.objects.get(email=request.user.email)
+		admin=Staff.objects.get(email=request.user.email)	# curr user
 		if request.method=="POST":
 			form=request.POST
 			name=form['name']
@@ -155,8 +170,6 @@ def editProfile(request, pk):
 
 			}
 			return render(request, "user profiles/edit_profile.html", context)
-
-
 	else:
 		if request.method == "POST":
 			name = request.POST['name']
@@ -630,56 +643,128 @@ def add_computer(request, pk):
 		}
 		return render(request, 'Labs/add_computer.html', context)
 	
+	
 def register_request(request):
 	if request.method == "POST":
 		form = SignupForm(request.POST)
 		if form.is_valid():
-			email=form.cleaned_data['email'] # check for @thapar.edu
+			form.save(commit=False)
+				# check for @thapar.edu			
+			email=form.data.get('email')
 			res=email.split('@')[1]
 			if res!='thapar.edu':
 				messages.error(request, "Please enter you thapar email id")
 				return redirect("main:register")
+
+			password = form.data.get('password1')
+			confirmPassword = form.data.get('password2')
+			if password != confirmPassword:
+				messages.error(request, "Passwords not same")
+				return redirect("main:register")
+
+			# user = User.objects.
+			name=form.cleaned_data['name']
+			category1=request.POST['category']
+			designation=request.POST['designation']
+			agency=request.POST['agency']
+			mobile_number=request.POST['mobile_number']
+			# print(name, category1, designation, agency, mobile_number)
+			Cat=Category.objects.get(category=category1)
+			Des=Designation.objects.get(designation=designation)
+			Agen=Agency.objects.get(agency=agency)
+			
+			if designation == 'System Analyst' or designation == 'Lab Supervisor':
+				User.objects.create_superuser(email, password)
 			else:
-				user = form.save()
-				name=form.cleaned_data['name']
-				category1=request.POST['category']
-				designation=request.POST['designation']
-				agency=request.POST['agency']
-				mobile_number=form.cleaned_data['mobile_number']
-				Cat=Category.objects.get(category=category1)
-				Des=Designation.objects.get(designation=designation)
-				
-				Agen=Agency.objects.get(agency=agency)
-				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+				user = User.objects.create_user(email, password)
+				send_email(user)
+			
+			staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+			staff.save()
 
-				if designation == 'System Analyst' or designation == 'Lab Supervisor':
-					user = User.objects.get(email=email)
-					user.is_staff = True
-					user.is_admin = True
-					user.is_superuser=True
-					user.save()
+			year = datetime.datetime.now().year 
+			totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
 
-				staff.save()
-
-				# get all leaves create leave taken objects
-				year = datetime.datetime.now().year 
-				totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
-
-				for leave in totalLeavesCurrYear:
-					userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
-						staff=staff,
-						leave_taken=leave
-					)
-					userLeavesTaken.save()
-					
-				
-				return redirect("main:login")
+			for leave in totalLeavesCurrYear:
+				userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+					staff=staff,
+					leave_taken=leave
+				)
+				userLeavesTaken.save()
+			return redirect("main:login")
 		else:
-			messages.error(request, "some error")
-			return redirect("main:register")
+			print("invalid credentials")
+			return HttpResponse(404)
 	else:
 		form = SignupForm()
-		return render (request=request, template_name="accounts/register.html", context={"form": form})
+		return render(request, "accounts/register.html", {"form": form})
+
+
+# def register_request(request):
+# 	if request.method == "POST":
+# 		form = SignupForm(request.POST)
+# 		if form.is_valid():
+			
+# 			email=form.data.get('email') # check for @thapar.edu
+			
+# 			res=email.split('@')[1]
+# 			if res!='thapar.edu':
+# 				messages.error(request, "Please enter you thapar email id")
+# 				return redirect("main:register")
+			
+# 			password=form.data.get('password1')
+# 			confirmation = form.data.get("password2")
+# 			if not form.is_valid() or password != confirmation:
+# 				messages.error(request, "Enter valid credentials")
+# 				return redirect("main:register")				
+
+
+			# name=form.cleaned_data['name']
+			# category1=request.POST['category']
+			# designation=request.POST['designation']
+			# agency=request.POST['agency']
+			# mobile_number=request.POST['mobile_number']
+			# # print(name, category1, designation, agency, mobile_number)
+			# Cat=Category.objects.get(category=category1)
+			# Des=Designation.objects.get(designation=designation)
+			# Agen=Agency.objects.get(agency=agency)
+
+
+# 			user = User.objects.create_user(email, password, is_active=False)
+# 			if designation == 'System Analyst' or designation == 'Lab Supervisor':
+# 				print('okayy')
+# 				user.objects.create_superuser(email, password)
+# 				user.save()
+# 				print(user)
+# 			else:
+# 				print('okayy2')
+# 				print(user)
+# 				user.save()
+
+			
+# 			# staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+# 			# staff.save()
+# 			# # get all leaves create leave taken objects
+# 			# year = datetime.datetime.now().year 
+# 			# totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+
+			# for leave in totalLeavesCurrYear:
+			# 	userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+			# 		staff=staff,
+			# 		leave_taken=leave
+			# 	)
+			# 	userLeavesTaken.save()
+				
+			
+
+# 			# return render(request, "Users/confirmation.html", { "message": "Confirm your email", "verifiedUser": user})
+
+# 		# else:
+# 		# 	messages.error(request, "some error")
+# 		# 	return redirect("main:register")
+# 	else:
+# 		form = SignupForm()
+# 		return render (request=request, template_name="accounts/register.html", context={"form": form})
 
 
 def login_request(request):
@@ -860,3 +945,69 @@ def removeLeave(request, pk):
 		return render(request, "pagenotfound.html")
 
 
+
+
+# def register_request(request):
+# 	if request.method == "POST":
+# 		form = SignupForm(request.POST)
+# 		if form.is_valid():
+# 			email=form.cleaned_data['email'] # check for @thapar.edu
+# 			res=email.split('@')[1]
+# 			if res!='thapar.edu':
+# 				messages.error(request, "Please enter you thapar email id")
+# 				return redirect("main:register")
+# 			else:
+
+# 				name=form.cleaned_data['name']
+# 				category1=request.POST['category']
+# 				designation=request.POST['designation']
+# 				agency=request.POST['agency']
+# 				mobile_number=form.cleaned_data['mobile_number']
+# 				Cat=Category.objects.get(category=category1)
+# 				Des=Designation.objects.get(designation=designation)
+				
+# 				Agen=Agency.objects.get(agency=agency)
+# 				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+
+# 				inactive_user = send_verification_email(request, form)
+# 				if designation == 'System Analyst' or designation == 'Lab Supervisor':
+					
+# 					user = User.objects.get(email=email)
+# 					user.is_staff = True
+# 					user.is_admin = True
+# 					user.is_superuser=True
+# 					user.save()
+
+# 				staff.save()
+
+# 				# get all leaves create leave taken objects
+# 				year = datetime.datetime.now().year 
+# 				totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+
+# 				for leave in totalLeavesCurrYear:
+# 					userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+# 						staff=staff,
+# 						leave_taken=leave
+# 					)
+# 					userLeavesTaken.save()
+					
+				
+# 				return redirect("main:login")
+# 		else:
+# 			messages.error(request, "some error")
+# 			return redirect("main:register")
+# 	else:
+# 		form = SignupForm()
+# 		return render (request=request, template_name="accounts/register.html", context={"form": form})
+
+
+			# verifiedUser = form.save(commit=False)
+			# # verifiedUser.user = user
+			# # verifiedUser.save()
+			# current_site = get_current_site(request)
+			# send_email(current_site, user, verifiedUser.Name)
+			# # # logout(request)
+			
+			# # yi hua isse :-(
+			# # inactive_user = send_verification_email(request, form)
+			# # inactive_user.cleaned_data['email']

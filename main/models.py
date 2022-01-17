@@ -1,38 +1,52 @@
+from tokenize import Name
+from django import db
+from django.db import models, reset_queries
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import PermissionsMixin
 from datetime import datetime, time
 from typing import cast
-from django.db import models, reset_queries
 from django.conf import settings
 from django.db.models.aggregates import Count
 from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.db.models.expressions import Case
 from django.db.models.fields import NullBooleanField
-from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy
 import string
-from polymorphic.models import PolymorphicModel
-
 from django.utils import timezone
+from .managers import CustomUserManager
 
+# from django.contrib.auth import get_user_model
+# User = get_user_model()
+
+#custom user model
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(('email address'), unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+    def __str__(self):
+        return self.email
 
 
 class Agency(models.Model):
     agency = models.CharField(max_length = 200)
-
     def __str__(self):
         return self.agency
     
 class Designation(models.Model):
     category=models.ForeignKey("Category",on_delete = CASCADE)
     designation =models.CharField(max_length=400)
-
     def __str__(self):
         return self.designation
 
-class Category(models.Model):               # faculty, lab staff, office staff, student
+class Category(models.Model):             
     category =models.CharField(max_length=400)
-
     def __str__(self):
         return self.category
     
@@ -48,13 +62,9 @@ class Staff(models.Model):
     def __str__(self):
         return self.name + " " + self.designation.designation
 
-    # function to count leaves pending
 
-
-# done 
 
 class TotalLeaves(models.Model):
-    # admin access + isme ki saari leaves total
     LeaveName = models.CharField(max_length=100, blank=True)
     count = models.IntegerField(default=0)
     year = models.IntegerField(default=2021)
@@ -206,22 +216,22 @@ class Notification(models.Model):
 # -> baad mein krte 
 
 
-class YearLeaves(models.Model):
-    # admin access + isme ki saari leaves total
-    # LeaveName = models.CharField(max_length=100, blank=True)
-    # count = models.IntegerField(default=0)
-    # year = models.IntegerField(default=2021)
+# class YearLeaves(models.Model):
+#     # admin access + isme ki saari leaves total
+#     # LeaveName = models.CharField(max_length=100, blank=True)
+#     # count = models.IntegerField(default=0)
+#     # year = models.IntegerField(default=2021)
 
-    publishDate = models.DateTimeField(default=timezone.now())
+#     publishDate = models.DateTimeField(default=timezone.now())
 
-    def __str__(self):
-        return str(self.publishDate.year)
+#     def __str__(self):
+#         return str(self.publishDate.year)
 
-class CurrentTypeLeaves(models.Model):
-    year = models.ForeignKey(YearLeaves, on_delete=CASCADE)
-    leaveName = models.CharField(max_length=100, blank=True)
-    count = models.IntegerField(default = 0)
+# class CurrentTypeLeaves(models.Model):
+#     year = models.ForeignKey(YearLeaves, on_delete=CASCADE)
+#     leaveName = models.CharField(max_length=100, blank=True)
+#     count = models.IntegerField(default = 0)
     
-    def __str__(self):
-        return self.leaveName
+#     def __str__(self):
+#         return self.leaveName
 

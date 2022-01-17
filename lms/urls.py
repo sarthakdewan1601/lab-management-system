@@ -22,5 +22,7 @@ import notifications.urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
+    path('verification/', include('verify_email.urls')),	
+
     # path('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]
