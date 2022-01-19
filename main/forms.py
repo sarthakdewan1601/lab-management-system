@@ -3,7 +3,7 @@ from django import forms
 from django.db import models
 from django.db.models import fields
 from django.forms.fields import ChoiceField
-from .models import Designation, Staff, Notification, TotalLeaves,UserLeaveStatus
+from .models import Class, Designation, Devices, FacultyCourse, FacultyGroups, Staff, Notification, TotalLeaves,UserLeaveStatus
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -17,9 +17,26 @@ from django.forms import ModelForm
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Enter complaint'}))
 
-class NewComputerForm(forms.Form):
-    computer_id=forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Computer ID'}))
-    floor_id=forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Floor ID'}))
+class NewComputerForm(forms.ModelForm):
+    # device_id = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Device ID'}))
+    # device_name = forms.ChoiceField(widget=forms.TextInput(attrs={'placeholder': 'Enter Device Name'}))
+    # description = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter description of the device'}))
+    class Meta:
+        model = Devices
+        fields = ['device_id','name','description']
+
+class AddCourseForm(forms.ModelForm):
+
+    class Meta:
+        model = FacultyCourse
+        fields = ['faculty','course']
+
+class AddGroupForm(forms.ModelForm):
+
+    class Meta:
+        model = FacultyGroups
+        fields = ['faculty','groups']
+
 
 
 class LoginForm(forms.Form):
@@ -101,7 +118,7 @@ class SignupForm(UserCreationForm):
         
         user.set_password(password)
         user.email = email
-        user.username = name
+        user.username = email.split('@')[0]
         if commit:
           user.save()
         return user
@@ -155,3 +172,37 @@ class AddNewLeave(forms.ModelForm):
 #          class Meta:
 #             model = Staff
 #             fields = ('name','mobile_number','email', 'category', 'designation', 'agency') #Note that we didn't mention user field here.
+
+
+class AddClassForm(forms.ModelForm):
+    class Meta:
+        model = Class
+        fields = ['faculty',"course","group","day","starttime"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = FacultyCourse.objects.none()
+        self.fields['group'].queryset = FacultyGroups.objects.none()
+
+
+        if 'faculty' in self.data:
+            try:
+                faculty_id = int(self.data.get('faculty'))
+                self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=faculty_id)
+                self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=faculty_id)
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        elif self.instance.pk:
+            self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=self.instance.faculty)
+            self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=self.instance.faculty)
+
+class AddFacultyClassForm(forms.ModelForm):
+    class Meta:
+        model=Class
+        fields = ['lab',"course","group","day","starttime"]
+    def __init__(self, faculty,*args, **kwargs):
+        # print(faculty)
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = FacultyCourse.objects.filter(faculty=faculty)
+        self.fields['group'].queryset = FacultyGroups.objects.filter(faculty=faculty)
+
