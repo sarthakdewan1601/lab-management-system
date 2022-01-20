@@ -1,6 +1,9 @@
 import email
 from urllib import response
 from verify_email.email_handler import send_verification_email
+# from readline import write_history_file
+from tracemalloc import start
+from unicodedata import category
 from django import http
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -9,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.http.response import Http404
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, UserChangeForm #add this
 from django.contrib.auth import get_user_model
@@ -18,7 +21,8 @@ from  django.views.decorators.csrf import csrf_protect
 from django.db import IntegrityError
 from django.urls import reverse_lazy
 from .models import *
-from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, EditProfileForm
+from .forms import *
+from django.http import JsonResponse
 import datetime
 from .utils import send_email  # custom
 from django.core.mail import send_mail # default
@@ -34,6 +38,7 @@ UserModel = get_user_model()
 # Create your views here.
 @login_required
 def home(request):
+	staff=Staff.objects.get(email=request.user.email)
 	if request.user.is_staff:
 		# email='a@thaapr.edu'
 		a = User.objects.get(email=request.user)
@@ -120,19 +125,12 @@ def user_profile(request):
 		if staff.designation.designation == " Skilled Helper":
 			pass
 
-	elif staff.category.category == "Faculty":
-		if staff.designation.designation == " Professor":
-			pass
-		if staff.designation.designation == " Associate Professor":
-			pass
-		if staff.designation.designation == " Assistant Professor":
-			pass
+	else:
+		context={
+			'staff':staff,
+		}
+		return render(request,"user profiles/faculty.html",context)
 		
-	else :
-		if staff.designation.designation == " PHD":
-			pass
-		if staff.designation.designation == " ME":
-			pass
 
 @login_required
 def editProfile(request, pk):
@@ -157,18 +155,13 @@ def editProfile(request, pk):
 		else:
 			category=Category.objects.get(category=staff.category)
 			designations=Designation.objects.filter(category=category)
-			desig=[]
-			for des in designations:
-				if des != staff.designation:
-					desig.append(des)
-
+			designations=designations.exclude(designation=staff.designation)
 			agency=Agency.objects.exclude(agency=staff.agency)
 			context = {
 				"staff": admin,
 				"staff1": staff,
-				"designations":desig,
+				"designations":designations,
 				"agency":agency
-
 			}
 			return render(request, "user profiles/edit_profile.html", context)
 	else:
@@ -216,10 +209,10 @@ def requestleave(request):
 		form=request.POST
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
-		substitute=form['substitute']		
 		fromDate=form['fromDate']
+		substitute=form['substitute']
 		reason=form['reason']
-		substitute=Staff.objects.get(id=substitute)
+
 		year=datetime.datetime.now().year
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
 		fromDateNumber = fromDate.split("-")[2]
@@ -228,7 +221,7 @@ def requestleave(request):
 			toDate=form['toDate']
 			todateNumber = toDate.split("-")[2]
 			
-			# total count of leaves 
+			# total count of leaves , store it in models
 			countOfLeaves = int(todateNumber) - int(fromDateNumber)
 			
 			
@@ -302,6 +295,8 @@ def requestleave(request):
 			if leave.count<leave.leave_taken.count:
 				user_leaves_remaining.append(leave.leave_taken.LeaveName)
 		totalLeavesCurrYear=[leaves for leaves in totalLeavesCurrYear if leaves.LeaveName in user_leaves_remaining]
+		# print(user_leaves_remaining)
+		# print(totalLeavesCurrYear)
 		substitutes = Staff.objects.exclude(name=staff.name).all()
 		# substitutes = Staff.objects.all()
 
@@ -312,12 +307,10 @@ def requestleave(request):
 		}
 	
 		return render(request,"leaves/leaverequest.html",context)
-
-
 @login_required
 def checkLeaveStatus(request):
 	staff = Staff.objects.get(email=request.user.email)
-	print(staff)
+	# print(staff)
 
 	pendingRequests = UserLeaveStatus.objects.filter(staff=staff).order_by("-id")
 	# get all the pending requests 
@@ -365,7 +358,7 @@ def approveLeaves(request):
 
 	# get leaves in which current user is substitute
 
-	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-date_time")
+	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-from_date")
 	context = {
 		'staff':staff,
 		"leaves": leaves
@@ -515,6 +508,10 @@ def complaint(request, pk):
 		}
 		return render(request, 'Complaints/complaints.html', context)
 
+
+
+
+
 def view_complaints(request):
 	staff = Staff.objects.get(email=request.user.email)
 	active_complaints = Complaint.objects.filter(isActive = True).order_by('-date_created')
@@ -620,30 +617,7 @@ def handleNotification(request, pk):
 
 
 
-@login_required
-def add_computer(request, pk):
-	lab=Lab.objects.get(id=pk)
-	staff=Staff.objects.get(email=request.user.email)
-	print(lab)
-	if request.method == 'POST':
-		form = NewComputerForm(request.POST)
-		if form.is_valid():
-			labid=lab
-			compid=form.cleaned_data['computer_id']
-			fid=form.cleaned_data['floor_id']
-			computer, was_created=Devices.get_or_create(computer_id=compid,lab_id=labid,floor_id=fid)
-			computer.save()
-			
-		return redirect("main:home")
-	else:
-		form = NewComputerForm()
 
-		context={
-			'staff': staff,
-			'form': form,
-			'labid':lab,
-		}
-		return render(request, 'Labs/add_computer.html', context)
 	
 	
 def register_request(request):
@@ -813,17 +787,47 @@ def logout_request(request):
 @login_required
 def lab(request, pk):
 	# listof all devices
-	
-	lab = Lab.objects.filter(lab=pk).order_by('id').all()
-	lab_id=Lab.objects.get(id=pk)
+	staff=Staff.objects.get(email=request.user.email)
+	lab = Lab.objects.get(id=pk)
+	# lab_id=Lab.objects.get(id=pk)
 
 	devices=Devices.objects.filter(lab=pk).order_by("id").all()
-	print(devices)
+	# print(devices)
 	return render(request, "Labs/lab.html", {
+				'staff':staff,
 				'devices': devices,
 				'labid': pk,
-				'labname': lab
+				'lab': lab,
 				})
+
+@login_required
+def add_devices(request, pk):
+	lab=Lab.objects.get(id=pk)
+	# print(pk)
+	staff=Staff.objects.get(email=request.user.email)
+	# print(lab)
+	if request.method == 'POST':
+		form = NewComputerForm(request.POST)
+		if form.is_valid():
+			# print("hey")
+			deviceid=form.cleaned_data['device_id']
+			name = form.cleaned_data['name']
+			# print(name)
+			name=CategoryOfDevice.objects.get(category=name)
+			# fid=form.cleaned_data['floor_id']
+			description = form.cleaned_data['description']
+			device, was_created=Devices.objects.get_or_create(device_id=deviceid,name = name, description = description,lab=lab)
+			device.save()
+			return redirect('main:lab',pk=lab.id)
+	else:
+		form = NewComputerForm()
+
+		context={
+			'staff': staff,
+			'form': form,
+			'labid':lab,
+		}
+		return render(request, 'Labs/add_computer.html', context)
 
 @login_required
 def resolveConflict(request, pk):
@@ -854,7 +858,8 @@ def resolveConflict(request, pk):
 
 def adminStaff(request):
 	if request.user.is_staff:
-		staffs = Staff.objects.all()
+		staffs = Staff.objects.all().order_by('-designation')
+		
 		return render(request, "admin/adminStaffs.html", {"staffs":staffs})
 	else:
 		return render(request, "pagenotfound.html")
@@ -1010,3 +1015,396 @@ def removeLeave(request, pk):
 			# # yi hua isse :-(
 			# # inactive_user = send_verification_email(request, form)
 			# # inactive_user.cleaned_data['email']
+##Views for timetalbes:->
+# 1. viewtimetable  wrt lab
+# 2. view timetable wrt professor
+def viewtimetable_wrtlab(request,id):
+	lab=Lab.objects.get(id=id)
+	# print(id)
+	# print(lab)
+	staff=Staff.objects.get(email=request.user.email)
+	classes=Class.objects.filter(lab=id)
+	# print(classes)
+	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+	timeslots=[]
+	h=8
+	m=0
+	s=0
+	time=[]
+	while (h!=19) :
+		start_time=datetime.time(h,m,s)
+		m=m+50
+		
+		if m>=60:
+			h+=1
+			m=m%60
+		end_time=datetime.time(h,m,s)
+		timeslots.append(tuple((start_time,end_time)))
+		time.append(start_time)
+		# print(start_time , end_time)
+		# if(classes[0].starttime==start_time):
+		# 	print(classes[0])
+		
+	# print(timeslots[0][0],timeslots[0][1])
+	context={
+		'lab':lab,
+		'weekdays':weekdays,
+		'classes':classes,
+		'staff':staff,
+		'timeslots':timeslots,
+		'time':time,
+	}
+	return render(request,'Timetable/timetable_wrtlab.html',context)
+
+
+##2->add krna hia admin ke through:->
+#jb admin editkrega:->
+#professor->courses->display hoye
+
+def viewLabClasses(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	classes=Class.objects.filter(lab=id)
+	# print(classes)
+	context={
+		'staff':staff,
+		'classes':classes,
+		'labid':id,
+	}
+	return render(request,'Timetable/viewLabClasses.html',context)
+
+def add_classes(request,id):
+	form = AddClassForm()
+	lab=Lab.objects.get(id=id)
+	if request.method == 'POST':
+		form = AddClassForm(request.POST)
+		if form.is_valid():
+			# print(form)
+			faculty=form.cleaned_data['faculty']
+			# print(faculty.name)
+			# faculty=Staff.objects.get(id=faculty)
+			course=form.cleaned_data['course']
+			# print(course.faculty)
+			# course=FacultyCourse.objects.get(id=course)
+			group=form.cleaned_data['group']
+			# print(group.faculty)
+			# group=FacultyGroups.objects.get(id=group)
+			day=form.cleaned_data['day']
+			starttime=form.cleaned_data['starttime']
+
+			h=starttime.hour
+			m=starttime.minute
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			s=0
+			endtime=datetime.time(h,m,s)
+			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+			activity.save()
+			return redirect('main:viewLabClasses', id=id)
+	return render(request, 'Timetable/addclass.html', {'form': form})
+
+def load_courses(request):
+	faculty_id = request.GET.get('faculty_id')
+	# print(faculty_id)
+	courses = FacultyCourse.objects.filter(faculty_id=faculty_id).all()
+	# print(courses)
+	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': courses})
+	# return JsonResponse((x), safe=False)
+
+def load_groups(request):
+	faculty_id = request.GET.get('faculty_id')
+	groups = FacultyGroups.objects.filter(faculty_id=faculty_id).all()
+	# print(groups)
+	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': groups})
+	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
+
+def update_class(request, pk,id):
+		classes = get_object_or_404(Class, pk=pk)
+		lab=Lab.objects.get(id=id)
+		form = AddClassForm(instance=classes)
+		if request.method == 'POST':
+			form = AddClassForm(request.POST, instance=classes)
+			if form.is_valid():
+				faculty=form.cleaned_data['faculty']
+				# print(faculty.name)
+				# faculty=Staff.objects.get(id=faculty)
+				course=form.cleaned_data['course']
+				# print(course.faculty)
+				# course=FacultyCourse.objects.get(id=course)
+				group=form.cleaned_data['group']
+				# print(group.faculty)
+				# group=FacultyGroups.objects.get(id=group)
+				day=form.cleaned_data['day']
+				starttime=form.cleaned_data['starttime']
+
+				h=starttime.hour
+				m=starttime.minute
+				m=m+50
+				if(m>=60):
+					m=m%60
+					h+=1
+				m=m+50
+				if(m>=60):
+					m=m%60
+					h+=1
+				s=0
+				endtime=datetime.time(h,m,s)
+				# activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+				classes.lab=lab
+				classes.faculty=faculty
+				classes.course=course
+				classes.group=group
+				classes.day=day
+				classes.starttime=starttime
+				classes.endtime=endtime
+				classes.save()
+				return redirect('main:viewLabClasses', id=id)
+		return render(request, 'Timetable/addclass.html', {'form': form})
+
+def viewgroups(request):
+	staff=Staff.objects.get(email=request.user.email)
+	groups=FacultyGroups.objects.filter(faculty=staff)
+	context={
+		'staff':staff,
+		'groups':groups,
+	}
+	return render(request,'Timetable/viewgroups.html',context)
+
+def viewcourses(request):
+	staff=Staff.objects.get(email=request.user.email)
+	courses=FacultyCourse.objects.filter(faculty=staff)
+	# print(courses)
+	context={
+		'staff':staff,
+		'courses':courses,
+	}
+	return render(request,'Timetable/viewcourses.html',context)
+
+def viewfacultyclasses(request):
+	staff=Staff.objects.get(email=request.user.email)
+	classes=Class.objects.filter(faculty=staff)
+	context={
+		'staff':staff,
+		'classes':classes,
+	}
+	return render(request,'Timetable/viewfacultyclasses.html',context)
+
+def ViewFacultyDetails(request):
+	admin=Staff.objects.get(email=request.user.email)
+	c1=Category.objects.get(category='Faculty')
+	c2=Category.objects.get(category='Student')
+	staff=[]
+	staff1=Staff.objects.filter(category=c1)
+	staff2=Staff.objects.filter(category=c2)
+	staff.extend(staff1)
+	staff.extend(staff2)
+	# groups=FacultyGroups.objects.filter(faculty=staff)
+	# classes = Class.objects.filter(faculty = staff).
+	context={
+		'staff':admin,
+		'faculty':staff,
+	}
+	return render(request,"admin/adminfacultydetails.html",context)
+
+def viewfacultytimetable(request):
+	staff=Staff.objects.get(email=request.user.email)
+	classes=Class.objects.filter(faculty=staff)
+	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+	timeslots=[]
+	h=8
+	m=0
+	s=0
+	time=[]
+	while (h!=19) :
+		start_time=datetime.time(h,m,s)
+		m=m+50
+		
+		if m>=60:
+			h+=1
+			m=m%60
+		end_time=datetime.time(h,m,s)
+		timeslots.append(tuple((start_time,end_time)))
+		time.append(start_time)
+		# print(start_time , end_time)
+		# if(classes[0].starttime==start_time):
+		# 	print(classes[0])
+		
+	# print(timeslots[0][0],timeslots[0][1])
+	context={
+		'lab':lab,
+		'weekdays':weekdays,
+		'classes':classes,
+		'staff':staff,
+		'timeslots':timeslots,
+		'time':time,
+	}
+	return render(request,'Timetable/timetable_wrtfaculty.html',context)
+	# return render(request,'',context)
+
+
+def adminviewgroups(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	faculty=Staff.objects.get(id=id)
+	groups=FacultyGroups.objects.filter(faculty=faculty)
+	context={
+		'staff':staff,
+		'groups':groups,
+		'faculty' : faculty,
+	}
+	return render(request,'admin/adminviewgroups.html',context)
+
+def adminviewcourses(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	faculty=Staff.objects.get(id=id)
+	courses=FacultyCourse.objects.filter(faculty=faculty)
+	context={
+		'staff':staff,
+		'courses':courses,
+		'faculty':faculty,		
+	}
+	return render(request,'admin/adminviewcourses.html',context)
+
+def adminviewclasses(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	faculty=Staff.objects.get(id=id)
+	classes=Class.objects.filter(faculty=faculty)
+	context={
+		'staff':staff,
+		'classes':classes,
+		'faculty':faculty,
+	}
+	return render(request,'admin/adminviewclasses.html',context)
+
+def admindeletegroup(request,id):
+	group=FacultyGroups.objects.get(id=id)
+	facid=group.faculty.id
+	group.delete()
+	return redirect('main:adminviewgroups',id=facid)
+
+def admindeletecourses(request,id):
+	course=FacultyCourse.objects.get(id=id)
+	print(course)
+	facid=course.faculty.id
+	print(facid)
+	course.delete()
+	return redirect('main:adminviewcourses',id=facid)
+	
+def adminaddcourses(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	faculty = Staff.objects.get(id = id)
+	form = AddCourseForm()
+	if request.method == 'POST':
+		form = AddCourseForm(request.POST)
+		if form.is_valid():
+			faculty=form.cleaned_data['faculty']
+			course=form.cleaned_data['course']
+			course,wascreated=FacultyCourse.objects.get_or_create(faculty=faculty,course=course)
+			course.save()
+			return redirect('main:adminviewcourses', id=id)
+			# return HttpResponse(202)
+	return render(request,'admin/adminaddfacultycourses.html',{'form' : form})
+		# return HttpResponse('202')
+
+def adminaddgroup(request,id):
+	staff=Staff.objects.get(email=request.user.email)
+	faculty = Staff.objects.get(id = id)
+	form = AddGroupForm()
+	if request.method == 'POST':
+		form = AddGroupForm(request.POST)
+		if form.is_valid():
+			faculty=form.cleaned_data['faculty']
+			group=form.cleaned_data['groups']
+			group,wascreated=FacultyGroups.objects.get_or_create(faculty=faculty,groups = group)
+			group.save()
+			return redirect('main:adminviewgroups', id=id)
+			# return HttpResponse(202)
+	return render(request,'admin/adminaddfacultygroups.html',{'form' : form})
+		# return HttpResponse('202')
+
+
+def adminaddfacultyclass(request,id):
+	faculty=Staff.objects.get(id=id)
+	staff=Staff.objects.get(email=request.user.email)
+	form=AddFacultyClassForm(faculty)
+	if request.method == 'POST':
+		form=AddFacultyClassForm(faculty,request.POST)
+		if form.is_valid():
+			print("yay")
+			lab=form.cleaned_data['lab']
+			course=form.cleaned_data['course']
+			group=form.cleaned_data['group']
+			day=form.cleaned_data['day']
+			starttime=form.cleaned_data['starttime']
+			h=starttime.hour
+			m=starttime.minute
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			s=0
+			endtime=datetime.time(h,m,s)
+			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+			activity.save()
+			return redirect('main:adminviewclasses', id=id)
+	context={
+		'staff':staff,
+		'form':form,
+		'faculty':faculty,
+	}
+	return render(request,'admin/adminaddfacultyclasses.html',context)
+
+
+
+def adminupdatefacultyclass(request,id,pk):
+	staff=Staff.objects.get(email=request.user.email)
+	classes = get_object_or_404(Class, pk=pk)
+	faculty=Staff.objects.get(id=id)
+	form = AddFacultyClassForm(faculty,instance=classes)
+	if request.method == 'POST':
+		form = AddFacultyClassForm(faculty,request.POST, instance=classes)
+		if form.is_valid():
+			print(form)
+			lab=form.cleaned_data['lab']
+			# print(faculty.name)
+			# faculty=Staff.objects.get(id=faculty)
+			course=form.cleaned_data['course']
+			# print(course.faculty)
+			# course=FacultyCourse.objects.get(id=course)
+			group=form.cleaned_data['group']
+			# print(group.faculty)
+			# group=FacultyGroups.objects.get(id=group)
+			day=form.cleaned_data['day']
+			starttime=form.cleaned_data['starttime']
+
+			h=starttime.hour
+			m=starttime.minute
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			m=m+50
+			if(m>=60):
+				m=m%60
+				h+=1
+			s=0
+			endtime=datetime.time(h,m,s)
+			# activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+			classes.lab=lab
+			classes.faculty=faculty
+			classes.course=course
+			classes.group=group
+			classes.day=day
+			classes.starttime=starttime
+			classes.endtime=endtime
+			classes.save()
+			return redirect('main:adminviewclasses', id=id)
+	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
