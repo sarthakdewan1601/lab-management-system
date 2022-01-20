@@ -20,9 +20,10 @@ from django.urls import reverse_lazy
 from .models import *
 from .forms import LoginForm, ComplaintForm, NewComputerForm, SignupForm, AddNewLeave, EditProfileForm
 import datetime
-from .utils import send_email 
+from .utils import send_email  # custom
+from django.core.mail import send_mail # default
 
-from django_email_verification import send_email
+# from django_email_verification import send_email
 
 # from django.contrib.auth import get_user_model
 
@@ -221,38 +222,39 @@ def requestleave(request):
 		substitute=Staff.objects.get(id=substitute)
 		year=datetime.datetime.now().year
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
-
+		fromDateNumber = fromDate.split("-")[2]
 		try:
-			print("dates")
 			multipleLeaves = form['multipleLeaveCheckbox']
 			toDate=form['toDate']
+			todateNumber = toDate.split("-")[2]
+			
+			# total count of leaves 
+			countOfLeaves = int(todateNumber) - int(fromDateNumber)
+			
+			
+			userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substitute)
+			userstatus.save()
+			##notification
 
-			# countdays = toDate.date - fromDate.date
-			print(toDate.date, fromDate.date)
+			customMessage1 = staff.name + " requested for leave"
+			notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever=str(substitute.id)+' '+substitute.name, 
+				message=customMessage1,
+				notification_type = 'LEAVE',
+				taskId = userstatus.id
+			)
+			notification.save()
 
-			# userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substitute)
-			# userstatus.save()
-			# ##notification
-
-			# customMessage1 = staff.name + " requested for leave"
-			# notification, was_created = Notification.objects.get_or_create(
-			# 	sender=staff, 
-			# 	reciever=str(substitute.id)+' '+substitute.name, 
-			# 	message=customMessage1,
-			# 	notification_type = 'LEAVE',
-			# 	taskId = userstatus.id
-			# )
-			# notification.save()
-
-			# customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
-			# notification, was_created = Notification.objects.get_or_create(
-			# 	sender=staff, 
-			# 	reciever=str(staff.id) + ' ' + staff.name, 
-			# 	message=customMessage2,
-			# 	notification_type = 'LEAVE',
-			# 	taskId=userstatus.id
-			# )
-			# notification.save()
+			customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+			notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever=str(staff.id) + ' ' + staff.name, 
+				message=customMessage2,
+				notification_type = 'LEAVE',
+				taskId=userstatus.id
+			)
+			notification.save()
 			return HttpResponse(200)
 
 		except:
@@ -777,11 +779,8 @@ def login_request(request):
 			if res!='thapar.edu':
 				messages.error(request, "Please enter you thapar email id")
 				return HttpResponse(400)
-
-			# user=ExtendedUserModelBackend.authenticate(username=email,password=password)
-		#	print(res)
+				
 			UserModel = get_user_model()
-		#	print(UserModel)
 			try:
 				user = UserModel.objects.get(email=email)
 			except UserModel.DoesNotExist:
