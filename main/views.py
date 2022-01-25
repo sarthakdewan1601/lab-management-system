@@ -24,8 +24,10 @@ from .models import *
 from .forms import *
 from django.http import JsonResponse
 import datetime
-from .utils import send_email  # custom
-from django.core.mail import send_mail # default
+# from .utils import send_email  # custom
+# from django.core.mail import send_mail # default
+
+from django_email_verification import send_email
 
 # from django_email_verification import send_email
 
@@ -126,6 +128,7 @@ def user_profile(request):
 			pass
 
 	else:
+		# print(request.user.is_active)
 		context={
 			'staff':staff,
 		}
@@ -650,11 +653,15 @@ def register_request(request):
 			Agen=Agency.objects.get(agency=agency)
 			
 			if designation == 'System Analyst' or designation == 'Lab Supervisor':
-				User.objects.create_superuser(email, password)
-			else:
-				user = User.objects.create_user(email, password)
+				user = User.objects.create_superuser(email, password, is_active=False)
 				send_email(user)
+				print("email sent")
+			else:
+				user = User.objects.create_user(email, password, is_active=False)
+				send_email(user)
+				print("email sent")
 			
+
 			staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
 			staff.save()
 
