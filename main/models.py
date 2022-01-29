@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from tokenize import Name
 from django import db
 from django.db import models, reset_queries
@@ -45,13 +46,32 @@ class Designation(models.Model):
     category=models.ForeignKey("Category",on_delete = CASCADE)
     designation =models.CharField(max_length=400)
     def __str__(self):
-        return self.designation
+        return self.designation + '('+self.category.category+')'
 
 class Category(models.Model):             
     category =models.CharField(max_length=400)
     def __str__(self):
         return self.category
     
+#office table:-> konse koonse rooms allot hote hai faculty ko ,lab staff ko,office staff ko,
+
+#inventory ka table:-> staff,category of devices,description
+
+#staff ke andr office ki foreinkey dedenge
+
+class CategoryOfDevice(models.Model):
+    category = models.CharField(max_length=100, null=False)
+
+    def __str__(self):
+        return self.category
+
+class Room(models.Model):
+    room_id = models.CharField(max_length=20, blank=False)
+    name = models.CharField(max_length=255, blank=True)
+    floor = models.CharField(max_length=10,blank=False, null=False)
+    def __str__(self):
+        return self.room_id + ' ('+self.name+')'
+
 
 class Staff(models.Model):
     name=models.CharField(max_length=100)
@@ -60,11 +80,19 @@ class Staff(models.Model):
     category=models.ForeignKey('Category',on_delete=CASCADE)
     designation=models.ForeignKey('Designation',on_delete=CASCADE)
     agency = models.ForeignKey('Agency',on_delete=CASCADE)
+    room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
+    
     
     def __str__(self):
         return self.name + " " + self.designation.designation
 
+class StaffInventory(models.Model):
+    staff=models.ForeignKey('Staff',on_delete=CASCADE)
+    device=models.ForeignKey('Devices',on_delete=models.CASCADE)
+    date_added=models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.staff.name + '-' + self.device.name.category
 
 class TotalLeaves(models.Model):
     LeaveName = models.CharField(max_length=100, blank=True)
@@ -75,10 +103,8 @@ class TotalLeaves(models.Model):
         return self.LeaveName + "("+ str(self.year) + ")"
     
 
-# usne leave leli
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
-    # leave_type=models.CharField(max_length=255, )
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
     from_date=models.DateTimeField()    # jis din chahiye
     to_date=models.DateTimeField(null=True)
@@ -131,32 +157,27 @@ class Complaint(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
-        return "Complaint for lab " + str(self.device.lab.lab)
+        return "Complaint for lab " + str(self.device.room.room_id)
    
 class Lab(models.Model):
-    lab = models.CharField(max_length=20, blank=False)
-    name = models.CharField(max_length=255, blank=True)
-    floor = models.CharField(max_length=10,blank=False, null=False)
+    lab=models.ForeignKey(Room,on_delete=CASCADE)
     staff = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, blank=True)
 
-    def __str__(self):
-        return self.lab
+    def __str__(self): 
+        return self.lab.room_id
     
 
-class CategoryOfDevice(models.Model):
-    category = models.CharField(max_length=100, null=False)
 
-    def __str__(self):
-        return self.category
 
 class Devices(models.Model):
-    device_id = models.CharField(max_length=20, blank=False, null=False)
+    device_id = models.CharField(max_length=20, blank=False, null=False,unique=True)
     name=models.ForeignKey("CategoryOfDevice",blank=False,null=False, on_delete=models.CASCADE)
     description = models.TextField(max_length=1024)
-    lab = models.ForeignKey(Lab, on_delete=models.CASCADE)
+    room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
+    #room 
 
     def __str__(self):
-        return self.device_id +" "+ "(" + self.lab.lab + ")"
+        return self.device_id +" - "+str(self.room)
 
 
 
@@ -224,6 +245,7 @@ class Course(models.Model):
     course_id=models.CharField(max_length=100,blank=False,default=None)
     course_name=models.CharField(max_length=200,blank=False,default=None)
     course_credit=models.CharField(max_length=5)
+    #year #odd/even ali choice field
 
     def __str__(self):
         return self.course_name + ' ('+self.course_id+')'
@@ -247,6 +269,7 @@ class Branches(models.Model):
 class Groups(models.Model):
     group_id = models.CharField(max_length = 300, blank = False , null = False, default = "NILL")
     branch = models.ForeignKey('Branches' , on_delete = CASCADE)
+    #year wali field aayegi and odd/even sem wali fields aayengi
 
     def __str__(self):
         return self.group_id + ' (' + self.branch.branch_id + ')'
@@ -273,12 +296,13 @@ class Class(models.Model):
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
     course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
     group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
+    # faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)
 
     def __str__(self):
-        return self.lab.lab + ' ' + self.faculty.name + ' '+ self.course.course.course_name + ' ' + self.day + self.group.groups.group_id
+        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.course.course.course_name + ' ' + self.day + self.group.groups.group_id
 
 
 class GroupCourse(models.Model):
@@ -288,6 +312,9 @@ class GroupCourse(models.Model):
 
     def __str__(self):
         return self.faculty.name + ' (' + self.group.groups.group_id + ')' + ' (' + self.course.course.course_id + ')'
+
+#Adogra professor:-> dbms coe2
+#Adogra professor-> ds coe1
 
 #admin page
 #activity page:->

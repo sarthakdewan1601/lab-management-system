@@ -28,8 +28,8 @@
             <div class="col-sm-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ lab }}</h5>
-                    <p class="card-text">floor - {{lab.floor}}</p>
+                    <h5 class="card-title">{{ lab.lab.room_id }}</h5>
+                    <p class="card-text">floor - {{lab.lab.floor}}</p>
                     <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-primary">View Lab</a>
                 </div>
             </div>

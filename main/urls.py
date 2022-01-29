@@ -42,6 +42,7 @@ urlpatterns = [
     path('profile/viewgroups/',views.viewgroups,name='viewgroups'),
     path('profile/viewclasses/',views.viewfacultyclasses,name='viewfacultyclasses'),
     path('profile/viewfacultytimetable/',views.viewfacultytimetable,name='viewfacultytimetable'),
+    path('profile/viewitemsalloted/',views.viewinventory,name='viewinventory'),
 
     # admin paths
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),

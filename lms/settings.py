@@ -168,3 +168,4 @@ EMAIL_PAGE_TEMPLATE = '/templates/accounts/email_confirmation.html'
 EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
 # EMAIL_PAGE_DOMAIN = 'http://mydomain.com/'
 EMAIL_MULTI_USER = True  
+

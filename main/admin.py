@@ -27,6 +27,8 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Devices)
 admin.site.register(Complaint)
+admin.site.register(Room)
+admin.site.register(StaffInventory)
 admin.site.register(Lab)
 admin.site.register(Staff)
 admin.site.register(Agency)

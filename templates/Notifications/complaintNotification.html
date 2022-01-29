@@ -19,8 +19,8 @@
           <tbody>
   
           <tr>
-              <td>{{ complaint.device.lab.lab }}</td>
-              <td>{{ complaint.device.lab.name }}</td>
+              <td>{{ complaint.device.room.room_id }}</td>
+              <td>{{ complaint.device.room.name }}</td>
               <td>{{ complaint.device.device_id }} </td>
               <td>{{ complaint.complaint }}</td>
               <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>

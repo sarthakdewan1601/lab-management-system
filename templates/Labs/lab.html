@@ -4,7 +4,7 @@
 
 {% include 'navbar.html' with staff=staff %}
 <div class="wrapper_">
-<h1>{{lab.name}} ({{lab.lab}})</h1>
+<h1>{{lab.lab.name}} ({{lab.lab.room_id}})</h1>
 <div class = "lab-h1">
     <h1>Devices</h1>
 </div>
@@ -16,10 +16,10 @@
             <th scope="col">#</th>
             <th scope="col">Device ID</th>
             <th scope="col">Device Category</th>
-            <th scope="col">Devices Descirption</th
-            {%if staff.designation.designation == "Lab Attendent"%}
-            <th scope="col">Add Complaint</th>
-            {%endif%}
+            <th scope="col">Devices Descirption</th>
+            {% if staff.designation.designation == "Lab Attendent" %}
+               <th scope="col">Add Complaint</th>
+            {% endif %}
           </tr>
         </thead>
         
