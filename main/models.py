@@ -257,15 +257,15 @@ class FacultyCourse(models.Model):
         return st
 
 class Branches(models.Model):
-    branch_id=models.CharField(max_length=10,blank=False,default='COE')
-    branch_name=models.CharField(max_length=200,default='Computer Engineering',blank = False, null = False)
+    branch_id=models.CharField(max_length=10, blank=False, default='', null=False)
+    branch_name=models.CharField(max_length=200,default='',blank = False, null = False)
 
     def __str__(self):
         return self.branch_name + ' (' + self.branch_id + ')'
 
     
 class Groups(models.Model):
-    group_id = models.CharField(max_length = 300, blank = False , null = False, default = "NILL")
+    group_id = models.CharField(max_length = 300, blank = True , null = False, default = "")
     branch = models.ForeignKey('Branches' , on_delete = CASCADE)
     #year wali field aayegi and odd/even sem wali fields aayengi
 

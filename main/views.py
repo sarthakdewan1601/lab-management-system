@@ -7,6 +7,7 @@ from django.conf import settings
 from email.message import EmailMessage
 from urllib import response
 from flask import request
+from matplotlib.style import context
 from verify_email.email_handler import send_verification_email
 # from readline import write_history_file
 from tracemalloc import start
@@ -922,32 +923,26 @@ def lab(request, pk):
 	# list of all devices
 	staff = Staff.objects.get(user_obj=request.user)
 	lab = Lab.objects.get(id=pk)
-	# lab_id=Lab.objects.get(id=pk)
-
 	devices=Devices.objects.filter(room=lab.lab).order_by("id").all()
-	# print(devices)
-	return render(request, "Labs/lab.html", {
-				'staff':staff,
-				'devices': devices,
-				'labid': pk,
-				'lab': lab,
-				})
+	context = {
+		'staff':staff,
+		'devices': devices,
+		'labid': pk,
+		'lab': lab,
+	}
+	return render(request, "Labs/lab.html", context)
 
 @login_required
 def add_devices(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
 	lab=Lab.objects.get(id=pk)
 	room=lab.lab
-	# print(lab)
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
 		if form.is_valid():
-			# print("hey")
 			deviceid=form.cleaned_data['device_id']
 			name = form.cleaned_data['name']
-			# print(name)
 			name=CategoryOfDevice.objects.get(category=name)
-			# fid=form.cleaned_data['floor_id']
 			description = form.cleaned_data['description']
 			device, was_created=Devices.objects.get_or_create(device_id=deviceid,name = name, description = description,room=room)
 			device.save()
