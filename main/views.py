@@ -341,13 +341,13 @@ def	passwordChange(request, id):
 
 @login_required
 def home(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		a = User.objects.get(email=request.user)
 		print(a)
 		return render(request, "admin/dashboard.html", {"staff":staff})
 
-	staff = Staff.objects.get(email=request.user.email)
+	staff = Staff.objects.get(user_obj=request.user)
 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request)})
 
@@ -358,7 +358,7 @@ def home(request):
 	# 	return render(request, "tech_dashboard.html", context)
 
 def user_profile_details(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	return render(request, "userProfiles/user_profile.html", {'staff':staff})
 
 @login_required
@@ -384,7 +384,7 @@ def user_profile(request):
 		
 		if staff.designation.designation == "Lab Attendent":
 
-			staff_1 = Staff.objects.get(email=request.user.email)
+			staff_1 = Staff.objects.get(user_obj=request.user)
 			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 
 			#leaves=Leaves.objects.get(staff=staff)
@@ -396,7 +396,7 @@ def user_profile(request):
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
-			staff = Staff.objects.get(email=request.user.email)			
+			staff = Staff.objects.get(user_obj=request.user)			
 			complaints = Complaint.objects.filter(isActive=True).all()
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
@@ -437,7 +437,7 @@ def user_profile(request):
 def editProfile(request, pk):
 	staff = Staff.objects.get(id=pk)		
 	if request.user.is_staff:
-		admin=Staff.objects.get(email=request.user.email)
+		admin=Staff.objects.get(user_obj=request.user)
 		if request.method=="POST":
 			form=request.POST
 			name=form['name']
@@ -482,7 +482,7 @@ def editProfile(request, pk):
 
 @login_required
 def userLeaves(request):
-	staff = Staff.objects.get(email=request.user.email)	
+	staff = Staff.objects.get(user_obj=request.user)	
 	year = datetime.datetime.now().year
 	leavesThisYear = TotalLeaves.objects.filter(year=year).all()
 	
@@ -499,7 +499,7 @@ def userLeaves(request):
 
 @csrf_protect
 def requestleave(request):
-	staff= Staff.objects.get(email=request.user.email)
+	staff= Staff.objects.get(user_obj=request.user)
 
 	if request.method == 'POST':
 		# check kr ki jo leave request kri hai vo exceed toh nai h 
@@ -609,7 +609,7 @@ def requestleave(request):
 		return render(request,"leaves/leaverequest.html",context)
 @login_required
 def checkLeaveStatus(request):
-	staff = Staff.objects.get(email=request.user.email)
+	staff = Staff.objects.get(user_obj=request.user)
 	# print(staff)
 
 	pendingRequests = UserLeaveStatus.objects.filter(staff=staff).order_by("-id")
@@ -622,7 +622,7 @@ def checkLeaveStatus(request):
 
 @login_required
 def checkLeaveStatusId(request, pk):
-	staff = Staff.objects.get(email=request.user.email)
+	staff = Staff.objects.get(user_obj=request.user)
 	leaveRequest = UserLeaveStatus.objects.get(id=pk)
 	context = {
 		'staff':staff,
@@ -640,7 +640,7 @@ def cancelLeaveRequest(request, pk):
 
 @login_required
 def approveLeaves(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	#for admin
 	if request.user.is_staff:
 		#return HttpResponse(201)
@@ -670,7 +670,7 @@ def approveLeaves(request):
 def approveRequest(request, pk):
 	# get leave
 	if request.user.is_staff:
-		sender=Staff.objects.get(email=request.user.email)
+		sender=Staff.objects.get(user_obj=request.user)
 		leave = UserLeaveStatus.objects.get(id=pk)
 		leave.admin_approval = True
 		leave.rejected = False
@@ -716,7 +716,7 @@ def approveRequest(request, pk):
 
 @login_required
 def declineRequest(request, pk):
-	sender=Staff.objects.get(email=request.user.email)
+	sender=Staff.objects.get(user_obj=request.user)
 
 	if request.user.is_staff:	
 		leave = UserLeaveStatus.objects.get(id=pk)
@@ -761,7 +761,7 @@ def declineRequest(request, pk):
 	return redirect("main:approveLeaves")
 
 def viewprevleaves(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True)
 	context={
 		'staff':staff,
@@ -772,13 +772,13 @@ def viewprevleaves(request):
 @login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	if request.method == 'POST':
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
 			complaint=form.cleaned_data['complaint']
-			# staff=Staff.objects.get(email=request.user.email)	
+			# staff=Staff.objects.get(user_obj=request.user)	
 			complaint, was_created = Complaint.objects.get_or_create(
 				created_by=staff,
 				device=dev,
@@ -814,7 +814,7 @@ def complaint(request, pk):
 
 
 def view_complaints(request):
-	staff = Staff.objects.get(email=request.user.email)
+	staff = Staff.objects.get(user_obj=request.user)
 	active_complaints = Complaint.objects.filter(isActive = True).order_by('-date_created')
 	resolved_complaints=Complaint.objects.filter(isActive = False).order_by('-date_created')
 	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
@@ -829,7 +829,7 @@ def view_complaints(request):
 
 @login_required
 def notifications(request):
-	staff = Staff.objects.get(email=request.user.email)			
+	staff = Staff.objects.get(user_obj=request.user)		
 	designation = staff.designation.designation
 	notifications=[]
 	
@@ -853,7 +853,7 @@ def notifications(request):
 @login_required
 def handleNotification(request, pk):							# get notification and userleavestatus objects  # compare and render 
 													
-	staff = Staff.objects.get(email=request.user.email)	 	# current user		
+	staff = Staff.objects.get(user_obj=request.user)	 	# current user		
 	notification = Notification.objects.get(id=pk)
 	taskId = notification.taskId
 	
@@ -920,7 +920,7 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 @login_required
 def lab(request, pk):
 	# list of all devices
-	staff=Staff.objects.get(email=request.user.email)
+	staff = Staff.objects.get(user_obj=request.user)
 	lab = Lab.objects.get(id=pk)
 	# lab_id=Lab.objects.get(id=pk)
 
@@ -935,9 +935,9 @@ def lab(request, pk):
 
 @login_required
 def add_devices(request, pk):
+	staff = Staff.objects.get(user_obj=request.user)
 	lab=Lab.objects.get(id=pk)
 	room=lab.lab
-	staff=Staff.objects.get(email=request.user.email)
 	# print(lab)
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
@@ -964,8 +964,9 @@ def add_devices(request, pk):
 
 @login_required
 def resolveConflict(request, pk):
+	staff = Staff.objects.get(user_obj=request.user)
 	complaint = Complaint.objects.get(id=pk)
-	resolver=Staff.objects.get(email=request.user.email)
+	resolver=Staff.objects.get(user_obj=request.user)
 	if request.method == 'POST':
 		complaint.work_Done=request.POST['workdone']
 		complaint.isActive=False
@@ -983,6 +984,7 @@ def resolveConflict(request, pk):
 	else:   
 		admin_status = request.user.is_staff
 		context={
+			"staff":staff,
 			'complaint':complaint,
 			'admin_status': admin_status
 		}
@@ -990,34 +992,39 @@ def resolveConflict(request, pk):
 
 
 def adminStaff(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		staffs = Staff.objects.all().order_by('-designation')
 		
-		return render(request, "admin/adminStaffs.html", {"staffs":staffs})
+		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff})
 	else:
 		return render(request, "pagenotfound.html")
 
 def adminLabs(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		labs=Lab.objects.all()
-		return render(request, "admin/adminLabs.html", {"labs": labs})
+		return render(request, "admin/adminLabs.html", {"labs": labs, "staff":staff})
 	else:
 		return render(request, "pagenotfound.html")
 
 def adminComplaints(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		complaints = Complaint.objects.all().order_by('id')
-		return render(request, "admin/adminComplaints.html", {"complaints":complaints})
+		return render(request, "admin/adminComplaints.html", {"complaints":complaints, "staff":staff})
 	else:
 		return render(request, "pagenotfound.html")
 
 @login_required
 def adminLeaves(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		year = datetime.datetime.now().year
 		leavesThisYear = TotalLeaves.objects.filter(year=year).all()
 
 		context = {
+			"staff":staff,
 			"leavesThisYear": leavesThisYear
 		}
 
@@ -1027,7 +1034,7 @@ def adminLeaves(request):
 
 @login_required
 def newLeave(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	if request.method == "POST":
 		# create a new leave type and assign it to all the users with their initial count = 0
 		form = AddNewLeave(request.POST)
@@ -1058,7 +1065,7 @@ def newLeave(request):
 
 @login_required
 def adminEditLeave(request, pk):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		leave = TotalLeaves.objects.get(id=pk)
 		if request.method == "POST":
@@ -1073,81 +1080,18 @@ def adminEditLeave(request, pk):
 
 @login_required
 def removeLeave(request, pk):
+	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
 		leave = TotalLeaves.objects.get(id=pk)
 		leave.delete()
 		return redirect('main:adminLeaves')
 		
 	else:
-		return render(request, "pagenotfound.html")
+		return render(request, "pagenotfound.html", {"staff":staff})
 
 
 
 
-# def register_request(request):
-# 	if request.method == "POST":
-# 		form = SignupForm(request.POST)
-# 		if form.is_valid():
-# 			email=form.cleaned_data['email'] # check for @thapar.edu
-# 			res=email.split('@')[1]
-# 			if res!='thapar.edu':
-# 				messages.error(request, "Please enter you thapar email id")
-# 				return redirect("main:register")
-# 			else:
-
-# 				name=form.cleaned_data['name']
-# 				category1=request.POST['category']
-# 				designation=request.POST['designation']
-# 				agency=request.POST['agency']
-# 				mobile_number=form.cleaned_data['mobile_number']
-# 				Cat=Category.objects.get(category=category1)
-# 				Des=Designation.objects.get(designation=designation)
-				
-# 				Agen=Agency.objects.get(agency=agency)
-# 				staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
-
-# 				inactive_user = send_verification_email(request, form)
-# 				if designation == 'System Analyst' or designation == 'Lab Supervisor':
-					
-# 					user = User.objects.get(email=email)
-# 					user.is_staff = True
-# 					user.is_admin = True
-# 					user.is_superuser=True
-# 					user.save()
-
-# 				staff.save()
-
-# 				# get all leaves create leave taken objects
-# 				year = datetime.datetime.now().year 
-# 				totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
-
-# 				for leave in totalLeavesCurrYear:
-# 					userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
-# 						staff=staff,
-# 						leave_taken=leave
-# 					)
-# 					userLeavesTaken.save()
-					
-				
-# 				return redirect("main:login")
-# 		else:
-# 			messages.error(request, "some error")
-# 			return redirect("main:register")
-# 	else:
-# 		form = SignupForm()
-# 		return render (request=request, template_name="accounts/register.html", context={"form": form})
-
-
-			# verifiedUser = form.save(commit=False)
-			# # verifiedUser.user = user
-			# # verifiedUser.save()
-			# current_site = get_current_site(request)
-			# send_email(current_site, user, verifiedUser.Name)
-			# # # logout(request)
-			
-			# # yi hua isse :-(
-			# # inactive_user = send_verification_email(request, form)
-			# # inactive_user.cleaned_data['email']
 ##Views for timetalbes:->
 # 1. viewtimetable  wrt lab
 # 2. view timetable wrt professor
@@ -1155,7 +1099,7 @@ def viewtimetable_wrtlab(request,id):
 	lab=Lab.objects.get(id=id)
 	# print(id)
 	# print(lab)
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
 	# print(classes)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -1195,7 +1139,7 @@ def viewtimetable_wrtlab(request,id):
 #professor->courses->display hoye
 
 def viewLabClasses(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
 	# print(classes)
 	context={
@@ -1206,6 +1150,7 @@ def viewLabClasses(request,id):
 	return render(request,'Timetable/viewLabClasses.html',context)
 
 def add_classes(request,id):
+	staff = Staff.objects.get(user_obj=request.user)
 	form = AddClassForm()
 	lab=Lab.objects.get(id=id)
 	if request.method == 'POST':
@@ -1239,24 +1184,27 @@ def add_classes(request,id):
 			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
 			activity.save()
 			return redirect('main:viewLabClasses', id=id)
-	return render(request, 'Timetable/addclass.html', {'form': form})
+	return render(request, 'Timetable/addclass.html', {'form': form, "staff":staff})
 
 def load_courses(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	faculty_id = request.GET.get('faculty_id')
 	# print(faculty_id)
 	courses = FacultyCourse.objects.filter(faculty_id=faculty_id).all()
 	# print(courses)
-	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': courses})
+	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': courses, "staff":staff})
 	# return JsonResponse((x), safe=False)
 
 def load_groups(request):
+	staff = Staff.objects.get(user_obj=request.user)
 	faculty_id = request.GET.get('faculty_id')
 	groups = FacultyGroups.objects.filter(faculty_id=faculty_id).all()
 	# print(groups)
-	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': groups})
+	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': groups, "staff":staff})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
 
 def update_class(request, pk,id):
+		staff = Staff.objects.get(user_obj=request.user)
 		classes = get_object_or_404(Class, pk=pk)
 		lab=Lab.objects.get(id=id)
 		form = AddClassForm(instance=classes)
@@ -1297,10 +1245,10 @@ def update_class(request, pk,id):
 				classes.endtime=endtime
 				classes.save()
 				return redirect('main:viewLabClasses', id=id)
-		return render(request, 'Timetable/addclass.html', {'form': form})
+		return render(request, 'Timetable/addclass.html', {'form': form, "staff": staff})
 
 def viewgroups(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	groups=FacultyGroups.objects.filter(faculty=staff)
 	context={
 		'staff':staff,
@@ -1309,7 +1257,7 @@ def viewgroups(request):
 	return render(request,'Timetable/viewgroups.html',context)
 
 def viewcourses(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	courses=FacultyCourse.objects.filter(faculty=staff)
 	# print(courses)
 	context={
@@ -1319,7 +1267,7 @@ def viewcourses(request):
 	return render(request,'Timetable/viewcourses.html',context)
 
 def viewfacultyclasses(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(faculty=staff)
 	context={
 		'staff':staff,
@@ -1328,7 +1276,7 @@ def viewfacultyclasses(request):
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
 def ViewFacultyDetails(request):
-	admin=Staff.objects.get(email=request.user.email)
+	admin=Staff.objects.get(user_obj=request.user)
 	c1=Category.objects.get(category='Faculty')
 	c2=Category.objects.get(category='Student')
 	staff=[]
@@ -1345,7 +1293,7 @@ def ViewFacultyDetails(request):
 	return render(request,"admin/adminfacultydetails.html",context)
 
 def viewfacultytimetable(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(faculty=staff)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 	timeslots=[]
@@ -1381,7 +1329,7 @@ def viewfacultytimetable(request):
 
 
 def adminviewgroups(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	groups=FacultyGroups.objects.filter(faculty=faculty)
 	context={
@@ -1392,7 +1340,7 @@ def adminviewgroups(request,id):
 	return render(request,'admin/adminviewgroups.html',context)
 
 def adminviewcourses(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	courses=FacultyCourse.objects.filter(faculty=faculty)
 	context={
@@ -1403,7 +1351,7 @@ def adminviewcourses(request,id):
 	return render(request,'admin/adminviewcourses.html',context)
 
 def adminviewclasses(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	classes=Class.objects.filter(faculty=faculty)
 	context={
@@ -1428,7 +1376,7 @@ def admindeletecourses(request,id):
 	return redirect('main:adminviewcourses',id=facid)
 	
 def adminaddcourses(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	faculty = Staff.objects.get(id = id)
 	form = AddCourseForm()
 	if request.method == 'POST':
@@ -1440,11 +1388,11 @@ def adminaddcourses(request,id):
 			course.save()
 			return redirect('main:adminviewcourses', id=id)
 			# return HttpResponse(202)
-	return render(request,'admin/adminaddfacultycourses.html',{'form' : form})
+	return render(request,'admin/adminaddfacultycourses.html',{'form' : form, "staff":staff})
 		# return HttpResponse('202')
 
 def adminaddgroup(request,id):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	faculty = Staff.objects.get(id = id)
 	form = AddGroupForm()
 	if request.method == 'POST':
@@ -1456,13 +1404,13 @@ def adminaddgroup(request,id):
 			group.save()
 			return redirect('main:adminviewgroups', id=id)
 			# return HttpResponse(202)
-	return render(request,'admin/adminaddfacultygroups.html',{'form' : form})
+	return render(request,'admin/adminaddfacultygroups.html',{'form' : form, "staff":staff})
 		# return HttpResponse('202')
 
 
 def adminaddfacultyclass(request,id):
 	faculty=Staff.objects.get(id=id)
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	form=AddFacultyClassForm(faculty)
 	if request.method == 'POST':
 		form=AddFacultyClassForm(faculty,request.POST)
@@ -1498,7 +1446,7 @@ def adminaddfacultyclass(request,id):
 
 
 def adminupdatefacultyclass(request,id,pk):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	classes = get_object_or_404(Class, pk=pk)
 	faculty=Staff.objects.get(id=id)
 	form = AddFacultyClassForm(faculty,instance=classes)
@@ -1543,12 +1491,12 @@ def adminupdatefacultyclass(request,id,pk):
 	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
 
 def viewinventory(request):
-	staff=Staff.objects.get(email=request.user.email)
+	staff=Staff.objects.get(user_obj=request.user)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
 	print(inventory)
 	context={
 		'staff':staff,
 		'inventory':inventory,
 	}
-	return render(request,'inventory.html',context)
+	return render(request,'inventory.html',context, {"staff":staff})
 

@@ -1,11 +1,5 @@
-from tkinter.messagebox import NO
-from asyncio.windows_events import NULL
-from tokenize import Name
-from django import db
-from django.db import models, reset_queries
+from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import PermissionsMixin
-from datetime import datetime, time
 from email.policy import default
 from enum import auto
 from pyexpat import model
