@@ -1,2 +1,4 @@
 lms/.env
 env/
+main/migrations
+main/__pycache__

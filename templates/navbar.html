@@ -27,6 +27,9 @@
           <li class="nav-link nav_text">
             <a href="{% url 'main:userLeaves' %}">Leaves</a> 
           </li>
+          <li class="nav-link nav_text">
+            <a href="{% url 'main:viewinventory' %}">Inventory</a> 
+          </li>
           {% if staff.designation.designation == 'Lab Technician'%}
           <li class="nav-link nav_text">
               <a href = "{% url 'main:viewcomplaints' %}">Complaints</a>

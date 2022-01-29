@@ -25,8 +25,8 @@
 
         {% for active_complaint in active_complaints %}
         <tr>
-            <td>{{ active_complaint.device.lab.lab }}</td>
-            <td>{{ active_complaint.device.lab.name }}</td>
+            <td>{{ active_complaint.device.room.room_id }}</td>
+            <td>{{ active_complaint.device.room.name }}</td>
             <td>{{ active_complaint.device.device_id }} </td>
             <td>{{ active_complaint.complaint }}</td>
             <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
@@ -67,8 +67,8 @@
 
         {% for resolved_complaint in resolved_complaints %}
         <tr>
-            <td>{{ resolved_complaint.device.lab.lab }}</td>
-            <td>{{ resolved_complaint.device.lab.name }}</td>
+            <td>{{ resolved_complaint.device.room.room_id }}</td>
+            <td>{{ resolved_complaint.device.room.name }}</td>
             <td>{{ resolved_complaint.device.device_id }} </td>
             <td>{{ resolved_complaint.complaint }}</td>
             <td>{{ resolved_complaint.work_Done }}</td>

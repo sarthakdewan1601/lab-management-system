@@ -391,14 +391,13 @@ def user_profile(request):
 			context = {
 				'userLabs' : userLabs,
 				'staff'	: staff_1,
-				#'leaves' : leaves,
 			}
 			return render(request, 'userProfiles/lab_attendent.html',context)
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
 			staff = Staff.objects.get(email=request.user.email)			
-			complaints = Complaint.objects.all()
+			complaints = Complaint.objects.filter(isActive=True).all()
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
 
@@ -795,8 +794,9 @@ def complaint(request, pk):
 				taskId=complaint.id
 			)			
 			notification.save()
+			labid=Lab.objects.get(lab=device.room).id
 			
-		return redirect("main:home")
+			return redirect("main:lab",labid)
 
 	else:   #get
 		form = ComplaintForm()
@@ -924,7 +924,7 @@ def lab(request, pk):
 	lab = Lab.objects.get(id=pk)
 	# lab_id=Lab.objects.get(id=pk)
 
-	devices=Devices.objects.filter(lab=pk).order_by("id").all()
+	devices=Devices.objects.filter(room=lab.lab).order_by("id").all()
 	# print(devices)
 	return render(request, "Labs/lab.html", {
 				'staff':staff,
@@ -936,7 +936,7 @@ def lab(request, pk):
 @login_required
 def add_devices(request, pk):
 	lab=Lab.objects.get(id=pk)
-	# print(pk)
+	room=lab.lab
 	staff=Staff.objects.get(email=request.user.email)
 	# print(lab)
 	if request.method == 'POST':
@@ -949,7 +949,7 @@ def add_devices(request, pk):
 			name=CategoryOfDevice.objects.get(category=name)
 			# fid=form.cleaned_data['floor_id']
 			description = form.cleaned_data['description']
-			device, was_created=Devices.objects.get_or_create(device_id=deviceid,name = name, description = description,lab=lab)
+			device, was_created=Devices.objects.get_or_create(device_id=deviceid,name = name, description = description,room=room)
 			device.save()
 			return redirect('main:lab',pk=lab.id)
 	else:
@@ -1541,3 +1541,14 @@ def adminupdatefacultyclass(request,id,pk):
 			classes.save()
 			return redirect('main:adminviewclasses', id=id)
 	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
+
+def viewinventory(request):
+	staff=Staff.objects.get(email=request.user.email)
+	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
+	print(inventory)
+	context={
+		'staff':staff,
+		'inventory':inventory,
+	}
+	return render(request,'inventory.html',context)
+
