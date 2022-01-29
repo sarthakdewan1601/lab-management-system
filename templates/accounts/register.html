@@ -195,13 +195,4 @@
     </form>
 
 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {{ message.tags }} msg-style">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %}
-
-
 {% endblock %}

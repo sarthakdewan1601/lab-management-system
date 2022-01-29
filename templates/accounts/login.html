@@ -116,7 +116,7 @@
 {% endblock head %}
 {% block title %}Login{% endblock title %}
 {% block body %}      
-{% include 'navbar.html' with user=user %}
+
 
 {% load crispy_forms_tags %}
 <!--Login--> 
@@ -136,14 +136,5 @@
   <p class="text-center">Don't have an account? <a href="{% url 'main:register' %}">Create an account</a></p>
   <p class="text-center mt-5">Forgot password? <a href="{% url 'main:passwordReset' %}">Click here to reset</a></p>
 </div>
-
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {{ message.tags }} msg-style">
-      {{ message|safe }}
-    </div>
-  {% endfor %}
-{% endif %}
-
 
 {% endblock %}

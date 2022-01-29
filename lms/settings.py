@@ -15,8 +15,8 @@ import os
 import environ
 env = environ.Env()
 environ.Env.read_env()
+from django.contrib.messages import constants as messages
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -137,8 +137,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/login'
+LOGIN_URL = '/accounts/login'
+LOGIN_REDIRECT_URL = '/accounts/login'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -157,3 +157,14 @@ EMAIL_HOST_PASSWORD = env('PASSWORD')
 # DEFAULT_FROM_EMAIL = 'noreply<no_reply@localhost.com>'
 
 PASSWORD_RESET_TIMEOUT = 10 * 60
+
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

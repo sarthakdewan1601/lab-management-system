@@ -27,6 +27,13 @@
         }
     </style>
     {% endblock style_css %}
+    <center>
+        {% if messages %}
+            {% for message in messages%}
+                <p  id="1" class="{{message.tags}}">{{message}}</p>
+            {% endfor %}
+        {% endif %}
+    </center>
 </head>
 <body>
     {% block body %}
