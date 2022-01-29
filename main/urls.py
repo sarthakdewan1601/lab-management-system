@@ -5,21 +5,20 @@ from . import views
 app_name='main'
 
 urlpatterns = [
-
     # auth paths
     # add account/ in front of these urls
-    path("register/", views.register_request, name="register"),
-    path("login/", views.login_request, name="login"),
-    path("logout/", views.logout_request, name= "logout"),
-    path('password-reset/', auth_views.PasswordResetView.as_view(template_name="accounts/password_reset.html"), name="password-reset"),
-    path('password-reset-sent/', auth_views.PasswordResetDoneView.as_view(template_name="accounts/password_reset_sent.html"), name="password-reset-done"),
-    path('password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="accounts/password_reset_form.html"), name="password-reset-confirm"),
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name="accounts/password_reset_done.html"), name="password-reset-complete"),
-
-    
+    path("accounts/signup/", views.register_request, name="register"),
+    path('accounts/email-confirmation/<uidb64>/<token>', views.activate_user, name='active_email'),
+    path("accounts/login/", views.login_request, name="login"),
+    path("accounts/logout/<id>", views.logout_request, name= "logout_request"),
+    path('accounts/password-reset/', views.passwordResetView, name="passwordReset"),
+    path('accounts/password-reset/<uidb64>/<token>/', views.passwordResetConfirmView, name="passwordResetConfirm"),
+    path('accounts/password-reset/<token>/<id>', views.passwordResetForm, name="passwordResetForm"),
+    path('accounts/password-change/<id>', views.passwordChange, name="passwordChange"),
+ 
     # user paths
     path('', views.home, name='home'),
-    path('profile/user-profile/',views.user_profile, name='user_profile'),
+    path('profile/user-profile/' ,views.user_profile, name='user_profile'),
     path('profile/user-profile-details/',views.user_profile_details, name='userProfileDetails'),
     path('profile/edit-profile/<pk>',views.editProfile, name='editProfile'),
     path('complaint/<pk>',views.complaint, name='complaint'),
@@ -61,8 +60,6 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-courses/add-group/<id>',views.adminaddgroup,name='adminaddgroup'),
     path('admin-dashboard/faculty-details/admin-view-courses/add-faculty-class/<id>',views.adminaddfacultyclass,name='adminaddfacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/update-faculty-class/<id><pk>',views.adminupdatefacultyclass,name='adminupdatefacultyclass'),
-
-
 
     #timetable paths
     path('viewlabtimetable/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),

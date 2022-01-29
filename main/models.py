@@ -1,3 +1,4 @@
+from tkinter.messagebox import NO
 from tokenize import Name
 from django import db
 from django.db import models, reset_queries
@@ -28,6 +29,8 @@ from .managers import CustomUserManager
 class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
+    is_email_verified = models.BooleanField(default=False)     
+    is_loggedIn = models.BooleanField(default=False)    
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -51,9 +54,10 @@ class Category(models.Model):
     category =models.CharField(max_length=400)
     def __str__(self):
         return self.category
-    
+
 
 class Staff(models.Model):
+    user_obj = models.ForeignKey(User, on_delete=CASCADE, blank=False, null=False, default=None)
     name=models.CharField(max_length=100)
     mobile_number=models.IntegerField()
     email=models.EmailField()

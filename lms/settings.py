@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "verify_email.apps.VerifyEmailConfig",
     'main',
     'django_email_verification',
+    'helpers',
 ]
 
 MIDDLEWARE = [
@@ -146,19 +147,19 @@ AUTH_USER_MODEL = "main.User"
 
 
 
-def verified_callback(user):
-    user.is_active = True
+# def verified_callback(user):
+#     user.is_active = True
 
-EMAIL_VERIFIED_CALLBACK = verified_callback
-EMAIL_FROM_ADDRESS = env('EMAIL_ID')
-EMAIL_MAIL_SUBJECT = 'Confirm your email'
-EMAIL_MAIL_PLAIN = '/templates/accounts/email_template.txt'
-EMAIL_MAIL_HTML = 'templates/accounts/verification_mail_body.html'
-EMAIL_TOKEN_LIFE = 60 * 60                          # 1 hr
-EMAIL_PAGE_TEMPLATE = '/templates/accounts/email_confirmation.html'
-EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
-# EMAIL_PAGE_DOMAIN = 'http://mydomain.com/'
-EMAIL_MULTI_USER = True  
+# EMAIL_VERIFIED_CALLBACK = verified_callback
+# EMAIL_FROM_ADDRESS = env('EMAIL_ID')
+# EMAIL_MAIL_SUBJECT = 'Confirm your email '
+# EMAIL_MAIL_HTML = 'accounts/verification_mail_body.html'
+# EMAIL_PAGE_TEMPLATE = 'accounts/email_confirmed.html'
+# EMAIL_MAIL_PLAIN = 'accounts/email_template.txt'
+# EMAIL_TOKEN_LIFE = 60 * 60                          # 1 hr
+# EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
+# # EMAIL_PAGE_DOMAIN = 'http://mydomain.com/'
+# EMAIL_MULTI_USER = True  
 
 # email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -169,4 +170,4 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = env('EMAIL_ID')
 EMAIL_HOST_PASSWORD = env('PASSWORD')
 
-DEFAULT_FROM_EMAIL = 'noreply<no_reply@localhost.com>'
+# DEFAULT_FROM_EMAIL = 'noreply<no_reply@localhost.com>'

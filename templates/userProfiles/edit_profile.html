@@ -61,11 +61,17 @@
               </div>
             </div>
 
+            <div class="mb-3 row">
+              <label for="applicant" class="col-sm-2 col-form-label">Password Change</label>
+              <div class="col-sm-10 col-lg-4">
+                <a href="{% url 'main:passwordChange' id=staff.id %}">Click Here</a>
+              </div>
+            </div>
             
             <div class="mb-3 row">
               <div class="col-sm-10 col-lg-4">
                 <button type="submit" class="btn btn-secondary"> Update Profile </button>
-            </div>
+              </div>
             </div>
 
             {% else %}
@@ -79,6 +85,12 @@
                 <label for="applicant" class="col-sm-2 col-form-label">Mobile Number</label>
                 <div class="col-sm-10 col-lg-4">
                   <input type="text" name="mobile_number" placeholder="Mobile Number" value="{{staff.mobile_number}}">
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label for="applicant" class="col-sm-2 col-form-label">Password Change</label>
+                <div class="col-sm-10 col-lg-4">
+                  <a href="{% url 'main:passwordChange' id=staff.id %}">Click Here</a>
                 </div>
               </div>
               <div class="mb-3 row">

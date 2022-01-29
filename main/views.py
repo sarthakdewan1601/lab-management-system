@@ -1,14 +1,19 @@
+from distutils.log import error
 import email
+from email import message
+from genericpath import exists
+from re import template
+from django.conf import settings
+from email.message import EmailMessage
 from urllib import response
+from flask import request
 from verify_email.email_handler import send_verification_email
 # from readline import write_history_file
 from tracemalloc import start
 from unicodedata import category
 from django import http
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.models import User
 
 from django.db.models.base import Model
 from django.http.response import Http404
@@ -24,32 +29,327 @@ from .models import *
 from .forms import *
 from django.http import JsonResponse
 import datetime
-# from .utils import send_email  # custom
-# from django.core.mail import send_mail # default
+import threading
 
 from django_email_verification import send_email
-
-# from django_email_verification import send_email
-
-# from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import User
+from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes,  force_text
+from main.utils import generate_token
+from django.core.mail import EmailMessage
 
 
 UserModel = get_user_model()
 
+class EmailThread(threading.Thread):		#creating email thread
+    def __init__(self, email):
+        self.email = email
+        threading.Thread.__init__(self)
+    def run(self):
+        self.email.send()
 
-# Create your views here.
+def user_email_verification(request, user, subject, templateForMail, *message):
+    current_site = get_current_site(request)
+    email_body = render_to_string(templateForMail, {
+        'user': user.email,
+		'message': message,
+        'domain': current_site,
+        'uid': urlsafe_base64_encode(force_bytes(user.email)),
+        'token': generate_token.make_token(user)
+    })
+    email_message = EmailMessage(subject=subject, body=email_body, from_email=settings.EMAIL_HOST_USER, to=[user.email])
+    if True:
+        EmailThread(email_message).start()
+
+def confirmation_mail(request, user, subject, templateForMail, name):
+	current_site = get_current_site(request)
+	email_body = render_to_string(templateForMail, {
+        'user': user.email,
+        'domain': current_site,
+		'name': name
+    })
+	email_message = EmailMessage(subject=subject, body=email_body, from_email=settings.EMAIL_HOST_USER, to=[user.email])
+	email_message.content_subtype = 'html'
+	if True:
+		EmailThread(email_message).start()
+
+
+
+
+def activate_user(request, uidb64, token):
+	try:
+		uid = force_text(urlsafe_base64_decode(uidb64))
+		user = User.objects.get(email=uid)
+	except Exception as err:
+		print(err)
+		pass
+		
+	tokenStatus, timedout = generate_token.check_token(user, token)
+	if not tokenStatus and timedout:								#registered and not verified in time 
+		#send email 
+		templateForMail = 'accounts/active_email.html'
+		subject = "Activate Your Account"
+		user_email_verification(request, user, subject, templateForMail, )
+		#redirect to new html error message
+		return render(request, "accounts/token-timedout.html", {})
+
+	if user and tokenStatus and not timedout:
+		user.is_active = True
+		user.is_email_verified = True
+		user.save()
+		staff = Staff.objects.get(user_obj=user)
+		subject = "Account Activated"
+		templateName = 'accounts/activation-complete.html'
+		confirmation_mail(request, user, subject, templateName, staff.name)
+		messages.add_message(request, messages.SUCCESS, 'Email verified, you can now login')
+		return redirect('main:login')
+	
+	if not tokenStatus:
+		return render(request, 'accounts/activation-link-failed.html', {"user": user})
+	
+def register_request(request):
+	if request.method == "POST":
+		form = SignupForm(request.POST)
+		if form.is_valid():
+			form.save(commit=False)
+				# check for @thapar.edu			
+			email=form.data.get('email')
+			res=email.split('@')[1]
+			if res!='thapar.edu':
+				messages.error(request, "Please enter you thapar email id")
+				return redirect("main:register")
+
+			try:
+				alreadyExist = User.objects.get(email=email)
+				if(alreadyExist):
+					messages.error(request, "This email is already registered, please try loggin in")
+					return redirect('main:login')
+			except User.DoesNotExist or Exception as err:
+				pass
+
+			password = form.data.get('password1')
+			confirmPassword = form.data.get('password2')
+			if password != confirmPassword:
+				messages.error(request, "Passwords not same")
+				return redirect("main:register")
+
+			# user = User.objects.
+			name=form.cleaned_data['name']
+			category1=request.POST['category']
+			designation=request.POST['designation']
+			agency=request.POST['agency']
+			mobile_number=request.POST['mobile_number']
+			# print(name, category1, designation, agency, mobile_number)
+			Cat=Category.objects.get(category=category1)
+			Des=Designation.objects.get(designation=designation)
+			Agen=Agency.objects.get(agency=agency)
+			
+
+			if designation == 'System Analyst' or designation == 'Lab Supervisor':
+				user = User.objects.create_superuser(email, confirmPassword, is_active=False)
+				user.is_active = False
+				subject = "Activate Your Account"
+				templateForMail = 'accounts/active_email.html'
+				messageForEmail = "activate your email"
+				user_email_verification(request, user, subject, templateForMail, messageForEmail)
+				messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
+
+			else:
+				user = User.objects.create_user(email, password, is_active=False)
+				user.is_active = False
+				subject = "Activate Your Account"
+				templateForMail = 'accounts/active_email.html'
+				messageForEmail = "activate your email"
+				user_email_verification(request, user, subject, templateForMail, messageForEmail)
+				messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
+
+			staff,was_created=Staff.objects.get_or_create(user_obj=user, name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+			staff.save()
+
+			year = datetime.datetime.now().year 
+			totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+			for leave in totalLeavesCurrYear:
+				userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+					staff=staff,
+					leave_taken=leave
+				)
+				userLeavesTaken.save()
+			return redirect("main:login")
+
+		else:
+			print("invalid credentials")
+			messages.error(request, "Invalid Credentials")
+			return redirect("main:register")
+	else:
+		form = SignupForm()
+		return render(request, "accounts/register.html", {"form": form})
+
+def login_request(request):
+	if request.method == "POST":
+		form = LoginForm(request.POST)
+		if form.is_valid():
+			email = form.cleaned_data['email']
+			password = form.cleaned_data['password']
+			res=email.split('@')[1]
+			if res!='thapar.edu':
+				messages.error(request, "Please enter you thapar email id")
+				return redirect('main:login')
+			try:
+				user = User.objects.get(email=email)
+				if not user.is_email_verified:
+					messages.error(request, "Your email is not verified, please verify using the link provided in mail")
+					return redirect('main:login')
+				if not user.check_password(password):
+					messages.error(request, "Entered password is not correct, try again")
+					return redirect('main:login')
+				
+				if not user.is_loggedIn:
+					user.is_loggedIn = True
+					user.save()
+					staff = Staff.objects.get(email=user.email)
+					messages.success(request, f"Welcome {staff.name}")
+					login(request, user)
+					return redirect("main:user_profile")
+
+			except User.DoesNotExist:
+				current_site = get_current_site(request)
+				messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
+				user = None
+				return redirect('main:login')
+
+	form = LoginForm()
+	return render(request, "accounts/login.html", {"login_form":form})
+
+@login_required
+def logout_request(request, id):
+	staff = Staff.objects.get(id=id)
+	userEmail = staff.email
+	user = User.objects.get(email=userEmail)
+	user.is_loggedIn = False
+	user.save()
+	logout(request)
+	messages.info(request, "You have successfully logged out.")
+	return redirect("main:login")
+
+def passwordResetView(request):
+	if request.method == "POST":
+		try:
+			email = request.POST['email']
+			user = User.objects.get(email=email)
+
+			if not user.is_email_verified:
+				messages.error(request, "Your email is not verified, please verify your email first using the link provided in mail")
+				return render(request, 'accounts/password_reset.html', {'messages': messages.get_messages(request)})
+			else:
+				subject="Reset Your Password"
+				templateForMail = 'accounts/password_reset_sent.html'
+				user_email_verification(request, user, subject, templateForMail, "password reset")
+				messages.success(request, "Check your email and click the link to reset your password")
+				return redirect('main:login')
+
+		except AttributeError or User.DoesNotExist or Exception as err:
+			print(err)
+			messages.error(request, "Not a valid Email Id, Please register first")
+			return redirect('main:register')
+	else:
+		return render(request, 'accounts/password_reset.html')
+
+def passwordResetConfirmView(request, uidb64, token):
+	try:
+		uid = force_text(urlsafe_base64_decode(uidb64))
+		user = User.objects.get(email=uid)
+
+		tokenStatus, timedout = generate_token.check_token(user, token)
+
+		if not tokenStatus or timedout:
+			#send email 
+			templateForMail = 'accounts/active_email.html'
+			subject = "Activate Your Account"
+			user_email_verification(request, user, subject, templateForMail, )
+
+			#redirect to new html error message
+			return render(request, "accounts/token-timedout.html", {})
+
+		if tokenStatus:
+			user.is_email_verified = True
+			return redirect('main:passwordResetForm', token=token, id=user.id)
+		else:
+			return render(request, "accounts/password-reset-failed.html")	
+
+	except RuntimeError or Exception as err:
+		print(err)
+		messages.error(request, "User not found, click the link in the mail received")
+		return render(request, "accounts/password-reset-failed.html")
+
+def passwordResetForm(request, token, id):
+	try:
+		user = User.objects.get(id=id)
+		print(user)
+		if user and generate_token.check_token(user, token):
+			staff = Staff.objects.get(email=user.email)
+			if request.method == "POST":
+				password = request.POST['password']
+				passwordConfirm = request.POST['passwordConfirm']
+				if password != passwordConfirm:
+					messages.error(request, "Password not match")
+					return redirect('main:passwordResetForm', token=token, id=user.id)
+				else:
+					user.set_password(password)
+					user.save()
+					staff = Staff.objects.get(user_obj=user)
+					subject = "Password Update Successful"
+					templateName = 'accounts/password_reset_done.html'
+					confirmation_mail(request, user, subject, templateName, staff.name)
+					
+					messages.success(request, "Password updated successfully")
+					if user.is_loggedIn:
+						login(request, user)
+						return redirect('main:user_profile')
+					else:
+						return redirect('main:login')
+			else:	# get request
+				return render(request, "accounts/password_reset_form.html", {"staff":staff, 'messages': messages.get_messages(request)})
+		else:
+			messages.error(request, "User not found, click the link in the mail received")
+			return redirect('main:login')
+	except ValueError or Exception as err:
+		print(err)
+		return render(request, "accounts/password-reset-failed.html")
+
+@login_required
+def	passwordChange(request, id):
+	try:		
+		staff = Staff.objects.get(id=id)
+		user = User.objects.get(email=staff.email)
+		token = generate_token.make_token(user)
+		return redirect('main:passwordResetForm', token=token, id=user.id)
+	except Exception as err:
+		print(err)
+		messages.error(request, "Something went wrong while changing your password")
+		return redirect(request, 'main:user_profile')
+
+
+
+
+
+
 @login_required
 def home(request):
 	staff=Staff.objects.get(email=request.user.email)
 	if request.user.is_staff:
-		# email='a@thaapr.edu'
 		a = User.objects.get(email=request.user)
 		print(a)
-		return render(request, "admin/dashboard.html", {})
+		return render(request, "admin/dashboard.html", {"staff":staff})
 
 	staff = Staff.objects.get(email=request.user.email)
 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs, "staff":staff})
+	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request)})
 
 	# except:
 	# 	tech = Technician.objects.get(tech_id=request.user.username)
@@ -59,14 +359,13 @@ def home(request):
 
 def user_profile_details(request):
 	staff=Staff.objects.get(email=request.user.email)
-	return render(request, "user profiles/user_profile.html", {'staff':staff})
+	return render(request, "userProfiles/user_profile.html", {'staff':staff})
 
 @login_required
 def user_profile(request):
-	# print(request.user)
-	user_email=request.user.email
-	#print(user_email)
-	staff = Staff.objects.get(email=user_email)
+	userEmail = request.user.email
+	print('user_email in user_profile:',userEmail)
+	staff = Staff.objects.get(email=userEmail)
 	#print(staff.designation)
 
 	if staff.category.category == "Lab Staff":
@@ -94,7 +393,7 @@ def user_profile(request):
 				'staff'	: staff_1,
 				#'leaves' : leaves,
 			}
-			return render(request, 'user profiles/lab_attendent.html',context)
+			return render(request, 'userProfiles/lab_attendent.html',context)
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
@@ -108,7 +407,7 @@ def user_profile(request):
 				"complaints": complaints,
 				"notifications": current_notifications
 			}
-			return render(request, "user profiles/Lab_technician.html", context)
+			return render(request, "userProfiles/Lab_technician.html", context)
 			
 			# complaint resolve form details
 			# static-> device id, lab id, complaint, jisne complaint kri hai vo user, 
@@ -132,15 +431,14 @@ def user_profile(request):
 		context={
 			'staff':staff,
 		}
-		return render(request,"user profiles/faculty.html",context)
+		return render(request,"userProfiles/faculty.html",context)
 		
 
 @login_required
 def editProfile(request, pk):
-	staff = Staff.objects.get(id=pk)		#jo user h
-
+	staff = Staff.objects.get(id=pk)		
 	if request.user.is_staff:
-		admin=Staff.objects.get(email=request.user.email)	# curr user
+		admin=Staff.objects.get(email=request.user.email)
 		if request.method=="POST":
 			form=request.POST
 			name=form['name']
@@ -166,7 +464,7 @@ def editProfile(request, pk):
 				"designations":designations,
 				"agency":agency
 			}
-			return render(request, "user profiles/edit_profile.html", context)
+			return render(request, "userProfiles/edit_profile.html", context)
 	else:
 		if request.method == "POST":
 			name = request.POST['name']
@@ -180,7 +478,7 @@ def editProfile(request, pk):
 			context = {
 				"staff": staff
 			}
-			return render(request, "user profiles/edit_profile.html", context)
+			return render(request, "userProfiles/edit_profile.html", context)
 
 
 @login_required
@@ -553,9 +851,8 @@ def notifications(request):
 	return render(request, "Notifications/notifications.html", {"notifications": notifications, "staff":staff})
 
 @login_required
-def handleNotification(request, pk):
-	# get notification and userleavestatus objects
-	# compare and render 
+def handleNotification(request, pk):							# get notification and userleavestatus objects  # compare and render 
+													
 	staff = Staff.objects.get(email=request.user.email)	 	# current user		
 	notification = Notification.objects.get(id=pk)
 	taskId = notification.taskId
@@ -620,180 +917,9 @@ def handleNotification(request, pk):
 
 
 
-
-	
-	
-def register_request(request):
-	if request.method == "POST":
-		form = SignupForm(request.POST)
-		if form.is_valid():
-			form.save(commit=False)
-				# check for @thapar.edu			
-			email=form.data.get('email')
-			res=email.split('@')[1]
-			if res!='thapar.edu':
-				messages.error(request, "Please enter you thapar email id")
-				return redirect("main:register")
-
-			password = form.data.get('password1')
-			confirmPassword = form.data.get('password2')
-			if password != confirmPassword:
-				messages.error(request, "Passwords not same")
-				return redirect("main:register")
-
-			# user = User.objects.
-			name=form.cleaned_data['name']
-			category1=request.POST['category']
-			designation=request.POST['designation']
-			agency=request.POST['agency']
-			mobile_number=request.POST['mobile_number']
-			# print(name, category1, designation, agency, mobile_number)
-			Cat=Category.objects.get(category=category1)
-			Des=Designation.objects.get(designation=designation)
-			Agen=Agency.objects.get(agency=agency)
-			
-			if designation == 'System Analyst' or designation == 'Lab Supervisor':
-				user = User.objects.create_superuser(email, password, is_active=False)
-				send_email(user)
-				print("email sent")
-			else:
-				user = User.objects.create_user(email, password, is_active=False)
-				send_email(user)
-				print("email sent")
-			
-
-			staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
-			staff.save()
-
-			year = datetime.datetime.now().year 
-			totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
-
-			for leave in totalLeavesCurrYear:
-				userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
-					staff=staff,
-					leave_taken=leave
-				)
-				userLeavesTaken.save()
-			return redirect("main:login")
-		else:
-			print("invalid credentials")
-			return HttpResponse(404)
-	else:
-		form = SignupForm()
-		return render(request, "accounts/register.html", {"form": form})
-
-
-# def register_request(request):
-# 	if request.method == "POST":
-# 		form = SignupForm(request.POST)
-# 		if form.is_valid():
-			
-# 			email=form.data.get('email') # check for @thapar.edu
-			
-# 			res=email.split('@')[1]
-# 			if res!='thapar.edu':
-# 				messages.error(request, "Please enter you thapar email id")
-# 				return redirect("main:register")
-			
-# 			password=form.data.get('password1')
-# 			confirmation = form.data.get("password2")
-# 			if not form.is_valid() or password != confirmation:
-# 				messages.error(request, "Enter valid credentials")
-# 				return redirect("main:register")				
-
-
-			# name=form.cleaned_data['name']
-			# category1=request.POST['category']
-			# designation=request.POST['designation']
-			# agency=request.POST['agency']
-			# mobile_number=request.POST['mobile_number']
-			# # print(name, category1, designation, agency, mobile_number)
-			# Cat=Category.objects.get(category=category1)
-			# Des=Designation.objects.get(designation=designation)
-			# Agen=Agency.objects.get(agency=agency)
-
-
-# 			user = User.objects.create_user(email, password, is_active=False)
-# 			if designation == 'System Analyst' or designation == 'Lab Supervisor':
-# 				print('okayy')
-# 				user.objects.create_superuser(email, password)
-# 				user.save()
-# 				print(user)
-# 			else:
-# 				print('okayy2')
-# 				print(user)
-# 				user.save()
-
-			
-# 			# staff,was_created=Staff.objects.get_or_create(name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
-# 			# staff.save()
-# 			# # get all leaves create leave taken objects
-# 			# year = datetime.datetime.now().year 
-# 			# totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
-
-			# for leave in totalLeavesCurrYear:
-			# 	userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
-			# 		staff=staff,
-			# 		leave_taken=leave
-			# 	)
-			# 	userLeavesTaken.save()
-				
-			
-
-# 			# return render(request, "Users/confirmation.html", { "message": "Confirm your email", "verifiedUser": user})
-
-# 		# else:
-# 		# 	messages.error(request, "some error")
-# 		# 	return redirect("main:register")
-# 	else:
-# 		form = SignupForm()
-# 		return render (request=request, template_name="accounts/register.html", context={"form": form})
-
-
-def login_request(request):
-	if request.method == "POST":
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			email = form.cleaned_data['email']
-			password = form.cleaned_data['password']
-			res=email.split('@')[1]
-			if res!='thapar.edu':
-				messages.error(request, "Please enter you thapar email id")
-				return HttpResponse(400)
-				
-			UserModel = get_user_model()
-			try:
-				user = UserModel.objects.get(email=email)
-			except UserModel.DoesNotExist:
-				user=None
-			else:
-				if user.check_password(password):
-					#print("passes")
-					pass
-				else :
-					messages.error(request, "Please enter a correct password")
-					return redirect("main:login")
-
-			if user is not None:
-				login(request,user)
-			#	print("logged in") 
-				messages.success(request, f"You are successfully logged in as {email}")
-				return redirect("main:user_profile")
-				
-	form = LoginForm()
-	return render(request, "accounts/login.html", {"login_form":form, 'messages': messages.get_messages(request)})
-
-
-def logout_request(request):
-	logout(request)
-	messages.info(request, "You have successfully logged out.")
-   
-	return redirect("main:login")
-
-
 @login_required
 def lab(request, pk):
-	# listof all devices
+	# list of all devices
 	staff=Staff.objects.get(email=request.user.email)
 	lab = Lab.objects.get(id=pk)
 	# lab_id=Lab.objects.get(id=pk)
