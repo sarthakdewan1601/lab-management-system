@@ -171,3 +171,5 @@ EMAIL_HOST_USER = env('EMAIL_ID')
 EMAIL_HOST_PASSWORD = env('PASSWORD')
 
 # DEFAULT_FROM_EMAIL = 'noreply<no_reply@localhost.com>'
+
+PASSWORD_RESET_TIMEOUT = 10 * 60
