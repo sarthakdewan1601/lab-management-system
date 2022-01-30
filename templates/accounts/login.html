@@ -1,140 +1,58 @@
 {% extends "base.html" %}
-{% block head %}
-<style>
-  @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
-  .formContainer{
-    margin: 10px auto;
-    justify-content: center; 
-    align-items: center;
-    position: relative;
-    background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    width: 50%;
-    height: 50vh;
-    padding: 25px;
-    z-index: 2;
-    border-radius: 5px;
-    box-shadow: 3px 7px 7px #51dfa4c0;
-  }
 
-  h1{
-    margin-top: 0px;
-    color : #fff;
-    text-align: center;
-    font-size : 50px;
-    font-family: "Source Sans Pro", sans-serif;
-    text-transform: uppercase;
-  }
-
-  .formControl{
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%);
-    margin-bottom: 20px;
-  }
-
-  .control-group, .emailinput{ 
-    width: 400px;
-  }
-  .control-label{
-    display: none;
-  }
-  .textinput, .textInput, .emailinput{
-    display: block;
-    width: 100%;
-    border-radius: 5px;
-    padding: 10px 15px;
-    font-size : 18px;
-    outline: none;
-    margin-bottom: 10px;
-    border: 2px solid #fff;
-    text-align: center;
-    background-color: fade(white, 20%);
-    transition-duration: 0.25s;
-    opacity: 0.5;
-    font-family: 'Source Sans Pro', sans-serif;
-  }
-
-  .submitButton{ 
-    width: 100%;
-    padding: 10px 20px;
-    font-weight: 500;
-    font-size : 18px;
-    opacity : 0.8;
-    background-color: #000;
-    color: rgb(84, 227, 167);
-    border: 0;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: 'Source Sans Pro', sans-serif;
-  }
-
-  .submitButton:hover{
-    color: white;
-    background: rgba(14, 37, 25, 0.925);
-  }
-
-  .text-center{
-    position: absolute;
-    top: 80%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1rem;
-    font-weight: bold;
-    font-family: 'Source Sans Pro', sans-serif;
-    color: rgba(14, 37, 25, 0.925);
-  }
-
-  .text-center a{
-    color : rgb(14, 37, 25);
-  }
-  .text-center a:hover{
-    color : rgb(14, 37, 25);
-  }
-  .heading h1{
-    
-    /* margin : 50px; */
-    margin-left: 25%;
-    margin-right: 25%;
-    /* font-weight: bold; */
-    /* margin : 10px auto; */
-    /* font-style : italic; */
-    font-size : 50px;
-    font-family: 'Source Sans Pro',sans-serif;
-    box-shadow: 2px 2px 14px grey;
-    background-color: #000;
-    opacity : 0.8;
-    color: rgb(84, 227, 167);
-    border-radius: 5px;
-    box-shadow: 3px 7px 7px #51dfa4c0;
-  }
-</style>
-
-{% endblock head %}
 {% block title %}Login{% endblock title %}
-{% block body %}      
 
+{% block body %}    
+<section class="sectionLogin">
 
-{% load crispy_forms_tags %}
-<!--Login--> 
-<div class = "heading">
-  <h1>LAB MANAGEMENT SYSTEM</h1>  
+<div class="container p-5">
+    <div class="row justify-content-center">
+    <div class="bg-light text-info p-5 text-center rounded-3 mainWrapperLogin">
+
+      <div class="row align-items-start">
+        
+        <div class="col-4 leftImage">
+          <img src="/assets/OmenGrey_3840x2160.jpg" class="img-fluid" alt=""/>
+        </div>
+
+        <div class="col-8 rightForm">
+            <div class="formContainer">
+              
+              <div class="text-start heading">
+                <h1 class="display-3">Login</h1>
+              </div>
+            
+
+            <div class="bg-dark p-3">
+                <div class="input-group mb-3 inputFieldComplete">
+                  <span class="input-group-text fa-round-left" id="basic-addon1"><i class="fas fa-envelope"></i></span>
+                  <input type="text" class="form-control inputField" placeholder="Email" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+        
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
+                  <input type="text" class="form-control inputField" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+              </div>
+              
+              <div class="row">
+                <button type="button" class="btn btn-outline-light loginButton">Login</button>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col"><a class="customColor-green" href="{% url 'main:passwordReset' %}">Reset Password</a></div>
+                <div class="col"><a class="customColor-green" href="{% url 'main:register' %}">Not a Member?</a></div>
+              </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+  </div>
+    
+
 </div>
-
-<div class="formContainer">
-  <h1>Login</h1>
-  <form method="POST">
-    <div class="formControl">
-      {% csrf_token %}
-      {{ login_form|crispy }}
-      <button class="submitButton" type="submit">Submit</button>
-    </div>
-  </form>
-  <p class="text-center">Don't have an account? <a href="{% url 'main:register' %}">Create an account</a></p>
-  <p class="text-center mt-5">Forgot password? <a href="{% url 'main:passwordReset' %}">Click here to reset</a></p>
-</div>
+</section>
 
 {% endblock %}
