@@ -192,8 +192,6 @@ def register_request(request):
 		return render(request, "accounts/register.html", {"form": form})
 
 def login_request(request):
-	if request.user.is_loggedIn:
-		redirect('main:user_profile')
 	if request.method == "POST":
 		email = request.POST['email']
 		password = request.POST['password']
