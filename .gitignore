@@ -2,3 +2,4 @@ lms/.env
 env/
 main/migrations
 main/__pycache__
+lmsenv/

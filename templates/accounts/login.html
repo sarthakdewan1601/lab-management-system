@@ -2,6 +2,10 @@
 
 {% block title %}Login{% endblock title %}
 
+{% block head %}
+  <style></style>
+{% endblock head %}
+
 {% block body %}    
 <section class="sectionLogin">
 
@@ -11,9 +15,11 @@
 
       <div class="row align-items-start">
         
-        <div class="col-4 leftImage">
-          <img src="/assets/OmenGrey_3840x2160.jpg" class="img-fluid" alt=""/>
-        </div>
+        <!-- <div class="col-4 leftImage">
+          <img class="img-fluid" 
+          src="/assets/download.png" 
+          alt=""/>
+        </div> -->
 
         <div class="col-8 rightForm">
             <div class="formContainer">
@@ -40,12 +46,21 @@
                 <div class="row">
                   <button type="submit" class="btn btn-outline-dark loginButton">Login</button>
                 </div>
-            </form>
-              <div class="row mt-3">
-                <div class="col"><a class="customColor-green" href="{% url 'main:passwordReset' %}">Reset Password</a></div>
+              </div>
+              
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-success">Login</button>
+              <!-- <div class="row"> -->
+                <!-- <button type="button" class="btn btn-outline-light loginButton">Login</button> -->
+              <!-- </div> -->
                 <div class="col"><a class="customColor-green" href="{% url 'main:register' %}">Not a Member?</a></div>
               </div>
-          </div>
+
+              <div class="row mt-3">
+                <div class="col"><a class="customColor-green" href="{% url 'main:passwordReset' %}">Reset Password</a></div>
+                <!-- <div class="col"><a class="customColor-green" href="{% url 'main:register' %}">Not a Member?</a></div> -->
+              </div>
+          <!-- </div> -->
         </div>
       </div>
 
