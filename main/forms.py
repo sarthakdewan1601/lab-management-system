@@ -55,56 +55,6 @@ class AddGroupForm(forms.ModelForm):
 
 
 
-class LoginForm(forms.Form):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder':'Email'}))
-    password = forms.CharField(required=True , widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
-    
-    class Meta:
-        model=User
-        fields=['email', 'password']
-        
-# class LoginForm(AuthenticationForm):
-#     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
-#     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
-#     class Meta:
-#         model=User
-#         fields=['username', 'password']
-
-# class NewUserForm(UserCreationForm):
-    # name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
-    # email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder':'Email'}))
-    # password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
-    # password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password Confirm'}))
-    # mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
-    # category=forms.ChoiceField(choices=CATEGORY)
-#     Designation=forms.ChoiceField(choices=DESIGNATION)
-
-#     class Meta:
-#         model = User
-#         fields = ("username", "name", "mobile_number","email", "password1", "password2", "type")
-
-#     
-
-#         user = super(NewUserForm, self).save(commit=False)
-#         user.email = self.cleaned_data['email']
-
-#         user_email = self.cleaned_data['email']
-#         username = self.cleaned_data['username']
-#         user_mobile = self.cleaned_data['mobile_number']
-#         name = self.cleaned_data['name']
-#         type=self.cleaned_data['type']
-        
-
-
-        
-#         staff,was_created=Staff.objects.get_or_create(staff_id=username, name=name,email=user_email,mobile_number= user_mobile, type=type)
-#         staff.save()
-        
-#         if commit:
-#             user.save()
-#         return user
-
-
 class EditProfileForm(forms.Form):
     name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
     mobile_number = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
@@ -122,32 +72,7 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ("email", "password1", "password2", "name", "mobile_number")
         
-    # def cleaned_emal(self):
-    #     email = self.cleaned_data['email']
-    #     try:
-    #         account = User.objects.get(email=email)
-    #     except Exception as e:
-    #         return email
-    #     raise forms.ValidationError(f"{email} already in use")
 
-
-    # def cleaned_password(self):
-    #     return self.cleaned_data['password1']
-        
-    # def save(self, commit=True):
-    #     # save user in user model fields email password
-    #     email = self.cleaned_data['email']
-    #     password = self.cleaned_data['password1']
-    #     name= self.cleaned_data['name']
-
-    #     user = super(UserCreationForm, self).save(commit=False)
-        
-    #     user.set_password(password)
-    #     user.email = email
-    #     user.username = name
-    #     if commit:
-    #       user.save()
-    #     return user
 
 
 class AddNewLeave(forms.ModelForm):
