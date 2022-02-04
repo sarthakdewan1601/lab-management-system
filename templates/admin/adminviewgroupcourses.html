@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+<div class="container">
+    <div class="courses-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Faculty</th>
+                <th scope="col" >Course-id</th>
+                <th scope="col" >Course Name</th>
+                <th scope="col" >Group</th>
+                <th scope="col" >Sem</th>
+                <th scope="col" >Delete</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for gc in groupcourses %}
+              <tr>
+                <td>{{gc.faculty.name}}</td>
+                <td>{{gc.course.course.course_id}}</td>
+                <td>{{gc.course.course.course_name}}</td>
+                <td>{{gc.group.groups.group_id}}</td>
+                <td>{{gc.course.course.course_year}}({{gc.course.course.semester_type}})</td>
+                {%comment%}
+                <td><a href="{%url 'main:admindeletecourses' id=course.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
+                {% endcomment %}
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p>If you want to add a group-course <a href = "{% url 'main:adminaddgroupcourse' id=faculty.id %}">click here</a></p>
+    </div>
+{% endblock body %}

@@ -1,3 +1,4 @@
+from random import choice
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from email.policy import default
@@ -15,6 +16,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy
 import string
 from django.utils import timezone
+from zmq import device
 from .managers import CustomUserManager
 
 # from django.contrib.auth import get_user_model
@@ -88,9 +90,19 @@ class StaffInventory(models.Model):
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
     device=models.ForeignKey('Devices',on_delete=models.CASCADE)
     date_added=models.DateTimeField(auto_now_add=True)
+    is_requested_for_return=models.BooleanField(default=False)
 
     def __str__(self):
         return self.staff.name + '-' + self.device.name.category
+
+class Inventory_log(models.Model):
+    request_type=models.CharField(max_length=100)
+    staff=models.ForeignKey('Staff',on_delete=models.CASCADE)
+    device_id=models.CharField(max_length=100,default=0)
+    device_name=models.CharField(max_length=100)
+    date=models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.request_type+ " " +self.staff.name + '-' + self.device_id+ " "+self.device_name+" "+str(self.date)
 
 class TotalLeaves(models.Model):
     LeaveName = models.CharField(max_length=100, blank=True)
@@ -162,8 +174,8 @@ class Lab(models.Model):
     staff = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, blank=True)
 
     def __str__(self): 
-        return self.lab.room_id
-    
+        return self.lab.room_id+ " ("+self.staff.name+')'
+
 
 
 
@@ -172,7 +184,7 @@ class Devices(models.Model):
     name=models.ForeignKey("CategoryOfDevice",blank=False,null=False, on_delete=models.CASCADE)
     description = models.TextField(max_length=1024)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
-    #room 
+    in_inventory=models.BooleanField(default=False)
 
     def __str__(self):
         return self.device_id +" - "+str(self.room)
@@ -207,8 +219,9 @@ NOTIFICATION_FIELDS = [
     ('TECH', 'Technician'),
     ('TTC', 'Time Table Change'),
     ('LEAVE_ACCEPTED', 'Leave Accepted'),
-    ('LEAVE_REJECTED', 'Leave Rejected')
-]
+    ('LEAVE_REJECTED', 'Leave Rejected'),
+    ('INVENTORY','Inventory'),  
+] 
 
 class Notification(models.Model):
     sender = models.ForeignKey(Staff, blank=False, on_delete=CASCADE)
@@ -240,13 +253,19 @@ class Notification(models.Model):
 # -> Time Table models
 
 class Course(models.Model):
+    choice = [
+    ('EVEN', 'even'),
+    ('ODD', 'odd'),  
+] 
     course_id=models.CharField(max_length=100,blank=False,default=None)
     course_name=models.CharField(max_length=200,blank=False,default=None)
     course_credit=models.CharField(max_length=5)
-    #year #odd/even ali choice field
+    course_year=models.IntegerField(default=2022)
+    semester_type=models.CharField(max_length=20,choices=choice,default=None)
+    # #year #odd/even ali choice field
 
     def __str__(self):
-        return self.course_name + ' ('+self.course_id+')'
+        return self.course_name + ' ('+self.course_id+')' + ' '+str(self.course_year)+'('+self.semester_type+')'
 
 class FacultyCourse(models.Model):
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
@@ -265,12 +284,18 @@ class Branches(models.Model):
 
     
 class Groups(models.Model):
+    choice = [
+    ('EVEN', 'even'),
+    ('ODD', 'odd'),  
+]  
     group_id = models.CharField(max_length = 300, blank = True , null = False, default = "")
     branch = models.ForeignKey('Branches' , on_delete = CASCADE)
-    #year wali field aayegi and odd/even sem wali fields aayengi
+    group_year=models.IntegerField(default=2022)
+    semester_type=models.CharField(max_length=20,choices=choice,default=None)
+    # #year wali field aayegi and odd/even sem wali fields aayengi
 
     def __str__(self):
-        return self.group_id + ' (' + self.branch.branch_id + ')'
+        return self.group_id + ' (' + self.branch.branch_id + ')'+ ' '+str(self.group_year)+' ('+self.semester_type+')'
 
 class FacultyGroups(models.Model):
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
@@ -279,6 +304,13 @@ class FacultyGroups(models.Model):
     def __str__(self):
         return self.faculty.name + ' (' + self.groups.group_id + ')'
 
+class GroupCourse(models.Model):
+    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
+    course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
+    group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
+
+    def __str__(self):
+        return self.faculty.name + ' (' + self.group.groups.group_id + ')' + ' (' + self.course.course.course_id + ')'
 
 class Class(models.Model):
     WEEK_DAY = (
@@ -292,24 +324,16 @@ class Class(models.Model):
     )
     lab=models.ForeignKey('Lab',on_delete=CASCADE)
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
-    group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
-    # faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE)
+    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)
+    tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.course.course.course_name + ' ' + self.day + self.group.groups.group_id
+        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
 
 
-class GroupCourse(models.Model):
-    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
-    group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
-
-    def __str__(self):
-        return self.faculty.name + ' (' + self.group.groups.group_id + ')' + ' (' + self.course.course.course_id + ')'
 
 #Adogra professor:-> dbms coe2
 #Adogra professor-> ds coe1

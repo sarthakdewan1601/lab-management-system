@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+<div class="container">
+<div class="form-control container">
+    <form method="POST">
+        {% csrf_token %}
+            <div class="groups-table">
+            <table>
+                <thead>
+                    <tr>
+                      <th scope="col" >Tick</th>
+                      <th scope="col" >Device ID</th>
+                      <th scope="col" >Device Type</th>
+                      <th scope="col" >Device Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                    <tr>
+                        <td><input type="checkbox" name="devices" id="option{{device.id}}" value={{device.id}}/></td>
+                            
+                            <td>{{device.device.device_id}}</td>
+                            <td>{{device.device.name.category }}</td>
+                            <td>{{device.device.description}}</td>
+                    </tr>
+                    {% endfor %}  
+                </tbody>
+             </table>      
+            </div>
+        <button class="submitButton" type="submit">Submit</button>
+    </form>
+</div>
+
+</div>
+
+{% endblock body %}
