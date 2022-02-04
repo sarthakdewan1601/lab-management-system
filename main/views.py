@@ -192,40 +192,39 @@ def register_request(request):
 		return render(request, "accounts/register.html", {"form": form})
 
 def login_request(request):
+	if request.user.is_loggedIn:
+		redirect('main:user_profile')
 	if request.method == "POST":
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			email = form.cleaned_data['email']
-			password = form.cleaned_data['password']
-			res=email.split('@')[1]
-			if res!='thapar.edu':
-				messages.error(request, "Please enter you thapar email id")
+		email = request.POST['email']
+		password = request.POST['password']
+		res=email.split('@')[1]
+		if res!='thapar.edu':
+			messages.error(request, "Please enter you thapar email id")
+			return redirect('main:login')
+		try:
+			user = User.objects.get(email=email)
+			if not user.is_email_verified:
+				messages.error(request, "Your email is not verified, please verify using the link provided in mail")
 				return redirect('main:login')
-			try:
-				user = User.objects.get(email=email)
-				if not user.is_email_verified:
-					messages.error(request, "Your email is not verified, please verify using the link provided in mail")
-					return redirect('main:login')
-				if not user.check_password(password):
-					messages.error(request, "Entered password is not correct, try again")
-					return redirect('main:login')
-				
-				if not user.is_loggedIn:
-					user.is_loggedIn = True
-					user.save()
-					staff = Staff.objects.get(email=user.email)
-					messages.success(request, f"Welcome {staff.name}")
-					login(request, user)
-					return redirect("main:user_profile")
-
-			except User.DoesNotExist:
-				current_site = get_current_site(request)
-				messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
-				user = None
+			if not user.check_password(password):
+				messages.error(request, "Entered password is not correct, try again")
 				return redirect('main:login')
+			
+			if not user.is_loggedIn:
+				user.is_loggedIn = True
+				user.save()
+				staff = Staff.objects.get(email=user.email)
+				messages.success(request, f"Welcome {staff.name}")
+				login(request, user)
+				return redirect("main:user_profile")
 
-	form = LoginForm()
-	return render(request, "accounts/login.html", {"login_form":form})
+		except User.DoesNotExist:
+			current_site = get_current_site(request)
+			messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
+			user = None
+			return redirect('main:login')
+
+	return render(request, "accounts/login.html", )
 
 @login_required
 def logout_request(request, id):
