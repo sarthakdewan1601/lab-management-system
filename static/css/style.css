@@ -1,0 +1,87 @@
+/* --------------------------------  BASIC and VARIABLES -------------------------------- */
+
+/* 
+    SCREEN BREAK POINTS: 
+      LARGE: 1024 px
+      SMALL: 560 px
+*/
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+html, body{
+    font-family: 'Bitter', serif;
+    /* background-color: red; */
+}
+:root {
+    --green-main-1: #6ECBC1;
+    --green-main-2: #6CCCC1;
+    --green-main-3: #75D1C1;
+    --green-main-4: #9CDDD1;
+    --green-main-5: #C7EBE5;
+    --darkgreen-main-1: #1A6659;
+    --darkgreen-main-2: #409583;
+    --blue-button-main: #03658C;
+    --green-button-main: #48C0A5;
+    --tomato-main: #f05e57;
+    --purple-main-1: #57428D;
+    --purple-main-2: #5E497E;
+}
+
+/* -------------------------------- LOGIN --------------------------------*/
+
+
+.sectionLogin{
+    width: 100%;
+    height: 100%;
+    background-color: var(--green-main-4);
+    background-image: linear-gradient(to bottom right, var(--green-main-4) 50%, var(--green-main-1) 50%);
+  }
+  .mainWrapperLogin{
+    border-radius: 20px;
+  }
+  .customColor-green, 
+  .customColor-green:hover,
+  .customColor-green:active,
+  .customColor-green:visited {
+    color: var(--green-button-main);
+    text-decoration: none;
+  }
+  /* .fa-round-left i{
+    
+  } */
+  .inputFieldComplete{
+    background-color: yellow;
+    border-radius: 40px;
+  }
+  .inputField{
+
+    border-radius: 40px;
+  }
+  .loginButton{
+    width: 20%;
+    margin: 10px 0 0 50px;
+  }
+
+@media(min-width: 1024px) {
+    .container{
+      width: 60%;
+    }
+}
+@media(max-width: 560px) {
+  .leftImage{
+    display: none;
+  }
+  .rightForm{
+    display: block;
+  }
+  .inputField{
+    width: 100%;
+  }
+}

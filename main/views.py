@@ -120,116 +120,115 @@ def activate_user(request, uidb64, token):
 	
 def register_request(request):
 	if request.method == "POST":
-		form = SignupForm(request.POST)
-		if form.is_valid():
-			form.save(commit=False)
-				# check for @thapar.edu			
-			email=form.data.get('email')
-			res=email.split('@')[1]
-			if res!='thapar.edu':
-				messages.error(request, "Please enter you thapar email id")
-				return redirect("main:register")
 
-			try:
-				alreadyExist = User.objects.get(email=email)
-				if(alreadyExist):
-					messages.error(request, "This email is already registered, please try loggin in")
-					return redirect('main:login')
-			except User.DoesNotExist or Exception as err:
-				pass
+			# check for @thapar.edu			
+		email=request.POST['email']
+		res=email.split('@')[1]
+		if res!='thapar.edu':
+			messages.error(request, "Please enter you thapar email id")
+			return redirect("main:register")
 
-			password = form.data.get('password1')
-			confirmPassword = form.data.get('password2')
-			if password != confirmPassword:
-				messages.error(request, "Passwords not same")
-				return redirect("main:register")
+		try:
+			alreadyExist = User.objects.get(email=email)
+			if(alreadyExist):
+				messages.error(request, "This email is already registered, please try loggin in")
+				return redirect('main:login')
+		except User.DoesNotExist or Exception as err:
+			pass
 
-			# user = User.objects.
-			name=form.cleaned_data['name']
-			category1=request.POST['category']
-			designation=request.POST['designation']
-			agency=request.POST['agency']
-			mobile_number=request.POST['mobile_number']
-			# print(name, category1, designation, agency, mobile_number)
-			Cat=Category.objects.get(category=category1)
-			Des=Designation.objects.get(designation=designation)
-			Agen=Agency.objects.get(agency=agency)
-			
+		password = request.POST['password1']
+		confirmPassword = request.POST['password2']
+		if password != confirmPassword:
+			messages.error(request, "Passwords not same")
+			return redirect("main:register")
 
-			if designation == 'System Analyst' or designation == 'Lab Supervisor':
-				user = User.objects.create_superuser(email, confirmPassword, is_active=False)
-				user.is_active = False
-				subject = "Activate Your Account"
-				templateForMail = 'accounts/active_email.html'
-				messageForEmail = "activate your email"
-				user_email_verification(request, user, subject, templateForMail, messageForEmail)
-				messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
+		# function to check whether entered password is strong or not .... return true or false 
+		# if false then return to register with a message
+		# ---here ----
 
-			else:
-				user = User.objects.create_user(email, password, is_active=False)
-				user.is_active = False
-				subject = "Activate Your Account"
-				templateForMail = 'accounts/active_email.html'
-				messageForEmail = "activate your email"
-				user_email_verification(request, user, subject, templateForMail, messageForEmail)
-				messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
+		# user = User.objects.
+		name=request.POST['name']
+		category1=request.POST['category']
+		designation=request.POST['designation']
+		agency=request.POST['agency']
+		mobile_number=request.POST['mobile_number']
+		# print(name, category1, designation, agency, mobile_number)
+		Cat=Category.objects.get(category=category1)
+		Des=Designation.objects.get(designation=designation)
+		Agen=Agency.objects.get(agency=agency)
+		
 
-			staff,was_created=Staff.objects.get_or_create(user_obj=user, name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
-			staff.save()
-
-			year = datetime.datetime.now().year 
-			totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
-			for leave in totalLeavesCurrYear:
-				userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
-					staff=staff,
-					leave_taken=leave
-				)
-				userLeavesTaken.save()
-			return redirect("main:login")
+		if designation == 'System Analyst' or designation == 'Lab Supervisor':
+			user = User.objects.create_superuser(email, confirmPassword, is_active=False)
+			user.is_active = False
+			subject = "Activate Your Account"
+			templateForMail = 'accounts/active_email.html'
+			messageForEmail = "activate your email"
+			user_email_verification(request, user, subject, templateForMail, messageForEmail)
+			messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
 
 		else:
-			print("invalid credentials")
-			messages.error(request, "Invalid Credentials")
-			return redirect("main:register")
+			user = User.objects.create_user(email, password, is_active=False)
+			user.is_active = False
+			subject = "Activate Your Account"
+			templateForMail = 'accounts/active_email.html'
+			messageForEmail = "activate your email"
+			user_email_verification(request, user, subject, templateForMail, messageForEmail)
+			messages.add_message(request, messages.SUCCESS,'We sent you an email to verify your account')
+
+		staff,was_created=Staff.objects.get_or_create(user_obj=user, name=name,email=email,mobile_number= mobile_number,category=Cat,designation=Des,agency=Agen)
+		staff.save()
+
+		year = datetime.datetime.now().year 
+		totalLeavesCurrYear = TotalLeaves.objects.filter(year=year).all()
+		for leave in totalLeavesCurrYear:
+			userLeavesTaken, was_created = UserLeavesTaken.objects.get_or_create(
+				staff=staff,
+				leave_taken=leave
+			)
+			userLeavesTaken.save()
+		return redirect("main:login")
+
+		# else:
+		# 	print("invalid credentials")
+		# 	messages.error(request, "Invalid Credentials")
+		# 	return redirect("main:register")
 	else:
 		form = SignupForm()
 		return render(request, "accounts/register.html", {"form": form})
 
 def login_request(request):
 	if request.method == "POST":
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			email = form.cleaned_data['email']
-			password = form.cleaned_data['password']
-			res=email.split('@')[1]
-			if res!='thapar.edu':
-				messages.error(request, "Please enter you thapar email id")
+		email = request.POST['email']
+		password = request.POST['password']
+		res=email.split('@')[1]
+		if res!='thapar.edu':
+			messages.error(request, "Please enter you thapar email id")
+			return redirect('main:login')
+		try:
+			user = User.objects.get(email=email)
+			if not user.is_email_verified:
+				messages.error(request, "Your email is not verified, please verify using the link provided in mail")
 				return redirect('main:login')
-			try:
-				user = User.objects.get(email=email)
-				if not user.is_email_verified:
-					messages.error(request, "Your email is not verified, please verify using the link provided in mail")
-					return redirect('main:login')
-				if not user.check_password(password):
-					messages.error(request, "Entered password is not correct, try again")
-					return redirect('main:login')
-				
-				if not user.is_loggedIn:
-					user.is_loggedIn = True
-					user.save()
-					staff = Staff.objects.get(email=user.email)
-					messages.success(request, f"Welcome {staff.name}")
-					login(request, user)
-					return redirect("main:user_profile")
-
-			except User.DoesNotExist:
-				current_site = get_current_site(request)
-				messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
-				user = None
+			if not user.check_password(password):
+				messages.error(request, "Entered password is not correct, try again")
 				return redirect('main:login')
+			
+			if not user.is_loggedIn:
+				user.is_loggedIn = True
+				user.save()
+				staff = Staff.objects.get(email=user.email)
+				messages.success(request, f"Welcome {staff.name}")
+				login(request, user)
+				return redirect("main:user_profile")
 
-	form = LoginForm()
-	return render(request, "accounts/login.html", {"login_form":form})
+		except User.DoesNotExist:
+			current_site = get_current_site(request)
+			messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
+			user = None
+			return redirect('main:login')
+
+	return render(request, "accounts/login.html", )
 
 @login_required
 def logout_request(request, id):

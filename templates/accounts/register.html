@@ -1,158 +1,48 @@
 {% extends "base.html" %}
 
 {% block head %}
-<style>
-@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
-.container{
-    margin: 10px auto;
-    justify-content: center; 
-    align-items: center;
-    position: relative;
-    background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
-    /* width: 50%; */
-    height: 95vh;
-    /* padding: 25px; */
-    z-index: 2;
-    border-radius: 5px;
-    box-shadow: 3px 7px 7px #51dfa4c0;
-  }
-  .control-label{
-    display: none;
-  }
-.control_form{
-	position: absolute;
-	top: 20%;
-	left: 50%;
-	transform: translate(-50%);
-	margin-bottom: 20px;
-}
 
-  h1{
-    margin-top: 0px;
-    color : #fff;
-    text-align: center;
-    font-size : 50px;
-    font-family: "Source Sans Pro", sans-serif;
-    /* font-weight : bold;
-    font-size : 20px; */
-    /* font-weight: bold; */
-  }
-  .signupBtn{ 
-    width: 100%;
-    padding: 10px 20px;
-    font-weight: 500;
-    font-size : 18px;
-    opacity : 0.8;
-    background-color: #000;
-    color: rgb(84, 227, 167);
-    border: 0;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: 'Source Sans Pro', sans-serif;
-  }
-  .signupBtn:hover{
-    color: white;
-    background: rgba(14, 37, 25, 0.925);
-  }
-
-  .text-center{
-    /* position: absolute; */
-    /* top: 83%; */
-    /* left: 50%; */
-    /* transform: translate(-50%, -50%); */
-    font-size: 1rem;
-    font-weight: bold;
-    font-family: 'Source Sans Pro', sans-serif;
-    color: rgba(14, 37, 25, 0.925);
-  }
-
-  .textinput, .textInput{
-
-    display: block;
-    width: 100%;
-    border-radius: 5px;
-    padding: 10px 80px;
-    font-size : 18px;
-    outline: none;
-    margin-bottom: 10px;
-    border: 2px solid #fff;
-    text-align: center;
-    background-color: fade(white, 20%);
-    transition-duration: 0.25s;
-    opacity: 0.5;
-    font-family: 'Source Sans Pro', sans-serif;
-  }
-
-  .text-center a{
-    color : black;
-  }
-  .help-block{
-    display: none;
-  }
-
-  .heading h1{
+  
+  <script>
+    const designations = {
+      "Faculty": ["Professor", "Associate Professor", "Assistant Professor"],
+      "Lab Staff": ["Lab Attendant", "Lab Associate",  "Lab Supervisor", "Lab Technician", "System Analyst"],
+      "Office Staff" : ["Program Manager"],
+      "Student": ["PHD", "ME"]
+    }
+    const agencys = {
+      "Regular": 1,
+      "Adhoc": 2,
+      "Randstad" : 3,
+    }
+  
+    window.onload = ()=> {
+    var category = document.getElementById('category');
+    var des = document.getElementById('designation');
+    var agency = document.getElementById('agency');
     
-    /* margin : 50px; */
-    margin-left: 6.5%;
-    margin-right: 6.5%;
-    /* font-weight: bold; */
-    /* margin : 10px auto; */
-    /* font-style : italic; */
-    font-size : 50px;
-    font-family: 'Source Sans Pro',sans-serif;
-    box-shadow: 2px 2px 14px grey;
-    background-color: #000;
-    opacity : 0.8;
-    color: rgb(84, 227, 167);
-    border-radius: 5px;
-    box-shadow: 3px 7px 7px #51dfa4c0;
     
+    for(var i in designations ) {
+      category.options[category.options.length] = new Option(i, i);
+    }
+    
+  
+    category.addEventListener('change', ()=> {
+      des.length = 1;
+      var arr = designations[category.value];
+      for(var i=0; i<arr.length; i++) {
+        des.options[des.options.length] = new Option(arr[i], arr[i]);
+        }
+    }) 
+    for(var i in agencys ) {
+      agency.options[agency.options.length] = new Option(i, i);
+    }
+  
   }
-</style>
-
-<script>
-  const designations = {
-    "Faculty": ["Professor", "Associate Professor", "Assistant Professor"],
-    "Lab Staff": ["Lab Attendant", "Lab Associate",  "Lab Supervisor", "Lab Technician", "System Analyst"],
-    "Office Staff" : ["Program Manager"],
-    "Student": ["PHD", "ME"]
-  }
-  const agencys = {
-    "Regular": 1,
-    "Adhoc": 2,
-    "Randstad" : 3,
-  }
-
-  window.onload = ()=> {
-  var category = document.getElementById('category');
-  var des = document.getElementById('designation');
-  var agency = document.getElementById('agency');
   
   
-  for(var i in designations ) {
-    category.options[category.options.length] = new Option(i, i);
-  }
   
-
-  category.addEventListener('change', ()=> {
-    des.length = 1;
-    var arr = designations[category.value];
-    for(var i=0; i<arr.length; i++) {
-      des.options[des.options.length] = new Option(arr[i], arr[i]);
-      }
-  }) 
-  for(var i in agencys ) {
-    agency.options[agency.options.length] = new Option(i, i);
-  }
-
-}
-
-
-
-  </script>
+    </script>
 
 {% endblock head %}
 {% include 'navbar.html' with user=user %}
@@ -160,6 +50,10 @@
 {% load crispy_forms_tags %}       
 
 <!--Register--> 
+<div class="container-fluid p-5 col-sm-5 col-lg-5 ">
+  
+
+  <div class="section bg-dark text-light p-5 text-center rounded-3">
 <div class = "heading">
   <h1>LAB MANAGEMENT SYSTEM</h1>  
 </div>
@@ -171,8 +65,33 @@
 	<form method="POST">
    {% csrf_token %}
     
-      {{ form|crispy }}
-      <div class="mb-3 row">
+      
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1"><i class="fas fa-envelope"></i></span>
+        <input type="email" name="email" class="form-control" placeholder="Email" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1"><i class="fas fas fa-user"></i></span>
+        <input type="text" name="name" class="form-control" placeholder="Full Name" aria-label="name" aria-describedby="basic-addon1">
+    </div>
+
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1"><i class="fas fa-key"></i></span>
+        <input type="password" name="password1" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="basic-addon1"><i class="fas fa-key"></i></span>
+      <input type="password" name="password2" class="form-control" placeholder="Confirm Password" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="basic-addon1"><i class="fas fa-mobile"></i></span>
+      <input type="number" name="mobile_number" class="form-control" placeholder="Mobile Number" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+
+
+
+    <div class="mb-3 row">
+      
       <select class="form-select" aria-label="Default select example" id="category" name="category">
         <option selected id="selectedCategory">Select Category</option>
       </select>
@@ -181,18 +100,20 @@
       <select class="form-select" aria-label="Default select example" id="designation" name="designation">        
         <option id="selectedDesignation"> select Destination </option>
         </select>
-      </div>
-      <div class="mb-3 row">
+    </div>
+    <div class="mb-3 row">
         <select class="form-select" aria-label="Default select example" id="agency" name="agency">        
           <option id="selectedAgency"> select Agency </option>
           </select>
-        </div>
+    </div>
 
-      <div class="mb-3 row">
-        <input type="submit" style="margin-top: 20px;" value="Register"/>
-      </div>
+    <div class="mb-3 row">
+      <button type="submit" class="btn btn-info">Register</button>
+    </div>
 
     </form>
+  </div>
+</div>
 
 
 {% endblock %}
