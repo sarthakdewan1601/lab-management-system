@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for gp in groupcourse %}
+<option value="{{ gp.id }}">{{gp.course.course.course_id}}({{ gp.group.groups.group_id }})</option>
+{% endfor %}

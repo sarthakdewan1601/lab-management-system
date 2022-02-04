@@ -3,28 +3,29 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-<form method="post" id="coursesform" data-courses-url="{% url 'main:ajax_load_groupcourses' %}" >
+<h1>Staff Name: {{inventorystaff.name}}</h1>
+<h2>Staff Office : {{inventorystaff.room.room_id}}</h2>
+<form method="post" id="devicesform" data-devices-url="{%url 'main:ajax_load_devices' id=inventorystaff.room.id%}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
 </form>
-
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
-    $("#id_faculty").change(function () {
-        const url1 = $("#coursesform").attr("data-courses-url");
-        const facultyId = $(this).val();  // get the selected country ID from the HTML input
+    $("#id_name").change(function () {
+        const url1 = $("#devicesform").attr("data-devices-url");
+        const nameId = $(this).val();  // get the selected country ID from the HTML input
             
         $.ajax({                       // initialize an AJAX request
             url: url1,                    // set the url of the request (= /persons/ajax/load-cities/ )
             data: {
-                'faculty_id': facultyId       // add the country id to the GET parameters
+                'name_id': nameId       // add the country id to the GET parameters
             },
             success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_faculty_group_course").html(data);  // replace the contents of the city input with the data that came from the server
+                $("#id_device").html(data);  // replace the contents of the city input with the data that came from the server
                 
             }
-        });      
+        });    
 
     });
 </script>

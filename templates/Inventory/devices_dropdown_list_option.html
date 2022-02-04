@@ -1,0 +1,8 @@
+<option value="">---------</option>
+{% for device in devices %}
+{% if device.room %}
+<option value="{{ device.id }}">{{device.device_id}} {{ device.name.category }} {{device.room.room_id}}</option>
+{% else %}
+<option value="{{ device.id }}">{{device.device_id}} {{ device.name.category }} (warehouse)</option>
+{% endif %}
+{% endfor %}

@@ -2,7 +2,11 @@ from distutils.log import error
 import email
 from email import message
 from genericpath import exists
+from json import tool
 from re import template
+from sqlite3 import Time
+from time import time
+from click import group
 from django.conf import settings
 from email.message import EmailMessage
 from urllib import response
@@ -29,8 +33,8 @@ from django.urls import reverse_lazy
 from .models import *
 from .forms import *
 from django.http import JsonResponse
-import datetime
 import threading
+import datetime
 
 from django_email_verification import send_email
 from django.shortcuts import render, redirect
@@ -369,9 +373,9 @@ def user_profile(request):
 	#print(staff.designation)
 
 	if staff.category.category == "Lab Staff":
-		
+		print("hi")
 		# for admin 
-
+		print(staff.designation.designation)
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
@@ -382,8 +386,7 @@ def user_profile(request):
 			pass
 
 		
-		if staff.designation.designation == "Lab Attendent":
-
+		if staff.designation.designation == "Lab Attendant":
 			staff_1 = Staff.objects.get(user_obj=request.user)
 			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 
@@ -524,11 +527,9 @@ def requestleave(request):
 			# total count of leaves , store it in models
 			countOfLeaves = int(todateNumber) - int(fromDateNumber)
 			
-			
 			userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substitute)
 			userstatus.save()
 			##notification
-
 			customMessage1 = staff.name + " requested for leave"
 			notification, was_created = Notification.objects.get_or_create(
 				sender=staff, 
@@ -538,7 +539,7 @@ def requestleave(request):
 				taskId = userstatus.id
 			)
 			notification.save()
-
+			# print(notification)
 			customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
 			notification, was_created = Notification.objects.get_or_create(
 				sender=staff, 
@@ -546,7 +547,8 @@ def requestleave(request):
 				message=customMessage2,
 				notification_type = 'LEAVE',
 				taskId=userstatus.id
-			)
+			) 
+			# print(notification)
 			notification.save()
 			return HttpResponse(200)
 
@@ -569,7 +571,7 @@ def requestleave(request):
 			# notification, was_created = Notification.objects.get_or_create(
 			# 	sender=staff, 
 			# 	reciever=str(staff.id) + ' ' + staff.name, 
-			# 	message=customMessage2,
+			#  	message=customMessage2,
 			# 	notification_type = 'LEAVE',
 			# 	taskId=userstatus.id
 			# )
@@ -842,7 +844,7 @@ def notifications(request):
 	notifications.extend(notification)
 
 	if request.user.is_staff:
-		notification=Notification.objects.filter(reciever=receiver).order_by('-time').all()
+		notification=Notification.objects.filter(reciever='admin').order_by('-time').all()
 		notifications.extend(notification)
 
 
@@ -874,8 +876,16 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 		complaint = Complaint.objects.get(id=taskId)
 		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,})
 
-	if notification.notification_type == 'TTC':
-		pass
+	if notification.notification_type == 'INVENTORY' and notification.reciever=='admin':
+		fac=Staff.objects.get(id=taskId)
+		inventory_devices=StaffInventory.objects.filter(staff=fac)
+		inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
+		return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return})
+
+	if notification.notification_type == 'INVENTORY' :
+		fac=Staff.objects.get(id=taskId)
+		return redirect('main:viewinventory')
+
 	
 
 	return redirect("main:notification")
@@ -1135,10 +1145,21 @@ def viewtimetable_wrtlab(request,id):
 def viewLabClasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
-	# print(classes)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	context={
 		'staff':staff,
-		'classes':classes,
+		'classes':curr_cl,
 		'labid':id,
 	}
 	return render(request,'Timetable/viewLabClasses.html',context)
@@ -1154,15 +1175,12 @@ def add_classes(request,id):
 			faculty=form.cleaned_data['faculty']
 			# print(faculty.name)
 			# faculty=Staff.objects.get(id=faculty)
-			course=form.cleaned_data['course']
-			# print(course.faculty)
-			# course=FacultyCourse.objects.get(id=course)
-			group=form.cleaned_data['group']
+			group_course=form.cleaned_data['faculty_group_course']
 			# print(group.faculty)
 			# group=FacultyGroups.objects.get(id=group)
 			day=form.cleaned_data['day']
 			starttime=form.cleaned_data['starttime']
-
+			tools_used=form.cleaned_data['tools_used']
 			h=starttime.hour
 			m=starttime.minute
 			m=m+50
@@ -1175,7 +1193,7 @@ def add_classes(request,id):
 				h+=1
 			s=0
 			endtime=datetime.time(h,m,s)
-			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,faculty_group_course=group_course,day=day,starttime=starttime,endtime=endtime,tools_used=tools_used)
 			activity.save()
 			return redirect('main:viewLabClasses', id=id)
 	return render(request, 'Timetable/addclass.html', {'form': form, "staff":staff})
@@ -1185,8 +1203,20 @@ def load_courses(request):
 	faculty_id = request.GET.get('faculty_id')
 	# print(faculty_id)
 	courses = FacultyCourse.objects.filter(faculty_id=faculty_id).all()
-	# print(courses)
-	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': courses, "staff":staff})
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_courses=[]
+	for course in courses:
+		if course.course.course_year==year and course.course.semester_type==sem:
+			curr_courses.append(course)
+	
+	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': curr_courses, "staff":staff})
 	# return JsonResponse((x), safe=False)
 
 def load_groups(request):
@@ -1194,7 +1224,38 @@ def load_groups(request):
 	faculty_id = request.GET.get('faculty_id')
 	groups = FacultyGroups.objects.filter(faculty_id=faculty_id).all()
 	# print(groups)
-	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': groups, "staff":staff})
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_groups=[]
+	for group in groups:
+		if group.groups.group_year==year and group.groups.semester_type==sem:
+			curr_groups.append(group)
+	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': curr_groups, "staff":staff})
+	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
+def load_groupcourses(request):
+	staff = Staff.objects.get(user_obj=request.user)
+	faculty_id = request.GET.get('faculty_id')
+	groupcourses = GroupCourse.objects.filter(faculty_id=faculty_id).all()
+	# print(groups)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_gp=[]
+	for gc in groupcourses:
+		if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem:
+			curr_gp.append(gc)
+	return render(request, 'TimeTable/groupcourse_dropdown_list_option.html', {'groupcourse': curr_gp, "staff":staff})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
 
 def update_class(request, pk,id):
@@ -1208,14 +1269,14 @@ def update_class(request, pk,id):
 				faculty=form.cleaned_data['faculty']
 				# print(faculty.name)
 				# faculty=Staff.objects.get(id=faculty)
-				course=form.cleaned_data['course']
+				fgc=form.cleaned_data['faculty_group_course']
 				# print(course.faculty)
 				# course=FacultyCourse.objects.get(id=course)
-				group=form.cleaned_data['group']
 				# print(group.faculty)
 				# group=FacultyGroups.objects.get(id=group)
 				day=form.cleaned_data['day']
 				starttime=form.cleaned_data['starttime']
+				tools_used=form.cleaned_data['tools_used']
 
 				h=starttime.hour
 				m=starttime.minute
@@ -1232,11 +1293,11 @@ def update_class(request, pk,id):
 				# activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
 				classes.lab=lab
 				classes.faculty=faculty
-				classes.course=course
-				classes.group=group
+				classes.faculty_group_course=fgc
 				classes.day=day
 				classes.starttime=starttime
 				classes.endtime=endtime
+				classes.tools_used=tools_used
 				classes.save()
 				return redirect('main:viewLabClasses', id=id)
 		return render(request, 'Timetable/addclass.html', {'form': form, "staff": staff})
@@ -1325,10 +1386,22 @@ def viewfacultytimetable(request):
 def adminviewgroups(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
 	groups=FacultyGroups.objects.filter(faculty=faculty)
+	curr_groups=[]
+	for group in groups:
+		if group.groups.group_year==year and group.groups.semester_type==sem:
+			curr_groups.append(group)
 	context={
 		'staff':staff,
-		'groups':groups,
+		'groups':curr_groups,
 		'faculty' : faculty,
 	}
 	return render(request,'admin/adminviewgroups.html',context)
@@ -1336,13 +1409,61 @@ def adminviewgroups(request,id):
 def adminviewcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
 	courses=FacultyCourse.objects.filter(faculty=faculty)
+	curr_courses=[]
+	for course in courses:
+		if course.course.course_year==year and course.course.semester_type==sem:
+			curr_courses.append(course)
 	context={
 		'staff':staff,
-		'courses':courses,
+		'courses':curr_courses,
 		'faculty':faculty,		
 	}
 	return render(request,'admin/adminviewcourses.html',context)
+
+def adminviewgroupcourses(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	faculty=Staff.objects.get(id=id)
+	groupcourses=GroupCourse.objects.filter(faculty=faculty)
+	context={
+		'staff':staff,
+		'groupcourses':groupcourses,
+		'faculty':faculty,		
+	}
+	return render(request,'admin/adminviewgroupcourses.html',context)
+def adminaddgroupcourse(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	fac=Staff.objects.get(id=id)
+	form=AddGroupCourseForm()
+	if request.method=='POST':
+		form=AddGroupCourseForm(request.POST)
+		if form.is_valid():
+			faculty=form.cleaned_data['faculty']
+			print(faculty.name)
+			# faculty=Staff.objects.get(id=faculty)
+			course=form.cleaned_data['course']
+			print(course.course.course_id)
+			# course=FacultyCourse.objects.get(id=course)
+			group=form.cleaned_data['group']
+			gc,was_created=GroupCourse.objects.get_or_create(faculty=faculty,course=course,group=group)
+			gc.save()
+			return redirect('main:adminviewgroupcourses' ,id=id)
+	
+	context={
+		'staff':staff,
+		'fac':fac,
+		'form':form,
+	}
+	return render(request,'admin/adminaddgroupcourse.html',context)
+
 
 def adminviewclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
@@ -1363,11 +1484,24 @@ def admindeletegroup(request,id):
 
 def admindeletecourses(request,id):
 	course=FacultyCourse.objects.get(id=id)
-	print(course)
+	# print(course)
 	facid=course.faculty.id
-	print(facid)
+	# print(facid)
 	course.delete()
 	return redirect('main:adminviewcourses',id=facid)
+
+def admindeleteclass(request,id):
+	classes=Class.objects.get(id=id)
+	labid=classes.lab.id
+	classes.delete() 
+	return redirect('main:viewLabClasses',id=labid)
+
+def admindeletefacultyclass(request,id):
+	classes=Class.objects.get(id=id)
+	facid=classes.faculty.id
+	classes.delete() 
+	return redirect('main:adminviewclasses',id=facid)
+
 	
 def adminaddcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
@@ -1411,10 +1545,10 @@ def adminaddfacultyclass(request,id):
 		if form.is_valid():
 			print("yay")
 			lab=form.cleaned_data['lab']
-			course=form.cleaned_data['course']
-			group=form.cleaned_data['group']
+			fgc=form.cleaned_data['faculty_group_course']
 			day=form.cleaned_data['day']
 			starttime=form.cleaned_data['starttime']
+			tools_used=form.cleaned_data['tools_used']
 			h=starttime.hour
 			m=starttime.minute
 			m=m+50
@@ -1427,7 +1561,7 @@ def adminaddfacultyclass(request,id):
 				h+=1
 			s=0
 			endtime=datetime.time(h,m,s)
-			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
+			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,faculty_group_course=fgc,day=day,starttime=starttime,endtime=endtime,tools_used=tools_used)
 			activity.save()
 			return redirect('main:adminviewclasses', id=id)
 	context={
@@ -1451,15 +1585,11 @@ def adminupdatefacultyclass(request,id,pk):
 			lab=form.cleaned_data['lab']
 			# print(faculty.name)
 			# faculty=Staff.objects.get(id=faculty)
-			course=form.cleaned_data['course']
+			faculty_group_course=form.cleaned_data['faculty_group_course']
 			# print(course.faculty)
-			# course=FacultyCourse.objects.get(id=course)
-			group=form.cleaned_data['group']
-			# print(group.faculty)
-			# group=FacultyGroups.objects.get(id=group)
 			day=form.cleaned_data['day']
 			starttime=form.cleaned_data['starttime']
-
+			tools_used=form.cleaned_data['tools_used']
 			h=starttime.hour
 			m=starttime.minute
 			m=m+50
@@ -1475,11 +1605,11 @@ def adminupdatefacultyclass(request,id,pk):
 			# activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,course=course,group=group,day=day,starttime=starttime,endtime=endtime)
 			classes.lab=lab
 			classes.faculty=faculty
-			classes.course=course
-			classes.group=group
+			classes.faculty_group_course=faculty_group_course
 			classes.day=day
 			classes.starttime=starttime
 			classes.endtime=endtime
+			classes.tools_used=tools_used
 			classes.save()
 			return redirect('main:adminviewclasses', id=id)
 	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
@@ -1487,10 +1617,146 @@ def adminupdatefacultyclass(request,id,pk):
 def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
-	print(inventory)
+	# print(len(inventory))
 	context={
 		'staff':staff,
 		'inventory':inventory,
 	}
-	return render(request,'inventory.html',context, {"staff":staff})
+	return render(request,'inventory.html',context)
+
+
+def adminviewinventory(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	fac=Staff.objects.get(id=id)
+	inventory_devices=StaffInventory.objects.filter(staff=fac)
+	inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
+	return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return})
+
+
+def loaddevices(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	room=Room.objects.get(id=id)
+	# print(room.room_id)
+	name_id = request.GET.get('name_id')
+	name=CategoryOfDevice.objects.get(id=name_id)
+	# print(name.category)
+	X=[]
+	devices=Devices.objects.filter(name=name,room=None,in_inventory=False)
+	# print(devices)
+	X.extend(devices)
+	devices=Devices.objects.filter(name=name,room=room,in_inventory=False)
+	# print(devices)
+	X.extend(devices)
+	# print(X)
+	return render(request, 'inventory/devices_dropdown_list_option.html', {'devices':X, "staff":staff})
+
+
+def allotdevices(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	fac=Staff.objects.get(id=id)
+	form=AllotDevicesForm()
+	if request.method == 'POST':
+		form = AllotDevicesForm(request.POST)
+		# print(form)
+		if form.is_valid():
+			name=form.cleaned_data['name']
+			device=form.cleaned_data['device']
+			created=timezone.now()
+			# print(created)
+			dev=Devices.objects.get(id=device.id)
+			dev.in_inventory=True
+			dev.room=fac.room
+			dev.save()
+			print(created)
+			devices,was_created=StaffInventory.objects.get_or_create(staff=fac,device=dev,date_added=created,is_requested_for_return=False)
+			devices.save()
+			request='Assign'
+			log,was_created=Inventory_log.objects.get_or_create(request_type=request,staff=fac,device_id=dev.device_id,device_name=dev.name.category,date=datetime.datetime.now())
+			log.save()
+			return redirect('main:adminviewinventory', id=id)
+		
+	return render(request,'inventory/allotdevices.html',{'form':form,'staff':staff,'inventorystaff':fac,})
+
+def devicesreturnrequest(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	inventory=StaffInventory.objects.filter(staff=staff,is_requested_for_return=False)
+	if request.method=='POST':
+		devices=request.POST.getlist('devices')
+		for device in devices:
+			dev_id=device.split('/')[0]
+			inventory_device=StaffInventory.objects.get(id=dev_id)
+			inventory_device.is_requested_for_return=True
+			inventory_device.save()
+		customMessage2 = "your request for Return of devices is placed"
+		notification, was_created = Notification.objects.get_or_create(
+			sender=staff, 
+			reciever=str(staff.id) + ' ' + staff.name, 
+			message=customMessage2,
+			notification_type = 'INVENTORY',
+			taskId=staff.id,
+			time=datetime.datetime.now(),
+		) 
+		notification.save()
+		customMessage = staff.name + " requested to Return some devices"
+		notification, was_created = Notification.objects.get_or_create(
+			sender=staff,  
+			reciever='admin', 
+			message=customMessage,
+			notification_type = 'INVENTORY',
+			taskId=staff.id,
+			time=datetime.datetime.now(),
+		) 
+		notification.save()
+		return redirect('main:viewinventory')
+	
+	context={
+		'staff':staff,
+		'devices':inventory,
+	}
+	return render(request,'inventory/return_request.html',context)
+
+def approveDeviceRequest(request,pk):
+	staff=Staff.objects.get(user_obj=request.user)
+	inventory_device=StaffInventory.objects.get(id=pk)
+	fac=inventory_device.staff
+	device=inventory_device.device
+	device.room=None
+	device.in_inventory=False
+	device.save()
+	request='Return'
+	log,was_created=Inventory_log.objects.get_or_create(request_type=request,staff=fac,device_id=device.device_id,device_name=device.name.category,date=datetime.datetime.now())
+	log.save()
+	inventory_device.delete()
+	customMessage="Device with id-> "+device.device_id+" is returned" 
+	notification, was_created = Notification.objects.get_or_create(
+			sender=staff,  
+			reciever=str(fac.id)+" "+fac.name, 
+			message=customMessage,
+			notification_type ='INVENTORY',
+			taskId=staff.id,
+			time=datetime.datetime.now(),
+		) 
+	notification.save()
+	return redirect('main:adminviewinventory',id=fac.id)
+
+def declineDeviceRequest(request,pk):
+	staff=Staff.objects.get(user_obj=request.user)
+	inventory_device=StaffInventory.objects.get(id=pk)
+	fac=inventory_device.staff
+	device=inventory_device.device
+	inventory_device.is_requested_for_return=False
+	inventory_device.save()
+	customMessage="Your Request to return Device with id-> "+device.device_id+" is declined" 
+	notification, was_created = Notification.objects.get_or_create(
+			sender=staff,  
+			reciever=str(fac.id)+" "+fac.name, 
+			message=customMessage,
+			notification_type = 'INVENTORY',
+			taskId=staff.id,
+			time=datetime.datetime.now(),
+		) 
+	notification.save()
+	return redirect('main:adminviewinventory',id=fac.id)
+
+
 

@@ -16,7 +16,10 @@
                 <th scope="col" >Day</th>
                 <th scope="col" >Start Time</th>
                 <th scope="col" >End Time</th>
+                <th scope="col" >Tools used</th>
                 <th scope="col" >Edit Class</th>
+                <th scope="col" >Delete Class</th>
+                
               </tr>
             </thead>
     
@@ -25,13 +28,14 @@
               <tr>
                 <td>{{class.lab.lab}}</td>
                 <td>{{class.faculty.name}}</td>
-                <td>{{class.course.course.course_name}}</td>
-                <td>{{class.group.groups.group_id}}</td>
+                <td>{{class.faculty_group_course.course.course.course_name}}</td>
+                <td>{{class.faculty_group_course.group.groups.group_id}}</td>
                 <td>{{class.day}}</td>
                 <td>{{class.starttime}}</td>
                 <td>{{class.endtime}}</td>
+                <td>{{class.tools_used}}</td>
                 <td><a href="{% url 'main:update_class' id=labid pk=class.id%}" style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
-                
+                <td><a href="{%url 'main:admindeleteclass' id=class.id %}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
               </tr>
               {% endfor %}
             </tbody>

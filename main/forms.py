@@ -1,10 +1,12 @@
+from calendar import month
+from email.headerregistry import Group
 from typing import BinaryIO
 from xml.dom import ValidationErr
 from django import forms
 from django.db import models
 from django.db.models import fields
 from django.forms.fields import ChoiceField
-from .models import Class, Designation, Devices, FacultyCourse, FacultyGroups, Staff, Notification, TotalLeaves,UserLeaveStatus
+from .models import *
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth.password_validation import validate_password
 
@@ -13,6 +15,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 import datetime
 from django.forms import ModelForm
+from datetime import date
 
 User = get_user_model()
 
@@ -46,14 +49,60 @@ class AddCourseForm(forms.ModelForm):
     class Meta:
         model = FacultyCourse
         fields = ['faculty','course']
+    def __init__(self,*args, **kwargs):
+        # print(faculty)
+        super().__init__(*args, **kwargs)
+        current_date = datetime.datetime.now()
+        year=int(current_date.strftime("%Y"))
+        month=int(current_date.strftime("%m"))
+        sem=""
+        if int(month)<=6:
+            sem="EVEN"
+        else:
+            sem="ODD"
+
+        self.fields['course'].queryset = Course.objects.filter(course_year=year,semester_type=sem)
 
 class AddGroupForm(forms.ModelForm):
 
     class Meta:
         model = FacultyGroups
         fields = ['faculty','groups']
+    def __init__(self,*args, **kwargs):
+        # print(faculty)
+        super().__init__(*args, **kwargs)
+        current_date = datetime.datetime.now()
+        year=int(current_date.strftime("%Y"))
+        month=int(current_date.strftime("%m"))
+        sem=""
+        if int(month)<=6:
+            sem="EVEN"
+        else:
+            sem="ODD"
+
+        self.fields['groups'].queryset = Groups.objects.filter(group_year=year,semester_type=sem)
+
+class AddGroupCourseForm(forms.ModelForm):
+    class Meta:
+        model = GroupCourse
+        fields = ['faculty',"course","group"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = FacultyCourse.objects.none()
+        self.fields['group'].queryset = FacultyGroups.objects.none()
 
 
+        if 'faculty' in self.data:
+            try:
+                faculty_id = int(self.data.get('faculty'))
+                self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=faculty_id)
+                self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=faculty_id)
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        elif self.instance.pk:
+            self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=self.instance.faculty)
+            self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=self.instance.faculty)
 
 class EditProfileForm(forms.Form):
     name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
@@ -125,35 +174,59 @@ class AddNewLeave(forms.ModelForm):
 #             fields = ('name','mobile_number','email', 'category', 'designation', 'agency') #Note that we didn't mention user field here.
 
 
+
+    
 class AddClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['faculty',"course","group","day","starttime"]
+        fields = ['faculty',"faculty_group_course","day","starttime","tools_used"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['course'].queryset = FacultyCourse.objects.none()
-        self.fields['group'].queryset = FacultyGroups.objects.none()
-
+        self.fields['faculty_group_course'].queryset = GroupCourse.objects.none()
 
         if 'faculty' in self.data:
             try:
                 faculty_id = int(self.data.get('faculty'))
-                self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=faculty_id)
-                self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=faculty_id)
+                self.fields['faculty_group_course'].queryset = GroupCourse.objects.filter(faculty_id=faculty_id)
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty City queryset
         elif self.instance.pk:
-            self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=self.instance.faculty)
-            self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=self.instance.faculty)
+            self.fields['faculty_group_course'].queryset = GroupCourse.objects.filter(faculty_id=self.instance.faculty)
 
 class AddFacultyClassForm(forms.ModelForm):
     class Meta:
         model=Class
-        fields = ['lab',"course","group","day","starttime"]
+        fields = ['lab',"faculty_group_course","day","starttime","tools_used"]
     def __init__(self, faculty,*args, **kwargs):
-        # print(faculty)
         super().__init__(*args, **kwargs)
-        self.fields['course'].queryset = FacultyCourse.objects.filter(faculty=faculty)
-        self.fields['group'].queryset = FacultyGroups.objects.filter(faculty=faculty)
+        groupcourses=GroupCourse.objects.filter(faculty=faculty)
+        current_date = datetime.datetime.now()
+        year=int(current_date.strftime("%Y"))
+        month=int(current_date.strftime("%m"))
+        sem=""
+        if int(month)<=6:
+            sem="EVEN"
+        else:
+            sem="ODD"
+        curr_gp=[]
+        for gc in groupcourses:
+            if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem:
+                curr_gp.append(gc)
+        self.fields['faculty_group_course'].queryset = GroupCourse.objects.filter(id__in={instance.id for instance in curr_gp})
+
+class AllotDevicesForm(forms.ModelForm):
+    name=forms.ModelChoiceField(queryset=CategoryOfDevice.objects.all())
+    class Meta:
+        model=StaffInventory
+        fields=['device']
+    field_order=['name','device']
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['device'].queryset = Devices.objects.none()
+        name_id=self.data.get('name')
+        # print(name_id)
+        self.fields['device'].queryset = Devices.objects.filter(name_id=name_id,in_inventory=False)
+        
+    
 

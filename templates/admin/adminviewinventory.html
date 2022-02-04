@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+
+
+<div class="container">
+  <h1> Items Alloted to {{inventorystaff.name}}</h1>
+  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+    <div class="inventory-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Item Id</th>
+                <th scope="col" >Item Name</th>
+                <th scope="col" >Item Description</th>
+                <th scope="col" >Date Alloted</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for device in devices %}
+              {% if device.is_requested_for_return %}
+              <tr style="color: red;">
+                <td>{{device.device.device_id}}</td>
+                <td>{{device.device.name}}</td>
+                <td>{{device.device.description}}</td>
+                <td>{{device.date_added}}</td>                     
+              </tr>
+              {% else %}
+              <tr style="color: green;">
+                <td>{{device.device.device_id}}</td>
+                <td>{{device.device.name}}</td>
+                <td>{{device.device.description}}</td>
+                <td>{{device.date_added}}</td>                     
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+        </table>
+  <h1> Items Request for Return by {{inventorystaff.name}}</h1>
+  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+    <div class="inventory-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Item Id</th>
+                <th scope="col" >Item Name</th>
+                <th scope="col" >Item Description</th>
+                <th scope="col" >Date Alloted</th>
+                <th scope="col" >Approve/Decline</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for device in devicestoreturn %}
+              <tr>
+                <td>{{device.device.device_id}}</td>
+                <td>{{device.device.name}}</td>
+                <td>{{device.device.description}}</td>
+                <td>{{device.date_added}}</td> 
+                <td>
+                  <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveDeviceRequest' pk=device.id%}">Approve/</a>
+                  <a style="color: #000; text-decoration: underline;"  href="{% url 'main:declineDeviceRequest' pk=device.id%}">Decline</a>
+                </td>                    
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p>If you want to Allot Items <a href = "{%url 'main:allotdevices' id=inventorystaff.id%}">click here</a></p>
+        </div>
+    </div>
+{% endblock body %}
