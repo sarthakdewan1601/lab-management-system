@@ -6,11 +6,12 @@
 
 <div class="container mt-5">
 
-    <div class="card p-5 card-body bg-dark">
+    <div class="card p-5 card-body bg-dark text-info">
         <h3 class="card-title">Leave Status</h3>
         <p>Sender: {{leaveRequest.staff.name}}</p>
         <p>Substitute: {{leaveRequest.substitute.name}}</p>
-        <p>Date: {{leaveRequest.date_time|date}}</p>
+        <p>Date: {{leaveRequest.from_date}}</p>
+        <p>Number of Leaves: {{getTotalLeaveDays}}</p>
         <p>Reason: {{leaveRequest.reason}}</p>
         <p>Status: {{leaveRequest.status}}</p>
         {% if not leaveRequest.rejected %}
