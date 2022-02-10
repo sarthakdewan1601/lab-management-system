@@ -17,7 +17,6 @@ input[type=number] {
 }
 html, body{
     font-family: 'Bitter', serif;
-    /* background-color: red; */
 }
 :root {
     --green-main-1: #6ECBC1;
@@ -53,9 +52,9 @@ html, body{
     color: var(--green-button-main);
     text-decoration: none;
   }
-  /* .fa-round-left i{
+  .fa-round-left i{
     
-  } */
+  }
   .inputFieldComplete{
     background-color: yellow;
     border-radius: 40px;
