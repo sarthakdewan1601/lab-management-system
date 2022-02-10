@@ -15,6 +15,7 @@
             <th scope="col" >Courses</th>
             <th scope="col" >Group-Course</th>
             <th scope="col" >Classes</th>
+            <th scope="col" >View TimeTable</th>
           </tr>
         </thead>
 
@@ -27,6 +28,7 @@
             <td><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black"> View Courses </a></td>
             <td><a href = "{% url 'main:adminviewgroupcourses' id=x.id %}" style = "color : black"> View Group-Course </a></td>
             <td><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black"> View Classes </a></td>
+            <td><a href = "{% url 'main:viewfacultytimetable' id=x.id %}" style = "color : black"> View Time Table </a></td>
           </tr>
           {% endfor %}
         </tbody>

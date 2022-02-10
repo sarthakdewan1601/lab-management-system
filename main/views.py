@@ -32,6 +32,7 @@ from django.db import IntegrityError
 from django.urls import reverse_lazy
 from .models import *
 from .forms import *
+from .filters import *
 from django.http import JsonResponse
 import threading
 import datetime
@@ -836,15 +837,15 @@ def notifications(request):
 	notifications=[]
 	
 	if designation == 'Lab Technician':
-		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
+		notification = Notification.objects.filter(notification_type='TECH',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
 
 	receiver=str(staff.id) +' '+staff.name
-	notification = Notification.objects.filter(reciever=receiver).order_by('-time').all()
+	notification = Notification.objects.filter(reciever=receiver,isActive=True).order_by('-time').all()
 	notifications.extend(notification)
 
 	if request.user.is_staff:
-		notification=Notification.objects.filter(reciever='admin').order_by('-time').all()
+		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
 
 
@@ -857,6 +858,11 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 													
 	staff = Staff.objects.get(user_obj=request.user)	 	# current user		
 	notification = Notification.objects.get(id=pk)
+	if notification.isActive==False:
+		return redirect('main:notification')
+
+	notification.isActive=False
+	notification.save()
 	taskId = notification.taskId
 	
 	# reciever_id= int(notification.reciever.split(' ')[0])
@@ -1105,7 +1111,18 @@ def viewtimetable_wrtlab(request,id):
 	# print(lab)
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
-	# print(classes)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 	timeslots=[]
 	h=8
@@ -1130,7 +1147,7 @@ def viewtimetable_wrtlab(request,id):
 	context={
 		'lab':lab,
 		'weekdays':weekdays,
-		'classes':classes,
+		'classes':curr_cl,
 		'staff':staff,
 		'timeslots':timeslots,
 		'time':time,
@@ -1305,9 +1322,21 @@ def update_class(request, pk,id):
 def viewgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	groups=FacultyGroups.objects.filter(faculty=staff)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_groups=[]
+	for group in groups:
+		if group.groups.group_year==year and group.groups.semester_type==sem:
+			curr_groups.append(group)
 	context={
 		'staff':staff,
-		'groups':groups,
+		'groups':curr_groups,
 	}
 	return render(request,'Timetable/viewgroups.html',context)
 
@@ -1315,18 +1344,43 @@ def viewcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	courses=FacultyCourse.objects.filter(faculty=staff)
 	# print(courses)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	
+	curr_courses=[]
+	for course in courses:
+		if course.course.course_year==year and course.course.semester_type==sem:
+			curr_courses.append(course)
 	context={
 		'staff':staff,
-		'courses':courses,
+		'courses':curr_courses,
 	}
 	return render(request,'Timetable/viewcourses.html',context)
 
 def viewfacultyclasses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(faculty=staff)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	context={
 		'staff':staff,
-		'classes':classes,
+		'classes':curr_cl,
 	}
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
@@ -1347,9 +1401,22 @@ def ViewFacultyDetails(request):
 	}
 	return render(request,"admin/adminfacultydetails.html",context)
 
-def viewfacultytimetable(request):
+def viewfacultytimetable(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
-	classes=Class.objects.filter(faculty=staff)
+	faculty=Staff.objects.get(id=id)
+	classes=Class.objects.filter(faculty=faculty)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 	timeslots=[]
 	h=8
@@ -1374,10 +1441,11 @@ def viewfacultytimetable(request):
 	context={
 		'lab':lab,
 		'weekdays':weekdays,
-		'classes':classes,
+		'classes':curr_cl,
 		'staff':staff,
 		'timeslots':timeslots,
 		'time':time,
+		'faculty':faculty,
 	}
 	return render(request,'Timetable/timetable_wrtfaculty.html',context)
 	# return render(request,'',context)
@@ -1433,9 +1501,22 @@ def adminviewgroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	groupcourses=GroupCourse.objects.filter(faculty=faculty)
+	# print(groups)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_gp=[]
+	for gc in groupcourses:
+		if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem:
+			curr_gp.append(gc)
 	context={
 		'staff':staff,
-		'groupcourses':groupcourses,
+		'groupcourses':curr_gp,
 		'faculty':faculty,		
 	}
 	return render(request,'admin/adminviewgroupcourses.html',context)
@@ -1469,9 +1550,21 @@ def adminviewclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	classes=Class.objects.filter(faculty=faculty)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	context={
 		'staff':staff,
-		'classes':classes,
+		'classes':curr_cl,
 		'faculty':faculty,
 	}
 	return render(request,'admin/adminviewclasses.html',context)
@@ -1489,6 +1582,14 @@ def admindeletecourses(request,id):
 	# print(facid)
 	course.delete()
 	return redirect('main:adminviewcourses',id=facid)
+
+def admindeletegroupcourse(request,id):
+	gc=GroupCourse.objects.get(id=id)
+	# print(course)
+	facid=gc.faculty.id
+	# print(facid)
+	gc.delete()
+	return redirect('main:adminviewgroupcourses',id=facid)
 
 def admindeleteclass(request,id):
 	classes=Class.objects.get(id=id)
@@ -1543,7 +1644,7 @@ def adminaddfacultyclass(request,id):
 	if request.method == 'POST':
 		form=AddFacultyClassForm(faculty,request.POST)
 		if form.is_valid():
-			print("yay")
+			# print("yay")
 			lab=form.cleaned_data['lab']
 			fgc=form.cleaned_data['faculty_group_course']
 			day=form.cleaned_data['day']
@@ -1759,4 +1860,144 @@ def declineDeviceRequest(request,pk):
 	return redirect('main:adminviewinventory',id=fac.id)
 
 
+def adminviewrooms(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	rooms=Room.objects.all()
+	myFilter = filterRoom(request.GET,queryset=rooms)
+	rooms=myFilter.qs
+	context={
+		'staff':staff,
+		'rooms':rooms,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/adminviewrooms.html',context)
 
+def adminaddroom(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewRoomForm
+	if request.method == 'POST':
+		form=NewRoomForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminviewrooms')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addroom.html',context)
+
+def admineditroom(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	room_instance=Room.objects.get(id=id)
+	form=NewRoomForm(instance=room_instance)
+	if request.method == 'POST':
+		form=NewRoomForm(request.POST,instance=room_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminviewrooms')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addroom.html',context)
+
+
+def viewallcourses(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	courses=Course.objects.all()
+	myFilter = filterCourse(request.GET,queryset=courses)
+	courses=myFilter.qs
+	context={
+		'staff':staff,
+		'courses':courses,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/viewcourses.html',context)
+
+def adminaddcourse(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewCourseForm
+	if request.method == 'POST':
+		form=NewCourseForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallcourses')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addcourse.html',context)
+
+def admineditcourse(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	course_instance=Course.objects.get(id=id)
+	form=NewCourseForm(instance=course_instance)
+	if request.method == 'POST':
+		form=NewCourseForm(request.POST,instance=course_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallcourses')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addcourse.html',context)
+	
+
+def viewallgroups(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	groups=Groups.objects.all()
+	myFilter = filterGroup(request.GET,queryset=groups)
+	groups=myFilter.qs
+	context={
+		'staff':staff,
+		'groups':groups,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/viewgroups.html',context)
+
+def addgroup(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewGroupForm
+	if request.method == 'POST':
+		form=NewGroupForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallgroups')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addgroup.html',context)
+
+	
+def admineditgroup(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	group_instance=Groups.objects.get(id=id)
+	form=NewGroupForm(instance=group_instance)
+	if request.method == 'POST':
+		form=NewGroupForm(request.POST,instance=group_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallgroups')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addgroup.html',context)
+
+
+def adminaddlab(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewLabForm
+	if request.method == 'POST':
+		form=NewLabForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminLabs')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addlab.html',context)
+		
