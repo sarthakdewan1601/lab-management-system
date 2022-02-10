@@ -68,6 +68,7 @@ class Room(models.Model):
     room_id = models.CharField(max_length=20, blank=False)
     name = models.CharField(max_length=255, blank=True)
     floor = models.CharField(max_length=10,blank=False, null=False)
+    is_lab=models.BooleanField(default=False)
     def __str__(self):
         return self.room_id + ' ('+self.name+')'
 
@@ -88,7 +89,7 @@ class Staff(models.Model):
 
 class StaffInventory(models.Model):
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
-    device=models.ForeignKey('Devices',on_delete=models.CASCADE)
+    device=models.ForeignKey('Devices',on_delete=CASCADE)
     date_added=models.DateTimeField(auto_now_add=True)
     is_requested_for_return=models.BooleanField(default=False)
 
@@ -97,7 +98,7 @@ class StaffInventory(models.Model):
 
 class Inventory_log(models.Model):
     request_type=models.CharField(max_length=100)
-    staff=models.ForeignKey('Staff',on_delete=models.CASCADE)
+    staff=models.ForeignKey('Staff',on_delete=CASCADE)
     device_id=models.CharField(max_length=100,default=0)
     device_name=models.CharField(max_length=100)
     date=models.DateTimeField(auto_now_add=True)

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+
+
+<div class="container">
+  <div class="add-room">
+    <p>If you want to add a room,<a href="{%url 'main:adminaddroom'%}" style="color: black; text-decoration: underline;">click here</a></p>
+  </div>
+    <div class="col">
+        <div class=" card card-body">
+            <form method="get">
+                {{myFilter.form}}
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="courses-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Room-ID</th>
+                <th scope="col" >Name</th>
+                <th scope="col" >Floor</th>
+                <th scope="col" >edit</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for room in rooms %}
+              <tr>
+                <td>{{room.room_id}}</td>
+                <td>{{room.name}}</td>
+                <td>{{room.floor}}</td>
+                <td><a href="{% url 'main:admineditroom' id=room.id%}" style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+</div>
+{% endblock body %}

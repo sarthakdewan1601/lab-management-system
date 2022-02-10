@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'main',
     'django_email_verification',
     'helpers',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

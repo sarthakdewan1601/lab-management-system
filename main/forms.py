@@ -1,6 +1,7 @@
 from calendar import month
 from email.headerregistry import Group
 from typing import BinaryIO
+from unicodedata import category
 from xml.dom import ValidationErr
 from django import forms
 from django.db import models
@@ -9,7 +10,6 @@ from django.forms.fields import ChoiceField
 from .models import *
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth.password_validation import validate_password
-
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -229,4 +229,36 @@ class AllotDevicesForm(forms.ModelForm):
         self.fields['device'].queryset = Devices.objects.filter(name_id=name_id,in_inventory=False)
         
     
+class NewRoomForm(forms.ModelForm):
+    class Meta:
+        model=Room
+        fields = '__all__'
+
+class NewCourseForm(forms.ModelForm):
+    class Meta:
+        model=Course
+        fields = '__all__'
+class NewGroupForm(forms.ModelForm):
+    class Meta:
+        model=Groups
+        fields = '__all__'
+
+class NewLabForm(forms.ModelForm):
+    class Meta:
+        model=Lab
+        fields='__all__'
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args, **kwargs)
+        all_labs=Room.objects.filter(is_lab=True)
+        curr_labs=Lab.objects.all()
+        labs=[]
+        for i in curr_labs:
+            labs.append(i.lab)
+        print(labs)
+        req_labs=[lab for lab in all_labs if lab not in labs]
+        print(req_labs)
+        designation=Designation.objects.get(designation='Lab Attendant')
+        self.fields['lab'].queryset = Room.objects.filter(id__in={instance.id for instance in req_labs})
+        self.fields['staff'].queryset = Staff.objects.filter(designation=designation)
 
