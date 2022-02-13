@@ -35,7 +35,6 @@ from django.http import JsonResponse
 import threading
 import datetime
 
-from django_email_verification import send_email
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
