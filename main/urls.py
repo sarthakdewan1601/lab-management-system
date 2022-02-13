@@ -40,7 +40,7 @@ urlpatterns = [
     path('profile/viewcourses/',views.viewcourses,name='viewcourses'),
     path('profile/viewgroups/',views.viewgroups,name='viewgroups'),
     path('profile/viewclasses/',views.viewfacultyclasses,name='viewfacultyclasses'),
-    path('profile/viewfacultytimetable/',views.viewfacultytimetable,name='viewfacultytimetable'),
+    path('profile/viewfacultytimetable/<id>',views.viewfacultytimetable,name='viewfacultytimetable'),
     path('profile/viewitemsalloted/',views.viewinventory,name='viewinventory'),
 
     # admin paths
@@ -53,6 +53,16 @@ urlpatterns = [
     path('admin-dashboard/current-year-leaves/leave/<pk>', views.adminEditLeave, name='adminEditLeave'),
     path('admin-dashboard/current-year-leaves/remove-leave/<pk>', views.removeLeave, name='removeLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
+    path('admin-dashboard/labs-list/add-lab', views.adminaddlab, name='adminaddlab'),
+    path('admin-dashboard/Rooms/', views.adminviewrooms, name='adminviewrooms'),
+    path('admin-dashboard/Rooms/add-room', views.adminaddroom, name='adminaddroom'),
+    path('admin-dashboard/Rooms/edit-room/<id>', views.admineditroom, name='admineditroom'),
+    path('admin-dashboard/Courses/', views.viewallcourses, name='viewallcourses'),
+    path('admin-dashboard/Courses/add-Course', views.adminaddcourse, name='adminaddcourse'),
+    path('admin-dashboard/Courses/edit-Course/<id>', views.admineditcourse, name='admineditcourse'),
+    path('admin-dashboard/Groups/', views.viewallgroups, name='viewallgroups'),
+    path('admin-dashboard/Groups/add-Group', views.addgroup, name='addgroup'),
+    path('admin-dashboard/Groups/edit-Group/<id>', views.admineditgroup, name='admineditgroup'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
     path('admin-dashboard/faculty-details',views.ViewFacultyDetails,name='adminfacultydetails'),
     path('admin-dashboard/faculty-details/admin-view-groups/<id>',views.adminviewgroups,name='adminviewgroups'),
@@ -62,24 +72,26 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-classes/<id>',views.adminviewclasses,name='adminviewclasses'),
     path('admin-dashboard/faculty-details/admin-view-groups/delete-group/<id>',views.admindeletegroup,name='admindeletegroup'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-courses/<id>',views.admindeletecourses,name='admindeletecourses'),
+    path('admin-dashboard/faculty-details/admin-view-courses/delete-group-courses/<id>',views.admindeletegroupcourse,name='admindeletegroupcourse'),
     path('admin-dashboard/faculty-details/admin-view-courses/add-course/<id>',views.adminaddcourses,name='adminaddcourses'),
     path('admin-dashboard/faculty-details/admin-view-courses/add-group/<id>',views.adminaddgroup,name='adminaddgroup'),
     path('admin-dashboard/faculty-details/admin-view-courses/add-faculty-class/<id>',views.adminaddfacultyclass,name='adminaddfacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/update-faculty-class/<id><pk>',views.adminupdatefacultyclass,name='adminupdatefacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-class/<id>',views.admindeleteclass,name='admindeleteclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-faculty-class/<id>',views.admindeletefacultyclass,name='admindeletefacultyclass'),
+   
     #timetable paths
-    path('viewlabtimetable/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
-    path('viewlabclasses/<id>',views.viewLabClasses,name='viewLabClasses'),
-    path('add_class/<id>',views.add_classes,name = 'add_classes'),
-    path('ajax/load-courses/', views.load_courses, name='ajax_load_courses'), # AJAX
-    path('ajax/load-groups/', views.load_groups, name='ajax_load_groups'),
-    path('ajax/load-group-courses/', views.load_groupcourses, name='ajax_load_groupcourses'), # AJAX
-    path('updateclass/<pk>_<id>/', views.update_class, name='update_class'),
+    path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
+    path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),
+    path('timetable/add_class/<id>',views.add_classes,name = 'add_classes'),
+    path('timetable/load-courses/', views.load_courses, name='ajax_load_courses'), # AJAX
+    path('timetable/load-groups/', views.load_groups, name='ajax_load_groups'),
+    path('timetable/load-group-courses/', views.load_groupcourses, name='ajax_load_groupcourses'), # AJAX
+    path('timetable/updateclass/<pk>_<id>/', views.update_class, name='update_class'),
 
     #inventory paths
-    path('allotdevices/<id>',views.allotdevices,name='allotdevices'),
-    path('ajax/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
-    path('return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
+    path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
+    path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
+    path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
 
 ]

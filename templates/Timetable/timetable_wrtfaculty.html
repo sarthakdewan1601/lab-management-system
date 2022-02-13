@@ -198,7 +198,7 @@
 
 {% include 'navbar.html' with staff=staff %}
 <div class="container">
-    <h1 class = "temp1"> Time Table for {{staff.designation.designation}} {{staff.name}}</h1>
+    <h1 class = "temp1"> Time Table for {{faculty.designation.designation}} {{faculty.name}}</h1>
 <div class="timetable" id="pdftimetable">
     <div class="week-names">
       {% for day in weekdays %}
@@ -243,8 +243,8 @@
         {% if  x == class.starttime %}
                     <div class="found">
                     <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.lab.lab}}</p>
-                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.course.course.course_name}}</p>
-                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.group.groups.group_id}}</p>
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty_group_course.course.course.course_name}}</p>
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty_group_course.group.groups.group_id}}</p>
                     </div>
                     {% endif %}
                 {% endif %}

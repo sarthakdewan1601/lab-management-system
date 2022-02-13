@@ -11,7 +11,8 @@
       <tr>
         <th scope="col">Sender</th>
         <th scope="col">Receiver</th>
-        <th scope="col">Date</th>
+        <th scope="col">To Date</th>
+        <th scope="col">From Date</th>
         <th scope="col">Status</th>
         <th scope="col">Approve/Decline</th>
       </tr>
@@ -23,7 +24,8 @@
             <tr>
                 <td>{{ leave.staff.name }}</td>
                 <td>{{ leave.substitute.name }} (you) </td>
-                <td>{{ leave.date_time|date }}</td>
+                <td>{{ leave.to_date }}</td>
+                <td>{{ leave.from_date }}</td>
                 <td>{{ leave.status }}</td>
                 {% if not leave.substitute_approval and not leave.rejected%}
                 <td>

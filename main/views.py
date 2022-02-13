@@ -1,5 +1,9 @@
-from distutils.log import error
+from .models import *
+from .forms import *
+import threading
+import datetime
 import email
+from distutils.log import error
 from email import message
 from genericpath import exists
 from json import tool
@@ -9,22 +13,16 @@ from time import time
 from click import group
 from django.conf import settings
 from email.message import EmailMessage
-from urllib import response
-from flask import request
-from matplotlib.style import context
-from verify_email.email_handler import send_verification_email
 # from readline import write_history_file
 from tracemalloc import start
-from unicodedata import category
 from django import http
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
 from django.db.models.base import Model
 from django.http.response import Http404
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm #add this
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from  django.views.decorators.csrf import csrf_protect
@@ -32,6 +30,7 @@ from django.db import IntegrityError
 from django.urls import reverse_lazy
 from .models import *
 from .forms import *
+from .filters import *
 from django.http import JsonResponse
 import threading
 import datetime
@@ -39,14 +38,13 @@ import datetime
 from django_email_verification import send_email
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
-from main.utils import generate_token
+from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
 
 
@@ -83,9 +81,6 @@ def confirmation_mail(request, user, subject, templateForMail, name):
 	email_message.content_subtype = 'html'
 	if True:
 		EmailThread(email_message).start()
-
-
-
 
 def activate_user(request, uidb64, token):
 	try:
@@ -505,10 +500,7 @@ def requestleave(request):
 	staff= Staff.objects.get(user_obj=request.user)
 
 	if request.method == 'POST':
-		# check kr ki jo leave request kri hai vo exceed toh nai h 
-		# for eg ek year mein 8 casual 
-		# cas -> 8 decline status 
-
+		# form data
 		form=request.POST
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
@@ -516,75 +508,82 @@ def requestleave(request):
 		substitute=form['substitute']
 		reason=form['reason']
 
+		# processed data
 		year=datetime.datetime.now().year
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
-		fromDateNumber = fromDate.split("-")[2]
+		substituteName = Staff.objects.get(id=substitute)
+		multipleLeaves = None
+
+		# checking if multiple check is true or not
 		try:
 			multipleLeaves = form['multipleLeaveCheckbox']
+		except Exception as e:
+			print(e)
+
+		if multipleLeaves is not None:
 			toDate=form['toDate']
-			todateNumber = toDate.split("-")[2]
-			
-			# total count of leaves , store it in models
-			countOfLeaves = int(todateNumber) - int(fromDateNumber)
-			
-			userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substitute)
-			userstatus.save()
-			##notification
-			customMessage1 = staff.name + " requested for leave"
-			notification, was_created = Notification.objects.get_or_create(
-				sender=staff, 
-				reciever=str(substitute.id)+' '+substitute.name, 
-				message=customMessage1,
-				notification_type = 'LEAVE',
-				taskId = userstatus.id
-			)
-			notification.save()
-			# print(notification)
-			customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
-			notification, was_created = Notification.objects.get_or_create(
-				sender=staff, 
-				reciever=str(staff.id) + ' ' + staff.name, 
-				message=customMessage2,
-				notification_type = 'LEAVE',
-				taskId=userstatus.id
-			) 
-			# print(notification)
-			notification.save()
-			return HttpResponse(200)
+			countOfLeaves = getNumberOfDays(fromDate, toDate)
+			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
+			if leaveAvailability:
+					
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName)
+				userstatus.save()
+				##notification
+				customMessage1 = staff.name + " requested for leave"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(substituteName)+' '+substituteName.name, 
+					message=customMessage1,
+					notification_type = 'LEAVE',
+					taskId = userstatus.id
+				)
+				notification.save()
+				# print(notification)
+				customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(staff.id) + ' ' + staff.name, 
+					message=customMessage2,
+					notification_type = 'LEAVE',
+					taskId=userstatus.id
+				) 
+				# print(notification)
+				notification.save()
+				return redirect('main:userLeaves')
+			else:
+				messages.error(request, f'You cannot take more than {leaveAvailabilityCount} leaves of this type')
+				return redirect("main:requestleave")
 
-		except:
-			# userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate, reason=reason,substitute=substitute)
-			# userstatus.save()
-			# ##notification
+		else:
+			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, 1)
+			if leaveAvailability:
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate, reason=reason,substitute=substituteName)
+				userstatus.save()
+				##notification
 
-			# customMessage1 = staff.name + " requested for leave"
-			# notification, was_created = Notification.objects.get_or_create(
-			# 	sender=staff, 
-			# 	reciever=str(substitute.id)+' '+substitute.name, 
-			# 	message=customMessage1,
-			# 	notification_type = 'LEAVE',
-			# 	taskId = userstatus.id
-			# )
-			# notification.save()
+				customMessage1 = staff.name + " requested for leave"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(substituteName)+' '+substituteName.name, 
+					message=customMessage1,
+					notification_type = 'LEAVE',
+					taskId = userstatus.id
+				)
+				notification.save()
 
-			# customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
-			# notification, was_created = Notification.objects.get_or_create(
-			# 	sender=staff, 
-			# 	reciever=str(staff.id) + ' ' + staff.name, 
-			#  	message=customMessage2,
-			# 	notification_type = 'LEAVE',
-			# 	taskId=userstatus.id
-			# )
-			# notification.save()
-
-
-			return HttpResponse(200)
-
-# leave req-> nofitification to substi
-#		   -> current user can check leave status
-#          -> substitute confirm leave
-#		   -> admin ke pass confirm leave 
-
+				customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(staff.id) + ' ' + staff.name, 
+					message=customMessage2,
+					notification_type = 'LEAVE',
+					taskId=userstatus.id
+				)
+				notification.save()
+				return redirect('main:userLeaves')
+			else:
+				messages.error(request, f'You cannot take leave')
+				return redirect("main:requestleave")
 
 	else:
 		year = datetime.datetime.now().year  # 2022
@@ -626,9 +625,14 @@ def checkLeaveStatus(request):
 def checkLeaveStatusId(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
 	leaveRequest = UserLeaveStatus.objects.get(id=pk)
+	getTotalLeaveDays = 1
+	if leaveRequest.to_date:
+		getTotalLeaveDays = getNumberOfDays(leaveRequest.from_date, leaveRequest.to_date)
+
 	context = {
 		'staff':staff,
-		'leaveRequest':leaveRequest
+		'leaveRequest':leaveRequest,
+		'getTotalLeaveDays': getTotalLeaveDays
 	}
 	return render(request, "leaves/leaveRequestStatusId.html", context)
 
@@ -649,12 +653,12 @@ def approveLeaves(request):
 		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False)
 		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
 		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
-	
+		
 		context={
 			'staff':staff,
 			"requestedleaves":requestedleaves,
 			"approvedleaves":approvedleaves,
-			"rejectedleaves":rejectedleaves
+			"rejectedleaves":rejectedleaves,
 		}
 		return render(request,'admin/adminLeaveApproval.html',context)
 
@@ -692,7 +696,11 @@ def approveRequest(request, pk):
 		
 		# 1) ki user leaves taken hai uss user ka usko update 
 		userleavetaken = UserLeavesTaken.objects.get(staff=leave.staff,leave_taken=leave.leave_type)
-		userleavetaken.count += 1
+		getTotalLeaveDays = 1
+		if leave.to_date:
+			getTotalLeaveDays = getNumberOfDays(leave.from_date, leave.to_date)
+		
+		userleavetaken.count += getTotalLeaveDays
 		userleavetaken.save()
 		
 		return redirect("main:approveLeaves")
@@ -836,15 +844,15 @@ def notifications(request):
 	notifications=[]
 	
 	if designation == 'Lab Technician':
-		notification = Notification.objects.filter(notification_type='TECH').order_by('-time').all()
+		notification = Notification.objects.filter(notification_type='TECH',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
 
 	receiver=str(staff.id) +' '+staff.name
-	notification = Notification.objects.filter(reciever=receiver).order_by('-time').all()
+	notification = Notification.objects.filter(reciever=receiver,isActive=True).order_by('-time').all()
 	notifications.extend(notification)
 
 	if request.user.is_staff:
-		notification=Notification.objects.filter(reciever='admin').order_by('-time').all()
+		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
 
 
@@ -857,6 +865,11 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 													
 	staff = Staff.objects.get(user_obj=request.user)	 	# current user		
 	notification = Notification.objects.get(id=pk)
+	if notification.isActive==False:
+		return redirect('main:notification')
+
+	notification.isActive=False
+	notification.save()
 	taskId = notification.taskId
 	
 	# reciever_id= int(notification.reciever.split(' ')[0])
@@ -1105,7 +1118,18 @@ def viewtimetable_wrtlab(request,id):
 	# print(lab)
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
-	# print(classes)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 	timeslots=[]
 	h=8
@@ -1130,7 +1154,7 @@ def viewtimetable_wrtlab(request,id):
 	context={
 		'lab':lab,
 		'weekdays':weekdays,
-		'classes':classes,
+		'classes':curr_cl,
 		'staff':staff,
 		'timeslots':timeslots,
 		'time':time,
@@ -1305,9 +1329,21 @@ def update_class(request, pk,id):
 def viewgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	groups=FacultyGroups.objects.filter(faculty=staff)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_groups=[]
+	for group in groups:
+		if group.groups.group_year==year and group.groups.semester_type==sem:
+			curr_groups.append(group)
 	context={
 		'staff':staff,
-		'groups':groups,
+		'groups':curr_groups,
 	}
 	return render(request,'Timetable/viewgroups.html',context)
 
@@ -1315,18 +1351,43 @@ def viewcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	courses=FacultyCourse.objects.filter(faculty=staff)
 	# print(courses)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	
+	curr_courses=[]
+	for course in courses:
+		if course.course.course_year==year and course.course.semester_type==sem:
+			curr_courses.append(course)
 	context={
 		'staff':staff,
-		'courses':courses,
+		'courses':curr_courses,
 	}
 	return render(request,'Timetable/viewcourses.html',context)
 
 def viewfacultyclasses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(faculty=staff)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	context={
 		'staff':staff,
-		'classes':classes,
+		'classes':curr_cl,
 	}
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
@@ -1347,9 +1408,22 @@ def ViewFacultyDetails(request):
 	}
 	return render(request,"admin/adminfacultydetails.html",context)
 
-def viewfacultytimetable(request):
+def viewfacultytimetable(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
-	classes=Class.objects.filter(faculty=staff)
+	faculty=Staff.objects.get(id=id)
+	classes=Class.objects.filter(faculty=faculty)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 	timeslots=[]
 	h=8
@@ -1374,10 +1448,11 @@ def viewfacultytimetable(request):
 	context={
 		'lab':lab,
 		'weekdays':weekdays,
-		'classes':classes,
+		'classes':curr_cl,
 		'staff':staff,
 		'timeslots':timeslots,
 		'time':time,
+		'faculty':faculty,
 	}
 	return render(request,'Timetable/timetable_wrtfaculty.html',context)
 	# return render(request,'',context)
@@ -1433,9 +1508,22 @@ def adminviewgroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	groupcourses=GroupCourse.objects.filter(faculty=faculty)
+	# print(groups)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_gp=[]
+	for gc in groupcourses:
+		if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem:
+			curr_gp.append(gc)
 	context={
 		'staff':staff,
-		'groupcourses':groupcourses,
+		'groupcourses':curr_gp,
 		'faculty':faculty,		
 	}
 	return render(request,'admin/adminviewgroupcourses.html',context)
@@ -1469,9 +1557,21 @@ def adminviewclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
 	classes=Class.objects.filter(faculty=faculty)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_cl=[]
+	for cl in classes:
+		if cl.faculty_group_course.group.groups.group_year==year and cl.faculty_group_course.group.groups.semester_type==sem:
+			curr_cl.append(cl)
 	context={
 		'staff':staff,
-		'classes':classes,
+		'classes':curr_cl,
 		'faculty':faculty,
 	}
 	return render(request,'admin/adminviewclasses.html',context)
@@ -1489,6 +1589,14 @@ def admindeletecourses(request,id):
 	# print(facid)
 	course.delete()
 	return redirect('main:adminviewcourses',id=facid)
+
+def admindeletegroupcourse(request,id):
+	gc=GroupCourse.objects.get(id=id)
+	# print(course)
+	facid=gc.faculty.id
+	# print(facid)
+	gc.delete()
+	return redirect('main:adminviewgroupcourses',id=facid)
 
 def admindeleteclass(request,id):
 	classes=Class.objects.get(id=id)
@@ -1543,7 +1651,7 @@ def adminaddfacultyclass(request,id):
 	if request.method == 'POST':
 		form=AddFacultyClassForm(faculty,request.POST)
 		if form.is_valid():
-			print("yay")
+			# print("yay")
 			lab=form.cleaned_data['lab']
 			fgc=form.cleaned_data['faculty_group_course']
 			day=form.cleaned_data['day']
@@ -1759,4 +1867,144 @@ def declineDeviceRequest(request,pk):
 	return redirect('main:adminviewinventory',id=fac.id)
 
 
+def adminviewrooms(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	rooms=Room.objects.all()
+	myFilter = filterRoom(request.GET,queryset=rooms)
+	rooms=myFilter.qs
+	context={
+		'staff':staff,
+		'rooms':rooms,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/adminviewrooms.html',context)
 
+def adminaddroom(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewRoomForm
+	if request.method == 'POST':
+		form=NewRoomForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminviewrooms')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addroom.html',context)
+
+def admineditroom(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	room_instance=Room.objects.get(id=id)
+	form=NewRoomForm(instance=room_instance)
+	if request.method == 'POST':
+		form=NewRoomForm(request.POST,instance=room_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminviewrooms')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addroom.html',context)
+
+
+def viewallcourses(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	courses=Course.objects.all()
+	myFilter = filterCourse(request.GET,queryset=courses)
+	courses=myFilter.qs
+	context={
+		'staff':staff,
+		'courses':courses,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/viewcourses.html',context)
+
+def adminaddcourse(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewCourseForm
+	if request.method == 'POST':
+		form=NewCourseForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallcourses')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addcourse.html',context)
+
+def admineditcourse(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	course_instance=Course.objects.get(id=id)
+	form=NewCourseForm(instance=course_instance)
+	if request.method == 'POST':
+		form=NewCourseForm(request.POST,instance=course_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallcourses')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addcourse.html',context)
+	
+
+def viewallgroups(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	groups=Groups.objects.all()
+	myFilter = filterGroup(request.GET,queryset=groups)
+	groups=myFilter.qs
+	context={
+		'staff':staff,
+		'groups':groups,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/viewgroups.html',context)
+
+def addgroup(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewGroupForm
+	if request.method == 'POST':
+		form=NewGroupForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallgroups')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addgroup.html',context)
+
+	
+def admineditgroup(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	group_instance=Groups.objects.get(id=id)
+	form=NewGroupForm(instance=group_instance)
+	if request.method == 'POST':
+		form=NewGroupForm(request.POST,instance=group_instance)
+		if form.is_valid:
+			form.save()
+			return redirect('main:viewallgroups')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addgroup.html',context)
+
+
+def adminaddlab(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	form=NewLabForm
+	if request.method == 'POST':
+		form=NewLabForm(request.POST)
+		if form.is_valid:
+			form.save()
+			return redirect('main:adminLabs')
+	context={
+		'staff':staff,
+		'form':form,
+	}
+	return render(request,'admin/addlab.html',context)
+		

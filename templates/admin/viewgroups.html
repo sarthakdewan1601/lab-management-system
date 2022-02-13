@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+
+
+<div class="container">
+  <div class="add-room">
+    <p>If you want to add a Group,<a href="{%url 'main:addgroup'%}" style="color: black; text-decoration: underline;">click here</a></p>
+  </div>
+    <div class="col">
+        <div class=" card card-body">
+            <form method="get">
+                {{myFilter.form}}
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="courses-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >group-ID</th>
+                <th scope="col" >Group Branch</th>
+                <th scope="col" >Sem</th>
+                <th scope="col" >edit</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for group in groups %}
+              <tr>
+                <td>{{group.group_id}}</td>
+                <td>{{group.branch.branch_name}}</td>
+                <td>{{group.group_year}}({{group.semester_type}})</td>
+                
+                <td><a href="{% url 'main:admineditgroup' id=group.id%}" style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
+                
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+</div>
+{% endblock body %}

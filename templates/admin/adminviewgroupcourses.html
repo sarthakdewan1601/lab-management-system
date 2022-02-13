@@ -26,9 +26,8 @@
                 <td>{{gc.course.course.course_name}}</td>
                 <td>{{gc.group.groups.group_id}}</td>
                 <td>{{gc.course.course.course_year}}({{gc.course.course.semester_type}})</td>
-                {%comment%}
-                <td><a href="{%url 'main:admindeletecourses' id=course.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
-                {% endcomment %}
+                <td><a href="{%url 'main:admindeletegroupcourse' id=gc.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
+                
             </tr>
               {% endfor %}
             </tbody>
