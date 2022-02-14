@@ -4,31 +4,37 @@
 
 {% include 'navbar.html' with staff=staff %}
 
+
+
 <div class="container">
-    <div class="groups-table">
+    <div class="col">
+        <div class=" card card-body">
+            <form method="get">
+                {{myFilter.form}}
+                <button class="btn btn-primary" type="submit">Filter Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="courses-table">
         <table class="table">
             <thead>
               <tr>
-                <th scope="col" >Faculty</th>
-                <th scope="col" >Group's ID</th>
-                <th scope="col" >Group's Branch</th>
+                <th scope="col" >Group-ID</th>
+                <th scope="col" >Group Branch</th>
                 <th scope="col" >Sem</th>
               </tr>
             </thead>
-    
+            
             <tbody>
-              {% for group in groups %}
-              <tr>
-                <td>{{group.faculty.name}}</td>
+              {% for group in faculty_groups %}
+            <tr>
                 <td>{{group.groups.group_id}}</td>
-                <td>{{group.groups.branch.branch_name}}</td>
+                <td>{{group.groups.branch}}</td>
                 <td>{{group.groups.group_year}}({{group.groups.semester_type}})</td>
-                              
-              </tr>
+            </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-        <a href="{% url 'main:viewallfacultygroups' id=staff.id %}" class="btn btn-primary">View All Groups</a>
-    </div>
+</div>
 {% endblock body %}

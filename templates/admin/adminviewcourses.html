@@ -13,6 +13,7 @@
                 <th scope="col" >Course Id</th>
                 <th scope="col" >Course Name</th>
                 <th scope="col" >Course Credits</th>
+                <th scope="col" >Sem</th>
                 <th scope="col" >Delete</th>
               </tr>
             </thead>
@@ -24,9 +25,10 @@
                 <td>{{course.course.course_id}}</td>
                 <td>{{course.course.course_name}}</td>
                 <td>{{course.course.course_credit}}</td>
+                <td>{{course.course.course_year}}({{course.course.semester_type}})</td>
                 <td><a href="{%url 'main:admindeletecourses' id=course.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
               </tr>
-              {% endfor %}
+              {% endfor %} 
             </tbody>
           </table>
         </div>
