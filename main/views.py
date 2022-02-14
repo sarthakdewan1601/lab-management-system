@@ -56,6 +56,24 @@ class EmailThread(threading.Thread):		#creating email thread
     def run(self):
         self.email.send()
 
+def get_notifications(id):
+	current_user=Staff.objects.get(id=id)
+	designation=current_user.designation.designation
+	notifications=[]
+	
+	if designation == 'Lab Technician':
+		notification = Notification.objects.filter(notification_type='TECH',isActive=True).order_by('-time').all()
+		notifications.extend(notification)
+
+	receiver=str(current_user.id) +' '+current_user.name
+	notification = Notification.objects.filter(reciever=receiver,isActive=True).order_by('-time').all()
+	notifications.extend(notification)
+
+	if designation == 'Lab Analyst' or designation == 'Lab Supervisor':
+		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
+		notifications.extend(notification)
+	return len(notifications)
+
 def user_email_verification(request, user, subject, templateForMail, *message):
     current_site = get_current_site(request)
     email_body = render_to_string(templateForMail, {
@@ -363,8 +381,11 @@ def user_profile_details(request):
 def user_profile(request):
 	userEmail = request.user.email
 	staff = Staff.objects.get(email=userEmail)
+	notification_count=get_notifications(staff.id)
+	print(notification_count)
 
 	if staff.category.category == "Lab Staff":
+		# print("hi")
 		# for admin 
 		print(staff.designation.designation)
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
@@ -423,6 +444,7 @@ def user_profile(request):
 		# print(request.user.is_active)
 		context={
 			'staff':staff,
+			'notification_count':notification_count,
 		}
 		return render(request,"userProfiles/faculty.html",context)
 		
@@ -850,7 +872,7 @@ def notifications(request):
 	if request.user.is_staff:
 		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
-
+	# count=len(notifications)
 
 	# third type notificatoin baad mein okay? create another if condition
 	
@@ -2006,3 +2028,127 @@ def adminaddlab(request):
 	}
 	return render(request,'admin/addlab.html',context)
 		
+def adminassignoffice(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	all_staffs=Staff.objects.all()
+	staffs=Staff.objects.filter(room=None)
+	rooms=Room.objects.all()
+	myFilter = filterRoom(request.GET,queryset=rooms)
+	rooms=myFilter.qs
+	if request.method == 'POST':
+		selected_staff=request.POST['selected_staff']
+		selected_staff=Staff.objects.get(id=selected_staff)
+		office_id=request.POST['office']
+		office=Room.objects.get(id=office_id)
+		selected_staff.room=office
+		selected_staff.save()
+
+		return redirect('main:adminassignoffice')
+	context={
+		'staff':staff,
+		'staffs':staffs,
+		'rooms':rooms,
+		'myFilter':myFilter,
+	}
+	return render(request,'admin/assignoffice.html',context)
+def viewallfacultycourses(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	faculty=Staff.objects.get(id=id)
+	courses=Course.objects.all()
+	myFilter = filterCourse(request.GET,queryset=courses)
+	courses=myFilter.qs
+	all_faculty_courses=FacultyCourse.objects.filter(faculty=faculty)
+	faculty_courses=[fc for fc in all_faculty_courses if fc.course in courses]
+	
+	context={
+		'staff':staff,
+		'faculty':faculty,
+		'faculty_courses':faculty_courses,
+		'myFilter':myFilter,
+	}
+	return render(request,'Timetable/viewallfacultycourses.html',context)
+
+def viewallfacultygroups(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	faculty=Staff.objects.get(id=id)
+	groups=Groups.objects.all()
+	myFilter = filterGroup(request.GET,queryset=groups)
+	groups=myFilter.qs
+	all_faculty_groups=FacultyGroups.objects.filter(faculty=faculty)
+	faculty_groups=[fc for fc in all_faculty_groups if fc.groups in groups]
+	
+	context={
+		'staff':staff,
+		'faculty':faculty,
+		'faculty_groups':faculty_groups,
+		'myFilter':myFilter,
+	}
+	return render(request,'Timetable/viewallfacultygroups.html',context)
+
+def viewgroupcourses(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	groupcourses=GroupCourse.objects.filter(faculty=staff)
+	# print(groups)
+	current_date = datetime.datetime.now()
+	year=int(current_date.strftime("%Y"))
+	month=int(current_date.strftime("%m"))
+	sem=""
+	if int(month)<=6:
+		sem="EVEN"
+	else:
+		sem="ODD"
+	curr_gp=[]
+	print(groupcourses)
+	for gc in groupcourses:
+		if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem and gc.course.course.course_year==year and gc.course.course.semester_type==sem:
+			curr_gp.append(gc)
+	print(curr_gp)
+	context={
+		'staff':staff,
+		'groupcourses':curr_gp,		
+	}
+	return render(request,'Timetable/viewgroupcourses.html',context)
+
+def viewallfacultygroupcourses(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	faculty=Staff.objects.get(id=id)
+	courses=Course.objects.all()
+	myFilter = filterGroupCourse(request.GET,queryset=courses)
+	courses=myFilter.qs
+	all_faculty_courses=FacultyCourse.objects.filter(faculty=faculty)
+	faculty_courses=[fc for fc in all_faculty_courses if fc.course in courses]
+	all_faculty_groupcourses=GroupCourse.objects.filter(faculty=faculty)
+	# print(all_faculty_groupcourses)
+	faculty_groupcourses=[gc for gc in all_faculty_groupcourses if gc.course in faculty_courses]
+	
+	context={
+		'staff':staff,
+		'faculty':faculty,
+		'faculty_groupcourses':faculty_groupcourses,
+		'myFilter':myFilter,
+	}
+	return render(request,'Timetable/viewallfacultygroupcourses.html',context)
+
+
+def viewallfacultyclasses(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	faculty=Staff.objects.get(id=id)
+	courses=Course.objects.all()
+	myFilter = filterGroupCourse(request.GET,queryset=courses)
+	courses=myFilter.qs
+	all_faculty_courses=FacultyCourse.objects.filter(faculty=faculty)
+	faculty_courses=[fc for fc in all_faculty_courses if fc.course in courses]
+	all_faculty_groupcourses=GroupCourse.objects.filter(faculty=faculty)
+	# print(all_faculty_groupcourses)
+	faculty_groupcourses=[gc for gc in all_faculty_groupcourses if gc.course in faculty_courses]
+	all_faculty_classes=Class.objects.filter(faculty=faculty)
+	faculty_classes=[cl for cl in all_faculty_classes if cl.faculty_group_course in faculty_groupcourses]
+	
+	context={
+		'staff':staff,
+		'faculty':faculty,
+		'faculty_classes':faculty_classes,
+		'myFilter':myFilter,
+	}
+	return render(request,'Timetable/viewallfacultyclasses.html',context)
+	
