@@ -362,12 +362,9 @@ def user_profile_details(request):
 @login_required
 def user_profile(request):
 	userEmail = request.user.email
-	print('user_email in user_profile:',userEmail)
 	staff = Staff.objects.get(email=userEmail)
-	#print(staff.designation)
 
 	if staff.category.category == "Lab Staff":
-		print("hi")
 		# for admin 
 		print(staff.designation.designation)
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
@@ -1088,6 +1085,7 @@ def adminEditLeave(request, pk):
 			count = request.POST['leaveCount']
 			leave.count = count
 			leave.save()
+			##
 			return redirect('main:adminLeaves')
 		else:
 			return render(request, "admin/adminEditLeaveForm.html", {"staff":staff, "leave":leave})
@@ -1111,6 +1109,7 @@ def removeLeave(request, pk):
 ##Views for timetalbes:->
 # 1. viewtimetable  wrt lab
 # 2. view timetable wrt professor
+@login_required
 def viewtimetable_wrtlab(request,id):
 	lab=Lab.objects.get(id=id)
 	# print(id)
