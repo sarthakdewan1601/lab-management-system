@@ -18,6 +18,9 @@ input[type=number] {
 html, body{
     font-family: 'Bitter', serif;
 }
+a {
+  text-decoration: none;
+}
 :root {
     --green-main-1: #6ECBC1;
     --green-main-2: #6CCCC1;

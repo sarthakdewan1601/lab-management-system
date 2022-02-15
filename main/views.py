@@ -1419,6 +1419,30 @@ def viewfacultyclasses(request):
 	}
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
+
+@login_required
+def addFaculty(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	if request.method == "POST":
+		form = request.POST
+		name = form['name']
+		email = form['email']
+		mobile_number = form['mobile_number']
+		designation = form['designation']
+		agency = form['agency']
+		password = 'Qwerty!@#$%pass@123'
+		agen = Agency.objects.get(agency=agency)
+		cat = Category.objects.get(category="Faculty")
+		des = Designation.objects.get(designation=designation)
+		user = User.objects.create_user(email, password, is_active=True)
+		user.is_email_verified=True
+		user.save()
+		staff, was_created = Staff.objects.get_or_create(user_obj=user, name=name, email=email, mobile_number=mobile_number, designation=des, agency=agen, category=cat)
+		staff.save()
+		return redirect("main:adminfacultydetails")
+	else:
+		return render(request, "admin/addFaculty.html", {'staff':staff})
+
 @login_required
 def ViewFacultyDetails(request):
 	admin=Staff.objects.get(user_obj=request.user)
