@@ -100,12 +100,13 @@ def confirmation_mail(request, user, subject, templateForMail, name):
 
 def activate_user(request, uidb64, token):
 	try:
+		# print("Yooo")
 		uid = force_text(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(email=uid)
 	except Exception as err:
 		print(err)
 		pass
-		
+	# print(user)
 	tokenStatus, timedout = generate_token.check_token(user, token)
 	if not tokenStatus and timedout:								#registered and not verified in time 
 		#send email 
@@ -217,6 +218,7 @@ def login_request(request):
 			messages.error(request, "Please enter you thapar email id")
 			return redirect('main:login')
 		try:
+			print("in login_request")
 			user = User.objects.get(email=email)
 			if not user.is_email_verified:
 				messages.error(request, "Your email is not verified, please verify using the link provided in mail")
@@ -231,9 +233,11 @@ def login_request(request):
 				staff = Staff.objects.get(email=user.email)
 				messages.success(request, f"Welcome {staff.name}")
 				login(request, user)
+				print("hi,we are logged in")
 				return redirect("main:user_profile")
 
 		except User.DoesNotExist:
+			print("some error occured")
 			current_site = get_current_site(request)
 			messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
 			user = None
@@ -379,6 +383,7 @@ def user_profile_details(request):
 
 @login_required
 def user_profile(request):
+	print("sarthak")
 	userEmail = request.user.email
 	staff = Staff.objects.get(email=userEmail)
 	notification_count=get_notifications(staff.id)
@@ -411,6 +416,7 @@ def user_profile(request):
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
+			print("Hello")
 			staff = Staff.objects.get(user_obj=request.user)			
 			complaints = Complaint.objects.filter(isActive=True).all()
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
