@@ -23,7 +23,7 @@
             <tr>
                 <td>{{ pendingRequest.staff.name }} (you)</td>
                 <td>{{ pendingRequest.substitute.name }}</td>
-                <td>{{ pendingRequest.date_from }}</td>
+                <td>{{ pendingRequest.from_date }}</td>
                 <td>{{ pendingRequest.to_date }}</td>
                 <td>{{ pendingRequest.status }}</td>
                 <td><a style="color: #000; text-decoration: underline;" href="{% url 'main:currleaveStatus' pk=pendingRequest.id %}">View request</a></td>

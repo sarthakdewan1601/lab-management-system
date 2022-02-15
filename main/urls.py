@@ -15,7 +15,7 @@ urlpatterns = [
     path('accounts/password-reset/<uidb64>/<token>/', views.passwordResetConfirmView, name="passwordResetConfirm"),
     path('accounts/password-reset/<token>/<id>', views.passwordResetForm, name="passwordResetForm"),
     path('accounts/password-change/<id>', views.passwordChange, name="passwordChange"),
- 
+    
     # user paths
     path('', views.home, name='home'),
     path('profile/user-profile/' ,views.user_profile, name='user_profile'),
@@ -35,14 +35,15 @@ urlpatterns = [
     path('profile/leaves/approve-leaves/', views.approveLeaves, name='approveLeaves'),
     path('profile/leaves/approve-leaves/approve/<pk>', views.approveRequest, name='approveRequest'),
     path('profile/leaves/approve-leaves/decline/<pk>', views.declineRequest, name='declineRequest'),
-    path('profile/view_complaints/' , views.view_complaints, name="viewcomplaints"),
-    path('profile/viewprevleaves/',views.viewprevleaves,name='viewprevleaves'),
-    path('profile/viewcourses/',views.viewcourses,name='viewcourses'),
-    path('profile/viewgroups/',views.viewgroups,name='viewgroups'),
-     path('profile/view-group-courses/',views.viewgroupcourses,name='viewgroupcourses'),
-    path('profile/viewclasses/',views.viewfacultyclasses,name='viewfacultyclasses'),
-    path('profile/viewfacultytimetable/<id>',views.viewfacultytimetable,name='viewfacultytimetable'),
-    path('profile/viewitemsalloted/',views.viewinventory,name='viewinventory'),
+    path('dashboard/view_complaints/' , views.view_complaints, name="viewcomplaints"),
+    path('dashboard/viewprevleaves/',views.viewprevleaves,name='viewprevleaves'),
+    path('dashboard/viewcourses/',views.viewcourses,name='viewcourses'),
+    path('dashboard/viewgroups/',views.viewgroups,name='viewgroups'),
+    path('dashboard/view-group-courses/',views.viewgroupcourses,name='viewgroupcourses'),
+    path('dashboard/viewclasses/',views.viewfacultyclasses,name='viewfacultyclasses'),
+    path('dashboard/viewfacultytimetable/<id>',views.viewfacultytimetable,name='viewfacultytimetable'),
+    path('dashboard/viewitemsalloted/',views.viewinventory,name='viewinventory'),
+    path('darshboard/add-faculty', views.addFaculty, name="addFaculty"),
 
     # admin paths
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
@@ -80,7 +81,8 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-courses/update-faculty-class/<id><pk>',views.adminupdatefacultyclass,name='adminupdatefacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-class/<id>',views.admindeleteclass,name='admindeleteclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-faculty-class/<id>',views.admindeletefacultyclass,name='admindeletefacultyclass'),
-     path('admin-dashboard/Assign-Office/', views.adminassignoffice, name='adminassignoffice'),
+    path('admin-dashboard/Assign-Office/', views.adminassignoffice, name='adminassignoffice'),
+
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
     path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),

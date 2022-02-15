@@ -25,7 +25,6 @@ from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from  django.views.decorators.csrf import csrf_protect
 from django.db import IntegrityError
 from django.urls import reverse_lazy
 from .models import *
@@ -373,6 +372,7 @@ def home(request):
 	# 	context = { "complaints": complaints}
 	# 	return render(request, "tech_dashboard.html", context)
 
+@login_required
 def user_profile_details(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	return render(request, "userProfiles/user_profile.html", {'staff':staff})
@@ -380,7 +380,6 @@ def user_profile_details(request):
 @login_required
 def user_profile(request):
 	userEmail = request.user.email
-	print('user_email in user_profile:',userEmail)
 	staff = Staff.objects.get(email=userEmail)
 	notification_count=get_notifications(staff.id)
 	print(notification_count)
@@ -514,7 +513,7 @@ def userLeaves(request):
 	}
 	return render(request, "leaves/leaves.html", context)
 
-@csrf_protect
+@login_required
 def requestleave(request):
 	staff= Staff.objects.get(user_obj=request.user)
 
@@ -543,6 +542,7 @@ def requestleave(request):
 			toDate=form['toDate']
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
+			print(leaveAvailability,leaveAvailabilityCount, leaveAvailabilityMessage)
 			if leaveAvailability:
 					
 				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName)
@@ -615,11 +615,7 @@ def requestleave(request):
 			if leave.count<leave.leave_taken.count:
 				user_leaves_remaining.append(leave.leave_taken.LeaveName)
 		totalLeavesCurrYear=[leaves for leaves in totalLeavesCurrYear if leaves.LeaveName in user_leaves_remaining]
-		# print(user_leaves_remaining)
-		# print(totalLeavesCurrYear)
 		substitutes = Staff.objects.exclude(name=staff.name).all()
-		# substitutes = Staff.objects.all()
-
 		context={
 			'staff':staff,
 			'totalLeavesCurrYear': totalLeavesCurrYear,
@@ -627,6 +623,8 @@ def requestleave(request):
 		}
 	
 		return render(request,"leaves/leaverequest.html",context)
+
+
 @login_required
 def checkLeaveStatus(request):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -789,6 +787,7 @@ def declineRequest(request, pk):
 
 	return redirect("main:approveLeaves")
 
+@login_required
 def viewprevleaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True)
@@ -841,7 +840,7 @@ def complaint(request, pk):
 
 
 
-
+@login_required
 def view_complaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	active_complaints = Complaint.objects.filter(isActive = True).order_by('-date_created')
@@ -1026,7 +1025,7 @@ def resolveConflict(request, pk):
 		}
 		return render(request, 'admin/adminResolveComplaint.html', context)
 
-
+@login_required
 def adminStaff(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
@@ -1108,6 +1107,7 @@ def adminEditLeave(request, pk):
 			count = request.POST['leaveCount']
 			leave.count = count
 			leave.save()
+			##
 			return redirect('main:adminLeaves')
 		else:
 			return render(request, "admin/adminEditLeaveForm.html", {"staff":staff, "leave":leave})
@@ -1131,6 +1131,7 @@ def removeLeave(request, pk):
 ##Views for timetalbes:->
 # 1. viewtimetable  wrt lab
 # 2. view timetable wrt professor
+@login_required
 def viewtimetable_wrtlab(request,id):
 	lab=Lab.objects.get(id=id)
 	# print(id)
@@ -1184,7 +1185,7 @@ def viewtimetable_wrtlab(request,id):
 ##2->add krna hia admin ke through:->
 #jb admin editkrega:->
 #professor->courses->display hoye
-
+@login_required
 def viewLabClasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(lab=id)
@@ -1207,6 +1208,7 @@ def viewLabClasses(request,id):
 	}
 	return render(request,'Timetable/viewLabClasses.html',context)
 
+@login_required
 def add_classes(request,id):
 	staff = Staff.objects.get(user_obj=request.user)
 	form = AddClassForm()
@@ -1241,6 +1243,7 @@ def add_classes(request,id):
 			return redirect('main:viewLabClasses', id=id)
 	return render(request, 'Timetable/addclass.html', {'form': form, "staff":staff})
 
+@login_required
 def load_courses(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	faculty_id = request.GET.get('faculty_id')
@@ -1262,6 +1265,7 @@ def load_courses(request):
 	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': curr_courses, "staff":staff})
 	# return JsonResponse((x), safe=False)
 
+@login_required
 def load_groups(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	faculty_id = request.GET.get('faculty_id')
@@ -1281,6 +1285,7 @@ def load_groups(request):
 			curr_groups.append(group)
 	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': curr_groups, "staff":staff})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
+@login_required
 def load_groupcourses(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	faculty_id = request.GET.get('faculty_id')
@@ -1301,6 +1306,7 @@ def load_groupcourses(request):
 	return render(request, 'TimeTable/groupcourse_dropdown_list_option.html', {'groupcourse': curr_gp, "staff":staff})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
 
+@login_required
 def update_class(request, pk,id):
 		staff = Staff.objects.get(user_obj=request.user)
 		classes = get_object_or_404(Class, pk=pk)
@@ -1345,6 +1351,7 @@ def update_class(request, pk,id):
 				return redirect('main:viewLabClasses', id=id)
 		return render(request, 'Timetable/addclass.html', {'form': form, "staff": staff})
 
+@login_required
 def viewgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	groups=FacultyGroups.objects.filter(faculty=staff)
@@ -1366,6 +1373,7 @@ def viewgroups(request):
 	}
 	return render(request,'Timetable/viewgroups.html',context)
 
+@login_required
 def viewcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	courses=FacultyCourse.objects.filter(faculty=staff)
@@ -1389,6 +1397,7 @@ def viewcourses(request):
 	}
 	return render(request,'Timetable/viewcourses.html',context)
 
+@login_required
 def viewfacultyclasses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes=Class.objects.filter(faculty=staff)
@@ -1410,23 +1419,52 @@ def viewfacultyclasses(request):
 	}
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
+
+@login_required
+def addFaculty(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	if request.method == "POST":
+		form = request.POST
+		name = form['name']
+		email = form['email']
+		mobile_number = form['mobile_number']
+		designation = form['designation']
+		agency = form['agency']
+		password = 'Qwerty!@#$%pass@123'
+		agen = Agency.objects.get(agency=agency)
+		cat = Category.objects.get(category="Faculty")
+		des = Designation.objects.get(designation=designation)
+		user = User.objects.create_user(email, password, is_active=True)
+		user.is_email_verified=True
+		user.save()
+		staff, was_created = Staff.objects.get_or_create(user_obj=user, name=name, email=email, mobile_number=mobile_number, designation=des, agency=agen, category=cat)
+		staff.save()
+		return redirect("main:adminfacultydetails")
+	else:
+		return render(request, "admin/addFaculty.html", {'staff':staff})
+
+@login_required
 def ViewFacultyDetails(request):
 	admin=Staff.objects.get(user_obj=request.user)
-	c1=Category.objects.get(category='Faculty')
-	c2=Category.objects.get(category='Student')
-	staff=[]
-	staff1=Staff.objects.filter(category=c1)
-	staff2=Staff.objects.filter(category=c2)
-	staff.extend(staff1)
-	staff.extend(staff2)
-	# groups=FacultyGroups.objects.filter(faculty=staff)
-	# classes = Class.objects.filter(faculty = staff).
-	context={
-		'staff':admin,
-		'faculty':staff,
-	}
-	return render(request,"admin/adminfacultydetails.html",context)
+	if admin.designation.designation == 'Lab Attendant' or request.user.is_staff:
+		c1=Category.objects.get(category='Faculty')
+		c2=Category.objects.get(category='Student')
+		staff=[]
+		staff1=Staff.objects.filter(category=c1)
+		staff2=Staff.objects.filter(category=c2)
+		staff.extend(staff1)
+		staff.extend(staff2)
+		# groups=FacultyGroups.objects.filter(faculty=staff)
+		# classes = Class.objects.filter(faculty = staff).
+		context={
+			'staff':admin,
+			'faculty':staff,
+		}
+		return render(request,"admin/adminfacultydetails.html",context)
+	else:
+		return render(request, "pagenotfound.html", {})
 
+@login_required
 def viewfacultytimetable(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -1476,9 +1514,9 @@ def viewfacultytimetable(request,id):
 	return render(request,'Timetable/timetable_wrtfaculty.html',context)
 	# return render(request,'',context)
 
-
+@login_required
 def adminviewgroups(request,id):
-	staff=Staff.objects.get(user_obj=request.user)
+	staff=Staff.objects.get(user_obj=request.user)	
 	faculty=Staff.objects.get(id=id)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1500,6 +1538,7 @@ def adminviewgroups(request,id):
 	}
 	return render(request,'admin/adminviewgroups.html',context)
 
+@login_required
 def adminviewcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -1523,6 +1562,7 @@ def adminviewcourses(request,id):
 	}
 	return render(request,'admin/adminviewcourses.html',context)
 
+@login_required
 def adminviewgroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -1546,6 +1586,8 @@ def adminviewgroupcourses(request,id):
 		'faculty':faculty,		
 	}
 	return render(request,'admin/adminviewgroupcourses.html',context)
+
+@login_required
 def adminaddgroupcourse(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	fac=Staff.objects.get(id=id)
@@ -1571,7 +1613,7 @@ def adminaddgroupcourse(request,id):
 	}
 	return render(request,'admin/adminaddgroupcourse.html',context)
 
-
+@login_required
 def adminviewclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -1595,12 +1637,14 @@ def adminviewclasses(request,id):
 	}
 	return render(request,'admin/adminviewclasses.html',context)
 
+@login_required
 def admindeletegroup(request,id):
 	group=FacultyGroups.objects.get(id=id)
 	facid=group.faculty.id
 	group.delete()
 	return redirect('main:adminviewgroups',id=facid)
 
+@login_required
 def admindeletecourses(request,id):
 	course=FacultyCourse.objects.get(id=id)
 	# print(course)
@@ -1609,6 +1653,7 @@ def admindeletecourses(request,id):
 	course.delete()
 	return redirect('main:adminviewcourses',id=facid)
 
+@login_required
 def admindeletegroupcourse(request,id):
 	gc=GroupCourse.objects.get(id=id)
 	# print(course)
@@ -1617,19 +1662,21 @@ def admindeletegroupcourse(request,id):
 	gc.delete()
 	return redirect('main:adminviewgroupcourses',id=facid)
 
+@login_required
 def admindeleteclass(request,id):
 	classes=Class.objects.get(id=id)
 	labid=classes.lab.id
 	classes.delete() 
 	return redirect('main:viewLabClasses',id=labid)
 
+@login_required
 def admindeletefacultyclass(request,id):
 	classes=Class.objects.get(id=id)
 	facid=classes.faculty.id
 	classes.delete() 
 	return redirect('main:adminviewclasses',id=facid)
 
-	
+@login_required	
 def adminaddcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty = Staff.objects.get(id = id)
@@ -1646,6 +1693,7 @@ def adminaddcourses(request,id):
 	return render(request,'admin/adminaddfacultycourses.html',{'form' : form, "staff":staff})
 		# return HttpResponse('202')
 
+@login_required
 def adminaddgroup(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty = Staff.objects.get(id = id)
@@ -1662,7 +1710,7 @@ def adminaddgroup(request,id):
 	return render(request,'admin/adminaddfacultygroups.html',{'form' : form, "staff":staff})
 		# return HttpResponse('202')
 
-
+@login_required
 def adminaddfacultyclass(request,id):
 	faculty=Staff.objects.get(id=id)
 	staff=Staff.objects.get(user_obj=request.user)
@@ -1699,7 +1747,7 @@ def adminaddfacultyclass(request,id):
 	return render(request,'admin/adminaddfacultyclasses.html',context)
 
 
-
+@login_required
 def adminupdatefacultyclass(request,id,pk):
 	staff=Staff.objects.get(user_obj=request.user)
 	classes = get_object_or_404(Class, pk=pk)
@@ -1741,6 +1789,7 @@ def adminupdatefacultyclass(request,id,pk):
 			return redirect('main:adminviewclasses', id=id)
 	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
 
+@login_required
 def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
@@ -1751,7 +1800,7 @@ def viewinventory(request):
 	}
 	return render(request,'inventory.html',context)
 
-
+@login_required
 def adminviewinventory(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	fac=Staff.objects.get(id=id)
@@ -1759,7 +1808,7 @@ def adminviewinventory(request,id):
 	inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
 	return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return})
 
-
+@login_required
 def loaddevices(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	room=Room.objects.get(id=id)
@@ -1777,7 +1826,7 @@ def loaddevices(request,id):
 	# print(X)
 	return render(request, 'inventory/devices_dropdown_list_option.html', {'devices':X, "staff":staff})
 
-
+@login_required
 def allotdevices(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	fac=Staff.objects.get(id=id)
@@ -1804,6 +1853,7 @@ def allotdevices(request,id):
 		
 	return render(request,'inventory/allotdevices.html',{'form':form,'staff':staff,'inventorystaff':fac,})
 
+@login_required
 def devicesreturnrequest(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	inventory=StaffInventory.objects.filter(staff=staff,is_requested_for_return=False)
@@ -1842,6 +1892,7 @@ def devicesreturnrequest(request,id):
 	}
 	return render(request,'inventory/return_request.html',context)
 
+@login_required
 def approveDeviceRequest(request,pk):
 	staff=Staff.objects.get(user_obj=request.user)
 	inventory_device=StaffInventory.objects.get(id=pk)
@@ -1866,6 +1917,7 @@ def approveDeviceRequest(request,pk):
 	notification.save()
 	return redirect('main:adminviewinventory',id=fac.id)
 
+@login_required
 def declineDeviceRequest(request,pk):
 	staff=Staff.objects.get(user_obj=request.user)
 	inventory_device=StaffInventory.objects.get(id=pk)
@@ -1885,7 +1937,7 @@ def declineDeviceRequest(request,pk):
 	notification.save()
 	return redirect('main:adminviewinventory',id=fac.id)
 
-
+@login_required
 def adminviewrooms(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	rooms=Room.objects.all()
@@ -1898,6 +1950,7 @@ def adminviewrooms(request):
 	}
 	return render(request,'admin/adminviewrooms.html',context)
 
+@login_required
 def adminaddroom(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	form=NewRoomForm
@@ -1912,6 +1965,7 @@ def adminaddroom(request):
 	}
 	return render(request,'admin/addroom.html',context)
 
+@login_required
 def admineditroom(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	room_instance=Room.objects.get(id=id)
@@ -1927,7 +1981,7 @@ def admineditroom(request,id):
 	}
 	return render(request,'admin/addroom.html',context)
 
-
+@login_required
 def viewallcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	courses=Course.objects.all()
@@ -1940,6 +1994,7 @@ def viewallcourses(request):
 	}
 	return render(request,'admin/viewcourses.html',context)
 
+@login_required
 def adminaddcourse(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	form=NewCourseForm
@@ -1954,6 +2009,7 @@ def adminaddcourse(request):
 	}
 	return render(request,'admin/addcourse.html',context)
 
+@login_required
 def admineditcourse(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	course_instance=Course.objects.get(id=id)
@@ -1969,7 +2025,7 @@ def admineditcourse(request,id):
 	}
 	return render(request,'admin/addcourse.html',context)
 	
-
+@login_required
 def viewallgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	groups=Groups.objects.all()
@@ -1982,6 +2038,7 @@ def viewallgroups(request):
 	}
 	return render(request,'admin/viewgroups.html',context)
 
+@login_required
 def addgroup(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	form=NewGroupForm
@@ -1996,7 +2053,7 @@ def addgroup(request):
 	}
 	return render(request,'admin/addgroup.html',context)
 
-	
+@login_required	
 def admineditgroup(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	group_instance=Groups.objects.get(id=id)
@@ -2012,7 +2069,7 @@ def admineditgroup(request,id):
 	}
 	return render(request,'admin/addgroup.html',context)
 
-
+@login_required
 def adminaddlab(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	form=NewLabForm
@@ -2026,7 +2083,8 @@ def adminaddlab(request):
 		'form':form,
 	}
 	return render(request,'admin/addlab.html',context)
-		
+
+@login_required		
 def adminassignoffice(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	all_staffs=Staff.objects.all()
@@ -2050,6 +2108,8 @@ def adminassignoffice(request):
 		'myFilter':myFilter,
 	}
 	return render(request,'admin/assignoffice.html',context)
+
+@login_required
 def viewallfacultycourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -2067,6 +2127,7 @@ def viewallfacultycourses(request,id):
 	}
 	return render(request,'Timetable/viewallfacultycourses.html',context)
 
+@login_required
 def viewallfacultygroups(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -2084,6 +2145,7 @@ def viewallfacultygroups(request,id):
 	}
 	return render(request,'Timetable/viewallfacultygroups.html',context)
 
+@login_required
 def viewgroupcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	groupcourses=GroupCourse.objects.filter(faculty=staff)
@@ -2108,6 +2170,7 @@ def viewgroupcourses(request):
 	}
 	return render(request,'Timetable/viewgroupcourses.html',context)
 
+@login_required
 def viewallfacultygroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)
@@ -2128,7 +2191,7 @@ def viewallfacultygroupcourses(request,id):
 	}
 	return render(request,'Timetable/viewallfacultygroupcourses.html',context)
 
-
+@login_required
 def viewallfacultyclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	faculty=Staff.objects.get(id=id)

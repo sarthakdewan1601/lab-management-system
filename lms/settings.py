@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     # 'notifications',
-    "verify_email.apps.VerifyEmailConfig",
     'main',
     'django_email_verification',
     'helpers',
@@ -118,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Calcutta'
 
 USE_I18N = True
 
@@ -169,3 +168,13 @@ MESSAGE_TAGS = {
 }
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_SECURITY_PASSIVE_URL_NAMES = ['ignore']
+# DEBUG = True
+# TEMPLATE_DEBUG = DEBUG
+
+# SESSION_SECURITY_EXPIRE_AFTER=10
+# SESSION_SECURITY_WARN_AFTER=5
+# SESSION_EXPIRE_AT_BROWSER_CLOSE=True
