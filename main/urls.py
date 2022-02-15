@@ -39,6 +39,7 @@ urlpatterns = [
     path('profile/viewprevleaves/',views.viewprevleaves,name='viewprevleaves'),
     path('profile/viewcourses/',views.viewcourses,name='viewcourses'),
     path('profile/viewgroups/',views.viewgroups,name='viewgroups'),
+     path('profile/view-group-courses/',views.viewgroupcourses,name='viewgroupcourses'),
     path('profile/viewclasses/',views.viewfacultyclasses,name='viewfacultyclasses'),
     path('profile/viewfacultytimetable/<id>',views.viewfacultytimetable,name='viewfacultytimetable'),
     path('profile/viewitemsalloted/',views.viewinventory,name='viewinventory'),
@@ -55,16 +56,16 @@ urlpatterns = [
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
     path('admin-dashboard/labs-list/add-lab', views.adminaddlab, name='adminaddlab'),
     path('admin-dashboard/Rooms/', views.adminviewrooms, name='adminviewrooms'),
-    path('admin-dashboard/Rooms/add-room', views.adminaddroom, name='adminaddroom'),
+    path('admin-dashboard/Rooms/add-room/', views.adminaddroom, name='adminaddroom'),
     path('admin-dashboard/Rooms/edit-room/<id>', views.admineditroom, name='admineditroom'),
     path('admin-dashboard/Courses/', views.viewallcourses, name='viewallcourses'),
-    path('admin-dashboard/Courses/add-Course', views.adminaddcourse, name='adminaddcourse'),
+    path('admin-dashboard/Courses/add-Course/', views.adminaddcourse, name='adminaddcourse'),
     path('admin-dashboard/Courses/edit-Course/<id>', views.admineditcourse, name='admineditcourse'),
     path('admin-dashboard/Groups/', views.viewallgroups, name='viewallgroups'),
-    path('admin-dashboard/Groups/add-Group', views.addgroup, name='addgroup'),
+    path('admin-dashboard/Groups/add-Group/', views.addgroup, name='addgroup'),
     path('admin-dashboard/Groups/edit-Group/<id>', views.admineditgroup, name='admineditgroup'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
-    path('admin-dashboard/faculty-details',views.ViewFacultyDetails,name='adminfacultydetails'),
+    path('admin-dashboard/faculty-details/',views.ViewFacultyDetails,name='adminfacultydetails'),
     path('admin-dashboard/faculty-details/admin-view-groups/<id>',views.adminviewgroups,name='adminviewgroups'),
     path('admin-dashboard/faculty-details/admin-view-courses/<id>',views.adminviewcourses,name='adminviewcourses'),
     path('admin-dashboard/faculty-details/admin-view-group-courses/<id>',views.adminviewgroupcourses,name='adminviewgroupcourses'),
@@ -79,7 +80,7 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-courses/update-faculty-class/<id><pk>',views.adminupdatefacultyclass,name='adminupdatefacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-class/<id>',views.admindeleteclass,name='admindeleteclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-faculty-class/<id>',views.admindeletefacultyclass,name='admindeletefacultyclass'),
-   
+     path('admin-dashboard/Assign-Office/', views.adminassignoffice, name='adminassignoffice'),
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
     path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),
@@ -88,10 +89,13 @@ urlpatterns = [
     path('timetable/load-groups/', views.load_groups, name='ajax_load_groups'),
     path('timetable/load-group-courses/', views.load_groupcourses, name='ajax_load_groupcourses'), # AJAX
     path('timetable/updateclass/<pk>_<id>/', views.update_class, name='update_class'),
+    path('timetable/view-all-faculty-courses/<id>/',views.viewallfacultycourses,name='viewallfacultycourses'),
+    path('timetable/view-all-faculty-groups/<id>/',views.viewallfacultygroups,name='viewallfacultygroups'),
+    path('timetable/view-all-faculty-group-courses/<id>/',views.viewallfacultygroupcourses,name='viewallfacultygroupcourses'),
+    path('timetable/view-all-faculty-Classes/<id>/',views.viewallfacultyclasses,name='viewallfacultyclasses'),
 
     #inventory paths
     path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
-
 ]

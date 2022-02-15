@@ -16,6 +16,7 @@
                 <th>Category</th>
                 <th>Designation</th>
                 <th>Agency</th>
+                <th>Office</th>
                 <th>Edit</th>
                 <th>View Inventory</th>
             </tr>
@@ -28,6 +29,7 @@
                     <td>{{staff.category.category}}</td>
                     <td>{{staff.designation.designation}}</td>
                     <td>{{staff.agency.agency}}</td>
+                    <td>{{staff.room}}</td>
                     <td><a href=" {% url 'main:editProfile' pk=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
                     <td><a href="{% url 'main:adminviewinventory' id=staff.id %} " style="color: black; text-decoration: underline;">View Inventory</a></td>
                 </tr>

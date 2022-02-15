@@ -22,4 +22,9 @@ class filterGroup(django_filters.FilterSet):
         model=Groups
         fields = ['branch','group_year','semester_type']
 
+class filterGroupCourse(django_filters.FilterSet):
+    class Meta:
+        model=Course
+        fields = ['course_year','semester_type']
+
 

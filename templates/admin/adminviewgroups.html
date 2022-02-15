@@ -12,6 +12,7 @@
                 <th scope="col" >Faculty</th>
                 <th scope="col" >Group's ID</th>
                 <th scope="col" >Group's Branch</th>
+                <th scope="col" >Sem</th>
                 <th scope="col" >Delete</th>
               </tr>
             </thead>
@@ -22,6 +23,7 @@
                 <td>{{group.faculty.name}}</td>
                 <td>{{group.groups.group_id}}</td>
                 <td>{{group.groups.branch.branch_name}}</td>
+                <td>{{group.groups.group_year}}({{group.groups.semester_type}})</td>
                 <td><a href="{%url 'main:admindeletegroup' id=group.id %}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
               </tr>
               {% endfor %}
