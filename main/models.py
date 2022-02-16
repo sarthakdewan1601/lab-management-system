@@ -324,14 +324,14 @@ class Class(models.Model):
     )
     lab=models.ForeignKey('Lab',on_delete=CASCADE)
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE)
+    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE, default=0)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
+        return self.lab.lab + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
 
 
 
