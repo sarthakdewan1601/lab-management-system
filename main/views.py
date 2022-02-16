@@ -227,8 +227,9 @@ def login_request(request):
 				messages.error(request, "Entered password is not correct, try again")
 				return redirect('main:login')
 			
-			if not user.is_loggedIn:
-				user.is_loggedIn = True
+			if request.session.session_key:
+				return redirect('main:user_profile')
+			else:
 				user.save()
 				staff = Staff.objects.get(email=user.email)
 				messages.success(request, f"Welcome {staff.name}")
@@ -250,7 +251,6 @@ def logout_request(request, id):
 	staff = Staff.objects.get(id=id)
 	userEmail = staff.email
 	user = User.objects.get(email=userEmail)
-	user.is_loggedIn = False
 	user.save()
 	logout(request)
 	messages.info(request, "You have successfully logged out.")
@@ -327,7 +327,7 @@ def passwordResetForm(request, token, id):
 					confirmation_mail(request, user, subject, templateName, staff.name)
 					
 					messages.success(request, "Password updated successfully")
-					if user.is_loggedIn:
+					if request.session.session_key:
 						login(request, user)
 						return redirect('main:user_profile')
 					else:
