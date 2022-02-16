@@ -5,8 +5,12 @@
 {% include 'navbar.html' with staff=staff %}
 
 
-<h1> Items Alloted to {{staff.name}}</h1>
-<h2>Office : {{staff.room.room_id}}</h2> 
+{% if inventorystaff.room.room_id %}
+  <h1>Office : {{inventorystaff.room.room_id}}</h1> 
+{% else %}  
+  <h1>Office : No office Assigned</h1> 
+{% endif %}
+<h2> Items Alloted to You</h2>
 <div class="container">
     <div class="inventory-table">
         <table class="table">

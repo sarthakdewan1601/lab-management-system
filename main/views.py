@@ -1035,7 +1035,8 @@ def resolveConflict(request, pk):
 def adminStaff(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	if request.user.is_staff:
-		staffs = Staff.objects.all().order_by('-designation')
+		faculty_designation = Category.objects.get(category="Lab Staff")
+		staffs = Staff.objects.filter(category=faculty_designation).order_by('-designation')
 		
 		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff})
 	else:
