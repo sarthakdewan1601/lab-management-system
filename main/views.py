@@ -227,8 +227,8 @@ def login_request(request):
 				messages.error(request, "Entered password is not correct, try again")
 				return redirect('main:login')
 			
-			if request.session.session_key:
-				return redirect('main:user_profile')
+			# if request.session.session_key:
+			# 	return redirect('main:user_profile')
 			else:
 				user.save()
 				staff = Staff.objects.get(email=user.email)
