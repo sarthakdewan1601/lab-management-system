@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+
+<div class="container mt-5">
+    <h2>Approved Leaves</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Sender</th>
+            <th scope="col">Substitute</th>
+            <th scope="col">From Date</th>
+            <th scope="col">To Date</th>
+            <th scope="col">Reason</th>
+            
+            <th scope="col">Status</th>
+            
+            <th scope="col">Admin Approved by</th>
+        </tr>
+        </thead>
+            <tbody>
+            {% for leave in approvedleaves %}
+                <tr>
+                    <td>{{ leave.staff.name }}</td>
+                    <td>{{ leave.substitute.name }} </td>
+                    <td>{{ leave.from_date }}</td>
+                    <td>{{ leave.to_date }}</td>
+                    <td>{{leave.reason}}</td>
+                    <td>{{ leave.status }}</td>
+                    <td> {{leave.admin.name}}(admin)</td> 
+                </tr>
+            {% endfor %}
+            </tbody>
+</table>  
+  </div>
+
+
+{% endblock body %}

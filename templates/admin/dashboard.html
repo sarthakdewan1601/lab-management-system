@@ -4,7 +4,7 @@
 {% endblock head %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
     <div class="row" >
@@ -62,6 +62,18 @@
                 <div class="card-body">
                     <h5 class="card-title">Assign-Office</h5>
                     <a href="{% url 'main:adminassignoffice' %}" class="btn btn-primary">Assign Office</a>
+                </div>
+            </div>
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">View Branches</h5>
+                    <a href="{% url 'main:adminviewbranches' %}" class="btn btn-primary">View Branches</a>
+                </div>
+            </div>
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">Type of devices</h5>
+                    <a href="{% url 'main:adminviewTypeOfDevices' %}" class="btn btn-primary">View all Types of devices</a>
                 </div>
             </div>
     </div>

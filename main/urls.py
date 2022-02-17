@@ -15,7 +15,7 @@ urlpatterns = [
     path('accounts/password-reset/<uidb64>/<token>/', views.passwordResetConfirmView, name="passwordResetConfirm"),
     path('accounts/password-reset/<token>/<id>', views.passwordResetForm, name="passwordResetForm"),
     path('accounts/password-change/<id>', views.passwordChange, name="passwordChange"),
-    
+ 
     # user paths
     path('', views.home, name='home'),
     path('profile/user-profile/' ,views.user_profile, name='user_profile'),
@@ -46,6 +46,9 @@ urlpatterns = [
     path('darshboard/add-faculty', views.addFaculty, name="addFaculty"),
 
     # admin paths
+    path('admin-dashboard/leaves/requested-leaves', views.adminRequestedLeaves, name='adminRequestedLeaves'),
+    path('admin-dashboard/leaves/rejected-leaves', views.adminRejectedLeaves, name='adminRejectedLeaves'),
+    path('admin-dashboard/leaves/approved-leaves', views.adminApprovedLeaves, name='adminApprovedLeaves'),
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
     path('admin-dashboard/view-inventory/<id>',views.adminviewinventory,name='adminviewinventory'),
     path('admin-dashboard/view-inventory/approveDeviceRequest/<pk>',views.approveDeviceRequest,name='approveDeviceRequest'),
@@ -66,6 +69,8 @@ urlpatterns = [
     path('admin-dashboard/Groups/add-Group/', views.addgroup, name='addgroup'),
     path('admin-dashboard/Groups/edit-Group/<id>', views.admineditgroup, name='admineditgroup'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
+    path('admin-dashboard/complaints-list/Active-Complaints', views.adminactivecomplaints, name='adminactivecomplaints'),
+    path('admin-dashboard/complaints-list/Resolved-Complaints', views.adminresolvedcomplaints, name='adminresolvedcomplaints'),
     path('admin-dashboard/faculty-details/',views.ViewFacultyDetails,name='adminfacultydetails'),
     path('admin-dashboard/faculty-details/admin-view-groups/<id>',views.adminviewgroups,name='adminviewgroups'),
     path('admin-dashboard/faculty-details/admin-view-courses/<id>',views.adminviewcourses,name='adminviewcourses'),
@@ -82,7 +87,12 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-courses/delete-class/<id>',views.admindeleteclass,name='admindeleteclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-faculty-class/<id>',views.admindeletefacultyclass,name='admindeletefacultyclass'),
     path('admin-dashboard/Assign-Office/', views.adminassignoffice, name='adminassignoffice'),
-
+    path('admin-dashboard/branches/', views.adminviewbranches, name='adminviewbranches'),
+    path('admin-dashboard/branches/add-branch', views.adminaddbranch, name='adminaddbranch'),
+    path('admin-dashboard/branches/edit-branch/<id>', views.admineditbranch, name='admineditbranch'),
+    path('admin-dashboard/type-of-devices/', views.adminviewTypeOfDevices, name='adminviewTypeOfDevices'),
+    path('admin-dashboard/type-of-devices/add-type-of-device', views.adminaddTypeOfDevice, name='adminaddTypeOfDevice'),
+    path('admin-dashboard/type-of-devices/edit-type-of-device/<id>', views.admineditTypeOfDevice, name='admineditTypeOfDevice'),
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
     path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),

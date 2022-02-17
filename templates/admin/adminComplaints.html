@@ -2,72 +2,20 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container mt-5">
-  <h1 style="text-align: center;"> Active Complaints</h1>
-<table class="table1">
-    <thead>
-      <tr>
-        <th scope="col">Sender</th>
-        <th scope="col">Lab</th>
-        <th scope="col">Device</th>
-        <th scope="col">Complaint</th>
-        <th scope="col">Active Status</th>
-        <th scope="col" style="text-align: center;">Resolve Complaint</th>
-      </tr>
-    </thead>
-        <tbody>
-        {% for complaint in complaints %}
-        <tr>
-          {% if complaint.isActive%}
-            <td>{{ complaint.created_by.name }}</td>
-            <td>{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
-            <td>{{ complaint.device.name }}</td>
-            <td>{{ complaint.complaint }}</td>
-            <td>Active</td>
-            <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-  </table>
-  <h1 style="text-align: center;"> Resolved Complaints</h1>
-<table class="table2">
-    <thead>
-      <tr>
-        <th scope="col">Sender</th>
-        <th scope="col">Lab</th>
-        <th scope="col">Device</th>
-        <th scope="col">Complaint</th>
-        <th scope="col">Active Status</th>
-        <th scope="col">Work Done</th>
-        <th scope="col">Resolved By</th>
-      </tr>
-    </thead>
-        <tbody>
-        {% for complaint in complaints %}
-          <tr>
-            {% if complaint.isActive == False %}
-              <td>{{ complaint.created_by.name }}</td>
-              <td>{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
-              <td>{{ complaint.device.name }}</td>
-              <td>{{ complaint.complaint }}</td>
-              <td>Resolved</td>
-              <td>{{ complaint.work_Done }}</td>
+  <div class="card col-lg-4 col-sm-12 col-md-6">
+    <div class="card-body">
+        <a href="{% url 'main:adminactivecomplaints' %}" class="btn btn-dark btn-sm">View Approved Complaints </a>
+    </div>
+</div>
+<div class="card col-lg-4 col-sm-12 col-md-6">
+    <div class="card-body">
+        <a href="{% url 'main:adminresolvedcomplaints' %}" class="btn btn-primary">View Resolved Complaints</a>
+    </div>
+</div>
+</div>
+  
 
-              {%if complaint.who_resolved.designation.designation == 'Lab Supervisor' or complaint.who_resolved.designation.designation == 'Lab Analyst' %}
-                <td>{{ complaint.who_resolved.name }} (admin)</td>
-              {% else %}
-                <td>{{ complaint.who_resolved.name }} (Technician)</td>
-              {% endif %}
-              
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-  </table>
-  </div>
-
-
-{% endblock body %}
+{% endblock body %} 

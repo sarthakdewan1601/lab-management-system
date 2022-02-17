@@ -2,10 +2,10 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <h1>Staff Name: {{inventorystaff.name}}</h1>
 <h2>Staff Office : {{inventorystaff.room.room_id}}</h2>
-<form method="post" id="devicesform" data-devices-url="{%url 'main:ajax_load_devices' id=inventorystaff.room.id%}">
+<form method="post" id="devicesform" data-devices-url="{% url 'main:ajax_load_devices' id=inventorystaff.room.id %}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
