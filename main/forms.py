@@ -261,3 +261,14 @@ class NewLabForm(forms.ModelForm):
         designation=Designation.objects.get(designation='Lab Attendant')
         self.fields['lab'].queryset = Room.objects.filter(id__in={instance.id for instance in req_labs})
         self.fields['staff'].queryset = Staff.objects.filter(designation=designation)
+
+class NewBranchForm(forms.ModelForm):
+    class Meta:
+        model=Branches
+        fields='__all__'
+
+
+class NewTypeOfDeviceForm(forms.ModelForm):
+    class Meta:
+        model=CategoryOfDevice
+        fields='__all__'
