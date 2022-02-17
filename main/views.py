@@ -68,7 +68,7 @@ def get_notifications(id):
 	notification = Notification.objects.filter(reciever=receiver,isActive=True).order_by('-time').all()
 	notifications.extend(notification)
 
-	if designation == 'Lab Analyst' or designation == 'Lab Supervisor':
+	if designation == 'System Analyst' or designation == 'Lab Supervisor':
 		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
 		notifications.extend(notification)
 	return len(notifications)
@@ -361,14 +361,15 @@ def	passwordChange(request, id):
 @login_required
 def home(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		a = User.objects.get(email=request.user)
 		print(a)
-		return render(request, "admin/dashboard.html", {"staff":staff})
+		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
 
 	staff = Staff.objects.get(user_obj=request.user)
 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request)})
+	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
 
 	# except:
 	# 	tech = Technician.objects.get(tech_id=request.user.username)
@@ -379,11 +380,12 @@ def home(request):
 @login_required
 def user_profile_details(request):
 	staff=Staff.objects.get(user_obj=request.user)
-	return render(request, "userProfiles/user_profile.html", {'staff':staff})
+	notification_count=get_notifications(staff.id)
+	return render(request, "userProfiles/user_profile.html", {'staff':staff,'notification_count':notification_count,})
 
 @login_required
 def user_profile(request):
-	print("sarthak")
+	# print("sarthak")
 	userEmail = request.user.email
 	staff = Staff.objects.get(email=userEmail)
 	notification_count=get_notifications(staff.id)
@@ -396,7 +398,7 @@ def user_profile(request):
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
-			return render(request, "admin/dashboard.html", {"staff":staff})
+			return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
 
 		
 		if staff.designation.designation == "Lab Associate":
@@ -411,6 +413,7 @@ def user_profile(request):
 			context = {
 				'userLabs' : userLabs,
 				'staff'	: staff_1,
+				'notification_count':notification_count,
 			}
 			return render(request, 'userProfiles/lab_attendent.html',context)
 			# pass
@@ -425,7 +428,8 @@ def user_profile(request):
 			context = { 
 				"staff":staff,
 				"complaints": complaints,
-				"notifications": current_notifications
+				"notifications": current_notifications,
+				'notification_count':notification_count,
 			}
 			return render(request, "userProfiles/Lab_technician.html", context)
 			
@@ -457,9 +461,11 @@ def user_profile(request):
 
 @login_required
 def editProfile(request, pk):
-	staff = Staff.objects.get(id=pk)		
+	staff = Staff.objects.get(id=pk)	
+		
 	if request.user.is_staff:
 		admin=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(admin.id)
 		if request.method=="POST":
 			form=request.POST
 			name=form['name']
@@ -483,7 +489,8 @@ def editProfile(request, pk):
 				"staff": admin,
 				"staff1": staff,
 				"designations":designations,
-				"agency":agency
+				"agency":agency,
+				'notification_count':notification_count,
 			}
 			return render(request, "userProfiles/edit_profile.html", context)
 	else:
@@ -496,8 +503,10 @@ def editProfile(request, pk):
 			return redirect('/')
 
 		else:
+			notification_count=get_notifications(staff.id)
 			context = {
-				"staff": staff
+				"staff": staff,
+				'notification_count':notification_count,
 			}
 			return render(request, "userProfiles/edit_profile.html", context)
 
@@ -505,6 +514,7 @@ def editProfile(request, pk):
 @login_required
 def userLeaves(request):
 	staff = Staff.objects.get(user_obj=request.user)	
+	notification_count=get_notifications(staff.id)
 	year = datetime.datetime.now().year
 	leavesThisYear = TotalLeaves.objects.filter(year=year).all()
 	
@@ -516,13 +526,14 @@ def userLeaves(request):
 		"totalLeaves" : leavesThisYear,
 		"year": year,
 		"userLeavesTaken":userLeavesTaken,
+		'notification_count':notification_count,
 	}
 	return render(request, "leaves/leaves.html", context)
 
 @login_required
 def requestleave(request):
 	staff= Staff.objects.get(user_obj=request.user)
-
+	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
 		# form data
 		form=request.POST
@@ -625,7 +636,8 @@ def requestleave(request):
 		context={
 			'staff':staff,
 			'totalLeavesCurrYear': totalLeavesCurrYear,
-			'substitutes': substitutes
+			'substitutes': substitutes,
+			'notification_count':notification_count,
 		}
 	
 		return render(request,"leaves/leaverequest.html",context)
@@ -634,19 +646,22 @@ def requestleave(request):
 @login_required
 def checkLeaveStatus(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	# print(staff)
 
 	pendingRequests = UserLeaveStatus.objects.filter(staff=staff).order_by("-id")
 	# get all the pending requests 
 	context = {
 		'staff':staff,
-		"pendingRequests": pendingRequests
+		"pendingRequests": pendingRequests,
+		'notification_count':notification_count,
 	}
 	return render(request, "leaves/leaveRequestStatus.html", context)
 
 @login_required
 def checkLeaveStatusId(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	leaveRequest = UserLeaveStatus.objects.get(id=pk)
 	getTotalLeaveDays = 1
 	if leaveRequest.to_date:
@@ -655,7 +670,8 @@ def checkLeaveStatusId(request, pk):
 	context = {
 		'staff':staff,
 		'leaveRequest':leaveRequest,
-		'getTotalLeaveDays': getTotalLeaveDays
+		'getTotalLeaveDays': getTotalLeaveDays,
+		'notification_count':notification_count,
 	}
 	return render(request, "leaves/leaveRequestStatusId.html", context)
 
@@ -670,18 +686,13 @@ def cancelLeaveRequest(request, pk):
 @login_required
 def approveLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	#for admin
 	if request.user.is_staff:
 		#return HttpResponse(201)
-		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False)
-		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
-		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
-		
 		context={
 			'staff':staff,
-			"requestedleaves":requestedleaves,
-			"approvedleaves":approvedleaves,
-			"rejectedleaves":rejectedleaves,
+			'notification_count':notification_count,
 		}
 		return render(request,'admin/adminLeaveApproval.html',context)
 
@@ -690,10 +701,52 @@ def approveLeaves(request):
 	leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-from_date")
 	context = {
 		'staff':staff,
-		"leaves": leaves
+		"leaves": leaves,
+		'notification_count':notification_count,
 	}
 	return render(request, 'leaves/leaveapproval.html', context)
 
+def adminApprovedLeaves(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
+		context={
+			'staff':staff,
+			"approvedleaves":approvedleaves,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminApprovedLeaves.html',context)
+	else:
+		return render(request,'pagenotfound.html',{})
+
+def adminRequestedLeaves(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False)
+		context={
+			'staff':staff,
+			"requestedleaves":requestedleaves,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminRequestedLeaves.html',context)
+	else:
+		return render(request,'pagenotfound.html',{})
+
+def adminRejectedLeaves(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
+		context={
+			'staff':staff,
+			"rejectedleaves":rejectedleaves,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminRequestedLeaves.html',context)
+	else:
+		return render(request,'pagenotfound.html',{})
 
 @login_required
 def approveRequest(request, pk):
@@ -796,10 +849,12 @@ def declineRequest(request, pk):
 @login_required
 def viewprevleaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True)
 	context={
 		'staff':staff,
 		'all_leaves':all_leaves,
+		'notification_count':notification_count,
 	}
 	return render(request,"leaves/viewprevleaves.html",context)
 
@@ -807,6 +862,7 @@ def viewprevleaves(request):
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
@@ -839,7 +895,8 @@ def complaint(request, pk):
 			'staff':staff,
 			'form': form,
 			'name': device.name.category, 
-			'id': device.device_id
+			'id': device.device_id,
+			'notification_count':notification_count,
 		}
 		return render(request, 'Complaints/complaints.html', context)
 
@@ -849,6 +906,7 @@ def complaint(request, pk):
 @login_required
 def view_complaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	active_complaints = Complaint.objects.filter(isActive = True).order_by('-date_created')
 	resolved_complaints=Complaint.objects.filter(isActive = False).order_by('-date_created')
 	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
@@ -858,12 +916,14 @@ def view_complaints(request):
 		'staff':staff,
 		'active_complaints' : active_complaints,
 		'resolved_complaints' :resolved_complaints,
+		'notification_count':notification_count,
 	}
 	return render(request,'Complaints/view_complaints.html', context)
 
 @login_required
 def notifications(request):
-	staff = Staff.objects.get(user_obj=request.user)		
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)		
 	designation = staff.designation.designation
 	notifications=[]
 	
@@ -882,12 +942,13 @@ def notifications(request):
 
 	# third type notificatoin baad mein okay? create another if condition
 	
-	return render(request, "Notifications/notifications.html", {"notifications": notifications, "staff":staff})
+	return render(request, "Notifications/notifications.html", {"notifications": notifications, "staff":staff,'notification_count':notification_count,})
 
 @login_required
 def handleNotification(request, pk):							# get notification and userleavestatus objects  # compare and render 
 													
-	staff = Staff.objects.get(user_obj=request.user)	 	# current user		
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)	 	# current user		
 	notification = Notification.objects.get(id=pk)
 	if notification.isActive==False:
 		return redirect('main:notification')
@@ -907,17 +968,17 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 		leave = UserLeaveStatus.objects.get(id=taskId)
 		if staff == leave.substitute:
 			same = True
-		return render(request, "Notifications/leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same})
+		return render(request, "Notifications/leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same,'notification_count':notification_count,})
 
 	if notification.notification_type == 'TECH':
 		complaint = Complaint.objects.get(id=taskId)
-		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,})
+		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,'notification_count':notification_count,})
 
 	if notification.notification_type == 'INVENTORY' and notification.reciever=='admin':
 		fac=Staff.objects.get(id=taskId)
 		inventory_devices=StaffInventory.objects.filter(staff=fac)
 		inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
-		return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return})
+		return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return,'notification_count':notification_count,})
 
 	if notification.notification_type == 'INVENTORY' :
 		fac=Staff.objects.get(id=taskId)
@@ -968,6 +1029,7 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 def lab(request, pk):
 	# list of all devices
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	lab = Lab.objects.get(id=pk)
 	devices=Devices.objects.filter(room=lab.lab).order_by("id").all()
 	context = {
@@ -975,12 +1037,14 @@ def lab(request, pk):
 		'devices': devices,
 		'labid': pk,
 		'lab': lab,
+		'notification_count':notification_count,
 	}
 	return render(request, "Labs/lab.html", context)
 
 @login_required
 def add_devices(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	lab=Lab.objects.get(id=pk)
 	room=lab.lab
 	if request.method == 'POST':
@@ -1000,12 +1064,14 @@ def add_devices(request, pk):
 			'staff': staff,
 			'form': form,
 			'labid':lab,
+			'notification_count':notification_count,
 		}
 		return render(request, 'Labs/add_computer.html', context)
 
 @login_required
 def resolveConflict(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	complaint = Complaint.objects.get(id=pk)
 	resolver=Staff.objects.get(user_obj=request.user)
 	if request.method == 'POST':
@@ -1027,46 +1093,73 @@ def resolveConflict(request, pk):
 		context={
 			"staff":staff,
 			'complaint':complaint,
-			'admin_status': admin_status
+			'admin_status': admin_status,
+			'notification_count':notification_count,
 		}
 		return render(request, 'admin/adminResolveComplaint.html', context)
 
 @login_required
 def adminStaff(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		staffs = Staff.objects.all().order_by('-designation')
 		
-		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff})
+		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff,'notification_count':notification_count,})
 	else:
 		return render(request, "pagenotfound.html")
 
 def adminLabs(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		labs=Lab.objects.all()
-		return render(request, "admin/adminLabs.html", {"labs": labs, "staff":staff})
+		return render(request, "admin/adminLabs.html", {"labs": labs, "staff":staff,'notification_count':notification_count,})
 	else:
 		return render(request, "pagenotfound.html")
 
 def adminComplaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		complaints = Complaint.objects.all().order_by('id')
-		return render(request, "admin/adminComplaints.html", {"complaints":complaints, "staff":staff})
+		return render(request, "admin/adminComplaints.html", {"staff":staff,'notification_count':notification_count,})
 	else:
 		return render(request, "pagenotfound.html")
+
+def adminactivecomplaints(request):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		activecompliants=Complaint.objects.filter(isActive=True)
+		return render(request, "admin/adminactiveComplaints.html", {"complaints":activecompliants,"staff":staff,'notification_count':notification_count,})
+	else:
+		return render(request, "pagenotfound.html")
+
+
+def adminresolvedcomplaints(request):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		resolvedcompliants=Complaint.objects.filter(isActive=False)
+		return render(request, "admin/adminresolvedcomplaints.html", {"complaints":resolvedcompliants,"staff":staff,'notification_count':notification_count,})
+	else:
+		return render(request, "pagenotfound.html")
+
+
+
 
 @login_required
 def adminLeaves(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		year = datetime.datetime.now().year
 		leavesThisYear = TotalLeaves.objects.filter(year=year).all()
 
 		context = {
 			"staff":staff,
-			"leavesThisYear": leavesThisYear
+			"leavesThisYear": leavesThisYear,
+			'notification_count':notification_count,
 		}
 
 		return render(request, "admin/adminLeaves.html", context)
@@ -1076,6 +1169,7 @@ def adminLeaves(request):
 @login_required
 def newLeave(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.method == "POST":
 		# create a new leave type and assign it to all the users with their initial count = 0
 		form = AddNewLeave(request.POST)
@@ -1102,11 +1196,12 @@ def newLeave(request):
 
 	else:
 		form = AddNewLeave()
-		return render(request, "admin/addLeaveForm.html", {"form":form, "staff":staff})
+		return render(request, "admin/addLeaveForm.html", {"form":form, "staff":staff,'notification_count':notification_count,})
 
 @login_required
 def adminEditLeave(request, pk):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		leave = TotalLeaves.objects.get(id=pk)
 		if request.method == "POST":
@@ -1116,7 +1211,7 @@ def adminEditLeave(request, pk):
 			##
 			return redirect('main:adminLeaves')
 		else:
-			return render(request, "admin/adminEditLeaveForm.html", {"staff":staff, "leave":leave})
+			return render(request, "admin/adminEditLeaveForm.html", {"staff":staff, "leave":leave,'notification_count':notification_count,})
 	else:
 		return render(request, "pagenotfound.html")
 
@@ -1140,9 +1235,8 @@ def removeLeave(request, pk):
 @login_required
 def viewtimetable_wrtlab(request,id):
 	lab=Lab.objects.get(id=id)
-	# print(id)
-	# print(lab)
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	classes=Class.objects.filter(lab=id)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1184,6 +1278,7 @@ def viewtimetable_wrtlab(request,id):
 		'staff':staff,
 		'timeslots':timeslots,
 		'time':time,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/timetable_wrtlab.html',context)
 
@@ -1194,6 +1289,7 @@ def viewtimetable_wrtlab(request,id):
 @login_required
 def viewLabClasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	classes=Class.objects.filter(lab=id)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1211,12 +1307,14 @@ def viewLabClasses(request,id):
 		'staff':staff,
 		'classes':curr_cl,
 		'labid':id,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewLabClasses.html',context)
 
 @login_required
 def add_classes(request,id):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form = AddClassForm()
 	lab=Lab.objects.get(id=id)
 	if request.method == 'POST':
@@ -1247,11 +1345,12 @@ def add_classes(request,id):
 			activity,was_created= Class.objects.get_or_create(lab=lab,faculty=faculty,faculty_group_course=group_course,day=day,starttime=starttime,endtime=endtime,tools_used=tools_used)
 			activity.save()
 			return redirect('main:viewLabClasses', id=id)
-	return render(request, 'Timetable/addclass.html', {'form': form, "staff":staff})
+	return render(request, 'Timetable/addclass.html', {'form': form, "staff":staff,'notification_count':notification_count,})
 
 @login_required
 def load_courses(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty_id = request.GET.get('faculty_id')
 	# print(faculty_id)
 	courses = FacultyCourse.objects.filter(faculty_id=faculty_id).all()
@@ -1268,12 +1367,13 @@ def load_courses(request):
 		if course.course.course_year==year and course.course.semester_type==sem:
 			curr_courses.append(course)
 	
-	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': curr_courses, "staff":staff})
+	return render(request, 'TimeTable/course_dropdown_list_option.html', {'courses': curr_courses, "staff":staff,'notification_count':notification_count,})
 	# return JsonResponse((x), safe=False)
 
 @login_required
 def load_groups(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty_id = request.GET.get('faculty_id')
 	groups = FacultyGroups.objects.filter(faculty_id=faculty_id).all()
 	# print(groups)
@@ -1289,11 +1389,12 @@ def load_groups(request):
 	for group in groups:
 		if group.groups.group_year==year and group.groups.semester_type==sem:
 			curr_groups.append(group)
-	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': curr_groups, "staff":staff})
+	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': curr_groups, "staff":staff,'notification_count':notification_count,})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
 @login_required
 def load_groupcourses(request):
 	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty_id = request.GET.get('faculty_id')
 	groupcourses = GroupCourse.objects.filter(faculty_id=faculty_id).all()
 	# print(groups)
@@ -1309,12 +1410,13 @@ def load_groupcourses(request):
 	for gc in groupcourses:
 		if gc.group.groups.group_year==year and gc.group.groups.semester_type==sem:
 			curr_gp.append(gc)
-	return render(request, 'TimeTable/groupcourse_dropdown_list_option.html', {'groupcourse': curr_gp, "staff":staff})
+	return render(request, 'TimeTable/groupcourse_dropdown_list_option.html', {'groupcourse': curr_gp, "staff":staff,'notification_count':notification_count,})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
 
 @login_required
 def update_class(request, pk,id):
 		staff = Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
 		classes = get_object_or_404(Class, pk=pk)
 		lab=Lab.objects.get(id=id)
 		form = AddClassForm(instance=classes)
@@ -1355,11 +1457,12 @@ def update_class(request, pk,id):
 				classes.tools_used=tools_used
 				classes.save()
 				return redirect('main:viewLabClasses', id=id)
-		return render(request, 'Timetable/addclass.html', {'form': form, "staff": staff})
+		return render(request, 'Timetable/addclass.html', {'form': form, "staff": staff,'notification_count':notification_count,})
 
 @login_required
 def viewgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	groups=FacultyGroups.objects.filter(faculty=staff)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1376,12 +1479,14 @@ def viewgroups(request):
 	context={
 		'staff':staff,
 		'groups':curr_groups,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewgroups.html',context)
 
 @login_required
 def viewcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	courses=FacultyCourse.objects.filter(faculty=staff)
 	# print(courses)
 	current_date = datetime.datetime.now()
@@ -1400,12 +1505,14 @@ def viewcourses(request):
 	context={
 		'staff':staff,
 		'courses':curr_courses,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewcourses.html',context)
 
 @login_required
 def viewfacultyclasses(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	classes=Class.objects.filter(faculty=staff)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1422,6 +1529,7 @@ def viewfacultyclasses(request):
 	context={
 		'staff':staff,
 		'classes':curr_cl,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewfacultyclasses.html',context)
 
@@ -1429,6 +1537,7 @@ def viewfacultyclasses(request):
 @login_required
 def addFaculty(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	if request.method == "POST":
 		form = request.POST
 		name = form['name']
@@ -1447,11 +1556,12 @@ def addFaculty(request):
 		staff.save()
 		return redirect("main:adminfacultydetails")
 	else:
-		return render(request, "admin/addFaculty.html", {'staff':staff})
+		return render(request, "admin/addFaculty.html", {'staff':staff,'notification_count':notification_count,})
 
 @login_required
 def ViewFacultyDetails(request):
 	admin=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(admin.id)
 	if admin.designation.designation == 'Lab Attendant' or request.user.is_staff:
 		c1=Category.objects.get(category='Faculty')
 		c2=Category.objects.get(category='Student')
@@ -1465,6 +1575,7 @@ def ViewFacultyDetails(request):
 		context={
 			'staff':admin,
 			'faculty':staff,
+			'notification_count':notification_count,
 		}
 		return render(request,"admin/adminfacultydetails.html",context)
 	else:
@@ -1473,6 +1584,7 @@ def ViewFacultyDetails(request):
 @login_required
 def viewfacultytimetable(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	classes=Class.objects.filter(faculty=faculty)
 	current_date = datetime.datetime.now()
@@ -1516,13 +1628,15 @@ def viewfacultytimetable(request,id):
 		'timeslots':timeslots,
 		'time':time,
 		'faculty':faculty,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/timetable_wrtfaculty.html',context)
 	# return render(request,'',context)
 
 @login_required
 def adminviewgroups(request,id):
-	staff=Staff.objects.get(user_obj=request.user)	
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)	
 	faculty=Staff.objects.get(id=id)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1541,12 +1655,14 @@ def adminviewgroups(request,id):
 		'staff':staff,
 		'groups':curr_groups,
 		'faculty' : faculty,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewgroups.html',context)
 
 @login_required
 def adminviewcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	current_date = datetime.datetime.now()
 	year=int(current_date.strftime("%Y"))
@@ -1564,13 +1680,15 @@ def adminviewcourses(request,id):
 	context={
 		'staff':staff,
 		'courses':curr_courses,
-		'faculty':faculty,		
+		'faculty':faculty,	
+		'notification_count':notification_count,	
 	}
 	return render(request,'admin/adminviewcourses.html',context)
 
 @login_required
 def adminviewgroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	groupcourses=GroupCourse.objects.filter(faculty=faculty)
 	# print(groups)
@@ -1589,13 +1707,15 @@ def adminviewgroupcourses(request,id):
 	context={
 		'staff':staff,
 		'groupcourses':curr_gp,
-		'faculty':faculty,		
+		'faculty':faculty,	
+		'notification_count':notification_count,	
 	}
 	return render(request,'admin/adminviewgroupcourses.html',context)
 
 @login_required
 def adminaddgroupcourse(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	fac=Staff.objects.get(id=id)
 	form=AddGroupCourseForm()
 	if request.method=='POST':
@@ -1616,12 +1736,14 @@ def adminaddgroupcourse(request,id):
 		'staff':staff,
 		'fac':fac,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminaddgroupcourse.html',context)
 
 @login_required
 def adminviewclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	classes=Class.objects.filter(faculty=faculty)
 	current_date = datetime.datetime.now()
@@ -1640,6 +1762,7 @@ def adminviewclasses(request,id):
 		'staff':staff,
 		'classes':curr_cl,
 		'faculty':faculty,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewclasses.html',context)
 
@@ -1685,6 +1808,7 @@ def admindeletefacultyclass(request,id):
 @login_required	
 def adminaddcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty = Staff.objects.get(id = id)
 	form = AddCourseForm()
 	if request.method == 'POST':
@@ -1696,12 +1820,13 @@ def adminaddcourses(request,id):
 			course.save()
 			return redirect('main:adminviewcourses', id=id)
 			# return HttpResponse(202)
-	return render(request,'admin/adminaddfacultycourses.html',{'form' : form, "staff":staff})
+	return render(request,'admin/adminaddfacultycourses.html',{'form' : form, "staff":staff,'notification_count':notification_count,})
 		# return HttpResponse('202')
 
 @login_required
 def adminaddgroup(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty = Staff.objects.get(id = id)
 	form = AddGroupForm()
 	if request.method == 'POST':
@@ -1713,13 +1838,14 @@ def adminaddgroup(request,id):
 			group.save()
 			return redirect('main:adminviewgroups', id=id)
 			# return HttpResponse(202)
-	return render(request,'admin/adminaddfacultygroups.html',{'form' : form, "staff":staff})
+	return render(request,'admin/adminaddfacultygroups.html',{'form' : form, "staff":staff,'notification_count':notification_count,})
 		# return HttpResponse('202')
 
 @login_required
 def adminaddfacultyclass(request,id):
 	faculty=Staff.objects.get(id=id)
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form=AddFacultyClassForm(faculty)
 	if request.method == 'POST':
 		form=AddFacultyClassForm(faculty,request.POST)
@@ -1749,6 +1875,7 @@ def adminaddfacultyclass(request,id):
 		'staff':staff,
 		'form':form,
 		'faculty':faculty,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminaddfacultyclasses.html',context)
 
@@ -1756,6 +1883,7 @@ def adminaddfacultyclass(request,id):
 @login_required
 def adminupdatefacultyclass(request,id,pk):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	classes = get_object_or_404(Class, pk=pk)
 	faculty=Staff.objects.get(id=id)
 	form = AddFacultyClassForm(faculty,instance=classes)
@@ -1793,30 +1921,34 @@ def adminupdatefacultyclass(request,id,pk):
 			classes.tools_used=tools_used
 			classes.save()
 			return redirect('main:adminviewclasses', id=id)
-	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form})
+	return render(request, 'admin/adminaddfacultyclasses.html', {'staff':staff,'form': form,'notification_count':notification_count,})
 
 @login_required
 def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
 	# print(len(inventory))
 	context={
 		'staff':staff,
 		'inventory':inventory,
+		'notification_count':notification_count,
 	}
 	return render(request,'inventory.html',context)
 
 @login_required
 def adminviewinventory(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	fac=Staff.objects.get(id=id)
 	inventory_devices=StaffInventory.objects.filter(staff=fac)
 	inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
-	return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return})
+	return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return,'notification_count':notification_count,})
 
 @login_required
 def loaddevices(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	room=Room.objects.get(id=id)
 	# print(room.room_id)
 	name_id = request.GET.get('name_id')
@@ -1830,11 +1962,12 @@ def loaddevices(request,id):
 	# print(devices)
 	X.extend(devices)
 	# print(X)
-	return render(request, 'inventory/devices_dropdown_list_option.html', {'devices':X, "staff":staff})
+	return render(request, 'inventory/devices_dropdown_list_option.html', {'devices':X, "staff":staff,'notification_count':notification_count,})
 
 @login_required
 def allotdevices(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	fac=Staff.objects.get(id=id)
 	form=AllotDevicesForm()
 	if request.method == 'POST':
@@ -1857,11 +1990,12 @@ def allotdevices(request,id):
 			log.save()
 			return redirect('main:adminviewinventory', id=id)
 		
-	return render(request,'inventory/allotdevices.html',{'form':form,'staff':staff,'inventorystaff':fac,})
+	return render(request,'inventory/allotd evices.html',{'form':form,'staff':staff,'inventorystaff':fac,'notification_count':notification_count,})
 
 @login_required
 def devicesreturnrequest(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	inventory=StaffInventory.objects.filter(staff=staff,is_requested_for_return=False)
 	if request.method=='POST':
 		devices=request.POST.getlist('devices')
@@ -1895,12 +2029,14 @@ def devicesreturnrequest(request,id):
 	context={
 		'staff':staff,
 		'devices':inventory,
+		'notification_count':notification_count,
 	}
 	return render(request,'inventory/return_request.html',context)
 
 @login_required
 def approveDeviceRequest(request,pk):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	inventory_device=StaffInventory.objects.get(id=pk)
 	fac=inventory_device.staff
 	device=inventory_device.device
@@ -1926,6 +2062,7 @@ def approveDeviceRequest(request,pk):
 @login_required
 def declineDeviceRequest(request,pk):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	inventory_device=StaffInventory.objects.get(id=pk)
 	fac=inventory_device.staff
 	device=inventory_device.device
@@ -1946,6 +2083,7 @@ def declineDeviceRequest(request,pk):
 @login_required
 def adminviewrooms(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	rooms=Room.objects.all()
 	myFilter = filterRoom(request.GET,queryset=rooms)
 	rooms=myFilter.qs
@@ -1953,12 +2091,14 @@ def adminviewrooms(request):
 		'staff':staff,
 		'rooms':rooms,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewrooms.html',context)
 
 @login_required
 def adminaddroom(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form=NewRoomForm
 	if request.method == 'POST':
 		form=NewRoomForm(request.POST)
@@ -1968,12 +2108,14 @@ def adminaddroom(request):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addroom.html',context)
 
 @login_required
 def admineditroom(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	room_instance=Room.objects.get(id=id)
 	form=NewRoomForm(instance=room_instance)
 	if request.method == 'POST':
@@ -1984,12 +2126,14 @@ def admineditroom(request,id):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addroom.html',context)
 
 @login_required
 def viewallcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	courses=Course.objects.all()
 	myFilter = filterCourse(request.GET,queryset=courses)
 	courses=myFilter.qs
@@ -1997,12 +2141,14 @@ def viewallcourses(request):
 		'staff':staff,
 		'courses':courses,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/viewcourses.html',context)
 
 @login_required
 def adminaddcourse(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form=NewCourseForm
 	if request.method == 'POST':
 		form=NewCourseForm(request.POST)
@@ -2012,12 +2158,14 @@ def adminaddcourse(request):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addcourse.html',context)
 
 @login_required
 def admineditcourse(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	course_instance=Course.objects.get(id=id)
 	form=NewCourseForm(instance=course_instance)
 	if request.method == 'POST':
@@ -2028,12 +2176,14 @@ def admineditcourse(request,id):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addcourse.html',context)
 	
 @login_required
 def viewallgroups(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	groups=Groups.objects.all()
 	myFilter = filterGroup(request.GET,queryset=groups)
 	groups=myFilter.qs
@@ -2041,12 +2191,14 @@ def viewallgroups(request):
 		'staff':staff,
 		'groups':groups,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/viewgroups.html',context)
 
 @login_required
 def addgroup(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form=NewGroupForm
 	if request.method == 'POST':
 		form=NewGroupForm(request.POST)
@@ -2056,12 +2208,14 @@ def addgroup(request):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addgroup.html',context)
 
 @login_required	
 def admineditgroup(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	group_instance=Groups.objects.get(id=id)
 	form=NewGroupForm(instance=group_instance)
 	if request.method == 'POST':
@@ -2072,12 +2226,14 @@ def admineditgroup(request,id):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addgroup.html',context)
 
 @login_required
 def adminaddlab(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	form=NewLabForm
 	if request.method == 'POST':
 		form=NewLabForm(request.POST)
@@ -2087,12 +2243,14 @@ def adminaddlab(request):
 	context={
 		'staff':staff,
 		'form':form,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/addlab.html',context)
 
 @login_required		
 def adminassignoffice(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	all_staffs=Staff.objects.all()
 	staffs=Staff.objects.filter(room=None)
 	rooms=Room.objects.all()
@@ -2112,12 +2270,14 @@ def adminassignoffice(request):
 		'staffs':staffs,
 		'rooms':rooms,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'admin/assignoffice.html',context)
 
 @login_required
 def viewallfacultycourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	courses=Course.objects.all()
 	myFilter = filterCourse(request.GET,queryset=courses)
@@ -2130,12 +2290,14 @@ def viewallfacultycourses(request,id):
 		'faculty':faculty,
 		'faculty_courses':faculty_courses,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultycourses.html',context)
 
 @login_required
 def viewallfacultygroups(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	groups=Groups.objects.all()
 	myFilter = filterGroup(request.GET,queryset=groups)
@@ -2148,12 +2310,14 @@ def viewallfacultygroups(request,id):
 		'faculty':faculty,
 		'faculty_groups':faculty_groups,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultygroups.html',context)
 
 @login_required
 def viewgroupcourses(request):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	groupcourses=GroupCourse.objects.filter(faculty=staff)
 	# print(groups)
 	current_date = datetime.datetime.now()
@@ -2173,12 +2337,14 @@ def viewgroupcourses(request):
 	context={
 		'staff':staff,
 		'groupcourses':curr_gp,		
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewgroupcourses.html',context)
 
 @login_required
 def viewallfacultygroupcourses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	courses=Course.objects.all()
 	myFilter = filterGroupCourse(request.GET,queryset=courses)
@@ -2194,12 +2360,14 @@ def viewallfacultygroupcourses(request,id):
 		'faculty':faculty,
 		'faculty_groupcourses':faculty_groupcourses,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultygroupcourses.html',context)
 
 @login_required
 def viewallfacultyclasses(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
 	faculty=Staff.objects.get(id=id)
 	courses=Course.objects.all()
 	myFilter = filterGroupCourse(request.GET,queryset=courses)
@@ -2217,6 +2385,113 @@ def viewallfacultyclasses(request,id):
 		'faculty':faculty,
 		'faculty_classes':faculty_classes,
 		'myFilter':myFilter,
+		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultyclasses.html',context)
 	
+def adminviewbranches(request):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		branches=Branches.objects.all()
+		context={
+			'staff':staff,
+			'notification_count':notification_count,
+			'branches':branches,
+		}
+		return render(request,'admin/adminviewbranches.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+def adminaddbranch(request):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		form=NewBranchForm
+		if request.method == 'POST':
+			form=NewBranchForm(request.POST)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminviewbranches')
+		context={
+			'staff':staff,
+			'notification_count':notification_count,
+			'form':form,
+		}
+		return render(request,'admin/adminaddbranch.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+def admineditbranch(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		branch_instance=Branches.objects.get(id=id)
+		form=NewBranchForm(instance=branch_instance)
+		if request.method == 'POST':
+			form=NewBranchForm(request.POST,instance=branch_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminviewbranches')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminaddbranch.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+def adminviewTypeOfDevices(request):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		tod=CategoryOfDevice.objects.all()
+		context={
+			'staff':staff,
+			'notification_count':notification_count,
+			'tod':tod,
+		}
+		return render(request,'admin/adminviewTypeOfDevices.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+	
+
+def adminaddTypeOfDevice(request):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		form=NewTypeOfDeviceForm
+		if request.method == 'POST':
+			form=NewTypeOfDeviceForm(request.POST)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminviewTypeOfDevices')
+		context={
+			'staff':staff,
+			'notification_count':notification_count,
+			'form':form,
+		}
+		return render(request,'admin/adminaddTypeOfDevice.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+def admineditTypeOfDevice(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		tod_instance=CategoryOfDevice.objects.get(id=id)
+		form=NewTypeOfDeviceForm(instance=tod_instance)
+		if request.method == 'POST':
+			form=NewTypeOfDeviceForm(request.POST,instance=tod_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminviewTypeOfDevices')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminaddTypeOfDevice.html',context)
+	else:
+		return render(request,'pagenotfound.html')

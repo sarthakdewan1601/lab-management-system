@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <form method="post" id="coursesform" data-courses-url="{% url 'main:ajax_load_groupcourses' %}" >
     {% csrf_token %}
     {{ form.as_p }}
