@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import logging 
 
 from pathlib import Path
 import os
@@ -35,6 +36,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_crontab',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -169,3 +172,35 @@ MESSAGE_TAGS = {
 }
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+#######################################################################################################################################
+APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'INFO',
+#             'class': 'logging.FileHandler',
+#             'filename': APP_LOG_FILENAME,
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG ',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+
+# CRONJOBS = [
+#     ('*/5 * * * *', 'cron.print_hello', '>> C:\Users\Atharvan Dogra\Documents\GitHub\lab-management-system\logger.log')
+# ]
+
+
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_COOKIE_AGE = 5 * 60 #
+#######################################################################################################################################

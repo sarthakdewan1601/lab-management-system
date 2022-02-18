@@ -26,7 +26,7 @@
 
             <form method="POST" class="form">
               {% csrf_token %}
-              <div class="bg-dark p-3">
+              {% comment %} <div class="bg-dark p-3"> {% endcomment %}
                   <div class="input-group mb-3 inputFieldComplete">
                     <span class="input-group-text fa-round-left" id="basic-addon1"><i class="fas fa-envelope"></i></span>
                     <input type="email" name="email" class="form-control inputField" placeholder="Email" aria-label="Username" aria-describedby="basic-addon1">
@@ -36,7 +36,7 @@
                     <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
                     <input type="password" name="password" class="form-control inputField" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
                   </div>
-                </div>
+                {% comment %} </div> {% endcomment %}
                 
                 <div class="row">
                   <button type="submit" class="btn btn-outline-dark loginButton">Login</button>

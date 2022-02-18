@@ -117,8 +117,8 @@ class TotalLeaves(models.Model):
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
-    from_date=models.DateField(null=True, default=None)    # jis din chahiye
-    to_date=models.DateField(null=True, default=None)
+    from_date=models.CharField(max_length=11, blank=False, default=None)    # jis din chahiye
+    to_date=models.CharField(max_length=11, null=True, default=None)
     reason = models.TextField()
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
@@ -332,9 +332,7 @@ class Class(models.Model):
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
-
-
+        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
 
 #Adogra professor:-> dbms coe2
 #Adogra professor-> ds coe1
