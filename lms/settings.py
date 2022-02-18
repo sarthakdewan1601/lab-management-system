@@ -196,7 +196,7 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 
 CRONJOBS = [
-    ('*/1 * * * *', 'cron.print_hello', '>> C:\Users\Atharvan Dogra\Documents\GitHub\lab-management-system\logger.log')
+    ('*/1 * * * *', 'cron.print_hello', '>> logging.log')
 ]
 
 
