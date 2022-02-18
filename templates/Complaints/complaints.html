@@ -84,7 +84,7 @@
 </style>
 {% endblock head %}
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 {% load crispy_forms_tags %}   
 <div class = "wrapper_">
     <div class = "complaint-h3">
@@ -97,7 +97,7 @@
             {% csrf_token %}
             {{form|crispy}}
         
-            <button class= "complaint-button" type="submit">Submit</button>
+            <button class= "btn btn-dark btn-sm" type="submit">Submit</button>
         </form>
     </div>
 </div>

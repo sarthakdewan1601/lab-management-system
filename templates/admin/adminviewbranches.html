@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+
+<div class="container">
+    <div class="groups-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Branch ID</th>
+                <th scope="col" >Branch name</th>
+                <th scope="col" >Edit Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for branch in branches %}
+              <tr>
+                <td>{{branch.branch_id}}</td>
+                <td>{{branch.branch_name}}</td>
+                
+                <td><a href="{%url 'main:admineditbranch' id=branch.id %}" style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>              
+                
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p>If you want to add a branch, <a href = "{% url 'main:adminaddbranch' %}">click here</a></p>
+    </div>
+{% endblock body %}

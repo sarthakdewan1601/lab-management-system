@@ -2,106 +2,30 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container mt-5">
-    <h2>Pending Leaves</h2>
+    <div class="row" >
+        <div class="card col-lg-3 col-sm-12 col-md-6">
+            <div class="card-body">
+                <h5 class="card-title">Requested Leaves</h5>
+                <a href="{% url 'main:adminRequestedLeaves' %}" class="btn btn-dark btn-sm">View requested Leaves</a>
+            </div>
+        </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">Sender</th>
-            <th scope="col">Sunstitute</th>
-            <th scope="col">From Date</th>
-            <th scope="col">To Date</th>
-            <th scope="col">Reason</th>
-            
-            <th scope="col">Status</th>
-            
-            <th scope="col">Approve/Decline</th>
-        </tr>
-        </thead>
-            <tbody>
-            {% for leave in requestedleaves %}
-                <tr>
-                    <td>{{ leave.staff.name }}</td>
-                    <td>{{ leave.substitute.name }} </td>
-                    <td>{{ leave.from_date }}</td>
-                    <td>{{ leave.to_date }}</td>
-                    <td>{{leave.reason}}</td>
-                    <td>{{ leave.status }}</td>
-                    {% if not leave.admin_approval and not leave.rejected %}
-                    <td>
-                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
-                        <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
-                    </td>
-                    {% elif leave.admin_approval %}
-                        <td>Already Approved</tr>
-                    {% elif leave.rejected %}
-                        <td>Declined</tr>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-            </tbody>
-    </table>
-    <h2>Approved Leaves</h2>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">Sender</th>
-            <th scope="col">Substitute</th>
-            <th scope="col">From Date</th>
-            <th scope="col">To Date</th>
-            <th scope="col">Reason</th>
-            
-            <th scope="col">Status</th>
-            
-            <th scope="col">Admin Approved by</th>
-        </tr>
-        </thead>
-            <tbody>
-            {% for leave in approvedleaves %}
-                <tr>
-                    <td>{{ leave.staff.name }}</td>
-                    <td>{{ leave.substitute.name }} </td>
-                    <td>{{ leave.from_date }}</td>
-                    <td>{{ leave.to_date }}</td>
-                    <td>{{leave.reason}}</td>
-                    <td>{{ leave.status }}</td>
-                    <td> {{leave.admin.name}}(admin)</td> 
-                </tr>
-            {% endfor %}
-            </tbody>
-</table>
-<h2>Rejected Leaves</h2>
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col">Sender</th>
-        <th scope="col">Substitute</th>
-        <th scope="col">Substitue Approval</th>
-        <th scope="col">Date</th>
-        <th scope="col">Reason</th>
-        <th scope="col">Status</th>
-        <th scope="col">Rejected By</th>
-    </tr>
-    </thead>
-        <tbody>
-        {% for leave in rejectedleaves %}
-            <tr>
-                <td>{{ leave.staff.name }}</td>
-                <td>{{ leave.substitute.name }} </td>
-                <td>{{ leave.substitute_approval }}  </td>
-                <td>{{ leave.date_time|date }}</td>
-                <td>{{leave.reason}}</td>
-                <td>{{ leave.status }}</td>
-                <td> {{leave.admin.name}}(admin)</td> 
-            </tr>
-        {% endfor %}
-        </tbody>
-</table>
-    
-
+        <div class="card col-lg-3 col-sm-12 col-md-6">
+            <div class="card-body">
+                <h5 class="card-title">Approved leaves</h5>
+                <a href="{% url 'main:adminApprovedLeaves' %}" class="btn btn-dark btn-sm">View Approved Leaves</a>
+            </div>
+        </div>
+        <div class="card col-lg-3 col-sm-12 col-md-6">
+            <div class="card-body">
+                <h5 class="card-title">Rejected Leaves</h5>
+                <a href="{% url 'main:adminRejectedLeaves' %}" class="btn btn-dark btn-sm">View Rejected Leaves</a>
+            </div>
+        </div>
+    </div>
   </div>
 
 

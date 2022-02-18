@@ -26,8 +26,7 @@ from .managers import CustomUserManager
 class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
-    is_email_verified = models.BooleanField(default=False)     
-    is_loggedIn = models.BooleanField(default=False)    
+    is_email_verified = models.BooleanField(default=False)        
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -325,7 +324,7 @@ class Class(models.Model):
     )
     lab=models.ForeignKey('Lab',on_delete=CASCADE)
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE)
+    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE, default=0)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)

@@ -2,13 +2,18 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 
 
 <div class="container">
-  <h1> Items Alloted to {{inventorystaff.name}}</h1>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+  {% if inventorystaff.room.room_id %}
+    <h1>Office : {{inventorystaff.room.room_id}}</h1> 
+  {% else %}  
+    <h1>Office : No office Assigned</h1> 
+  {% endif %}
+  <h2> Items Alloted to You</h2>
+
     <div class="inventory-table">
         <table class="table">
             <thead>
@@ -40,8 +45,7 @@
               {% endfor %}
             </tbody>
         </table>
-  <h1> Items Request for Return by {{inventorystaff.name}}</h1>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+  <h2> Items Request for Return</h2>
     <div class="inventory-table">
         <table class="table">
             <thead>

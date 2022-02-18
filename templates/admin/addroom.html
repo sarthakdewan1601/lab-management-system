@@ -3,14 +3,14 @@
 {%load crispy_forms_tags %} 
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 
 <div class="container">
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
-        <button type="submit" class="btn btn-success">Add room</button>
+        <button type="submit" class="btn btn-dark btn-sm">Add room</button>
       </form>
 </div>
 

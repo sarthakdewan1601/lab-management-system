@@ -18,6 +18,9 @@ input[type=number] {
 html, body{
     font-family: 'Bitter', serif;
 }
+a {
+  text-decoration: none;
+}
 :root {
     --green-main-1: #6ECBC1;
     --green-main-2: #6CCCC1;
@@ -32,6 +35,10 @@ html, body{
     --purple-main-1: #57428D;
     --purple-main-2: #5E497E;
 }
+
+/* .navlink:hover {
+  border-bottom: 5px solid red;
+} */
 
 /* -------------------------------- LOGIN --------------------------------*/
 

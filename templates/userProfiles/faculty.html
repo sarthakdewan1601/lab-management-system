@@ -2,36 +2,46 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
     <div class="row" >
             <div class="card col-lg-3 col-sm-12 col-md-6">
                 <div class="card-body">
-                    <h5 class="card-title">Assigned Courses</h5>
-                    <a href="{% url 'main:viewcourses' %}" class="btn btn-primary">View Courses</a>
+                    <h5 class="card-title">
+                        Assigned Courses
+                    </h5>
+                    <a href="{% url 'main:viewcourses' %}" class="btn btn-dark btn-sm">View Courses</a>
                 </div>
             </div>
 
             <div class="card col-lg-3 col-sm-12 col-md-6">
                 <div class="card-body">
                     <h5 class="card-title">Groups Alloted</h5>
-                    <a href="{% url 'main:viewgroups' %}" class="btn btn-primary">View Groups</a>
+                    <a href="{% url 'main:viewgroups' %}" class="btn btn-dark btn-sm">View Groups</a>
+                </div>
+            </div>
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">Groups-Courses</h5>
+                    <a href="{% url 'main:viewgroupcourses' %}" class="btn btn-primary">View Groups-Courses</a>
                 </div>
             </div>
             <div class="card col-lg-3 col-sm-12 col-md-6">
                 <div class="card-body">
                     <h5 class="card-title">Scheduled Classes</h5>
-                    <a href="{% url 'main:viewfacultyclasses' %}" class="btn btn-primary">View Classes</a>
+                    <a href="{% url 'main:viewfacultyclasses' %}" class="btn btn-dark btn-sm">View Classes</a>
                 </div>
             </div>
 
             <div class="card col-lg-3 col-sm-12 col-md-6 ">
                 <div class="card-body">
                     <h5 class="card-title">Classes Timetable</h5>
-                    <a href="{% url 'main:viewfacultytimetable' %}" class="btn btn-primary">View Timetable</a>
+                    <a href="{% url 'main:viewfacultytimetable' id=staff.id %}" class="btn btn-dark btn-sm">View Timetable</a>
                 </div>
             </div>
+
+            
 
     </div>
 </div>

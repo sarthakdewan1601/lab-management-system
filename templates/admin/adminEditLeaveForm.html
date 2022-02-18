@@ -3,7 +3,7 @@
 {%load crispy_forms_tags %} 
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
     <div class="align-center">
@@ -15,8 +15,8 @@
                 <label for="leaveCount">Leave Count</label>
                 <input type="number" id="leaveCount" name="leaveCount" value="{{leave.count}}">                
                 <br/><br/>
-                <button type="submit" class="btn btn-dark"><a>Update</a></button>
-                <button class="btn btn-dark"><a href="{% url 'main:removeLeave' pk=leave.id %}" style="color: white; text-decoration: none;">Remove</a></button>
+                <button type="submit" class="btn btn-dark btn-sm"><a>Update</a></button>
+                <button class="btn btn-dark btn-sm"><a href="{% url 'main:removeLeave' pk=leave.id %}" style="color: white; text-decoration: none;">Remove</a></button>
             </form>
         </div>
       </div>

@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <div class="wrapper_">
 <h1>{{lab.lab.name}} ({{lab.lab.room_id}})</h1>
 <div class = "lab-h1">
@@ -30,7 +30,7 @@
             <td>{{ device.device_id }}</td>
             <td>{{ device.name.category }}</td>
             <td>{{ device.description }}</td>
-            {% if staff.designation.designation ==  "Lab Attendent" %}
+            {% if staff.designation.designation ==  "Lab Attendant" %}
             <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
             {%endif%}
           </tr>

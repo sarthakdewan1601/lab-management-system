@@ -2,9 +2,9 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
-<!-- <div class="container"> -->
+<div class="container">
     <div class="labs-table">
         <table class="table">
             <thead>
@@ -35,5 +35,6 @@
             </tbody>
           </table>
         </div>
-    <!-- </div> -->
+        <a href="{% url 'main:viewallfacultyclasses' id=staff.id %}" class="btn btn-primary">View All Classes</a>
+    </div>
 {% endblock body %}

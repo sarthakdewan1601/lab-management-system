@@ -5,7 +5,7 @@
 
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
     <div class="form-control container">
@@ -55,7 +55,7 @@
 
             <div class="mb-3 row">
                 <div class="col-sm-10 col-lg-4">
-                <button type="submit" class="btn btn-dark"><a style="color: white; text-decoration: none;" href="{% url 'main:editProfile' pk=staff.id%}">Edit Profile</a></button>
+                <button type="submit" class="btn btn-dark btn-sm"><a style="color: white; text-decoration: none;" href="{% url 'main:editProfile' pk=staff.id%}">Edit Profile</a></button>
                 </div>
             </div>
 

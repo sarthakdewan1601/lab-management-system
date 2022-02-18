@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 
 
@@ -14,7 +14,7 @@
         <div class=" card card-body">
             <form method="get">
                 {{myFilter.form}}
-                <button class="btn btn-primary" type="submit">Search</button>
+                <button class="btn btn-dark btn-sm" type="submit">Search</button>
             </form>
         </div>
     </div>

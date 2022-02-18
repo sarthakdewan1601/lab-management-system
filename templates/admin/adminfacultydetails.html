@@ -4,7 +4,7 @@
 
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="labs-table">
     <table class="table">
@@ -33,6 +33,10 @@
           {% endfor %}
         </tbody>
       </table>
+      <div class="col-lg-12">
+        <button class="btn btn-dark"><a style="color: white;" href="{% url 'main:addFaculty' %}">Add Faculty</a></button>
+      </div>
+      
     </div>
 
 

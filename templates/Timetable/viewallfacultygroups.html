@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count%}
+
+
+
+<div class="container">
+    <div class="col">
+        <div class=" card card-body">
+            <form method="get">
+                {{myFilter.form}}
+                <button class="btn btn-primary" type="submit">Filter Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="courses-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Group-ID</th>
+                <th scope="col" >Group Branch</th>
+                <th scope="col" >Sem</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              {% for group in faculty_groups %}
+            <tr>
+                <td>{{group.groups.group_id}}</td>
+                <td>{{group.groups.branch}}</td>
+                <td>{{group.groups.group_year}}({{group.groups.semester_type}})</td>
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+</div>
+{% endblock body %}

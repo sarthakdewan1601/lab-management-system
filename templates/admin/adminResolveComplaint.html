@@ -3,7 +3,7 @@
 
 
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
     <div class="form-control container">
@@ -48,7 +48,7 @@
               </div>
               <div class="mb-3 row">
                   <div class="col-sm-10 col-lg-4">
-                    <button type="submit" class="btn-success">Send Request</button>
+                    <button type="btn btn-dark btn-sm" class="btn-success">Send Request</button>
                  </div>
               </div>
 

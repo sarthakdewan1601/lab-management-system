@@ -3,7 +3,7 @@
 
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <style>
     h1{
         text-align: center;
@@ -30,11 +30,17 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ lab.lab.room_id }}</h5>
                     <p class="card-text">floor - {{lab.lab.floor}}</p>
-                    <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-primary">View Lab</a>
+                    <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-dark btn-sm">View Lab</a>
                 </div>
             </div>
             </div>
         {% endfor %}
+    </div>
+    <div class="card col-lg-3 col-sm-12 col-md-6">
+        <div class="card-body">
+            <h5 class="card-title">Faculty</h5>
+            <a href="{% url 'main:adminfacultydetails' %}" class="btn btn-primary">View Faculty Details</a>
+        </div>
     </div>
 </div>
 

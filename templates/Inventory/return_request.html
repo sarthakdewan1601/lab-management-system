@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container">
 <div class="form-control container">
@@ -31,7 +31,7 @@
                 </tbody>
              </table>      
             </div>
-        <button class="submitButton" type="submit">Submit</button>
+        <button class="btn btn-dark btn-sm" type="submit">Submit</button>
     </form>
 </div>
 
