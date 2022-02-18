@@ -3,11 +3,12 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Leave Status</h2>
+<div class="container">
 
-<div class="container mt-5">
-
-    <div class="card p-5 card-body bg-dark text-info">
-        <h3 class="card-title">Leave Status</h3>
+    <div class="card p-5 card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
         <p>Sender: {{leaveRequest.staff.name}}</p>
         <p>Substitute: {{leaveRequest.substitute.name}}</p>
         <p>Date: {{leaveRequest.from_date}}</p>
@@ -19,9 +20,9 @@
         {% else %}
             <p>Leave request rejected </p>
         {% endif %}
-    </div>
+    </div></div>
 
 </div>
-
+</section>
 
 {% endblock body %}

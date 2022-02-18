@@ -5,12 +5,14 @@
 {% include 'navbar.html' with staff=staff %}
 
 
-
+<section class="sectionLogin">
+  <br>
 <div class="container">
-  <h1> Items Alloted to {{inventorystaff.name}}</h1>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+  <h1 style = "text-align: center;"> Items Alloted to {{inventorystaff.name}}</h1>
+  <br>
+  <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
     <div class="inventory-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Item Id</th>
@@ -23,14 +25,14 @@
             <tbody>
               {% for device in devices %}
               {% if device.is_requested_for_return %}
-              <tr style="color: red;">
+              <tr style="color: red;" class="table-success">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
                 <td>{{device.date_added}}</td>                     
               </tr>
               {% else %}
-              <tr style="color: green;">
+              <tr style="color: green;" class="table-success">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
@@ -40,10 +42,11 @@
               {% endfor %}
             </tbody>
         </table>
-  <h1> Items Request for Return by {{inventorystaff.name}}</h1>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> 
+  <h1 style = "text-align: center;"> Items Request for Return by {{inventorystaff.name}}</h1>
+  <br>
+  <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
     <div class="inventory-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Item Id</th>
@@ -69,7 +72,9 @@
               {% endfor %}
             </tbody>
           </table>
-          <p>If you want to Allot Items <a href = "{%url 'main:allotdevices' id=inventorystaff.id%}">click here</a></p>
+          <p style = "text-align: center;">If you want to Allot Items <a href = "{%url 'main:allotdevices' id=inventorystaff.id%}">click here</a></p>
         </div>
     </div>
+    </div>
+    </section>
 {% endblock body %}

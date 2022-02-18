@@ -3,10 +3,12 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-
-<div class="container">
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Group-Courses</h2>
+<div class="container" style = "margin-top: 30px;">
     <div class="courses-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;margin-bottom:50px">
             <thead>
               <tr>
                 <th scope="col" >Course-id</th>
@@ -18,7 +20,7 @@
     
             <tbody>
               {% for gc in groupcourses %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{gc.course.course.course_id}}</td>
                 <td>{{gc.course.course.course_name}}</td>
                 <td>{{gc.group.groups.group_id}}</td>
@@ -28,6 +30,6 @@
             </tbody>
           </table>
         </div>
-        <a href="{% url 'main:viewallfacultygroupcourses' id=staff.id %}" class="btn btn-primary">View All Groups-Courses</a>
+        <a href="{% url 'main:viewallfacultygroupcourses' id=staff.id %}" class="btn btn-dark btn-sm">View All Groups-Courses</a>
     </div>
 {% endblock body %}

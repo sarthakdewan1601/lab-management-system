@@ -3,18 +3,22 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-<div class="container">
-    <div class="text-primary">
-        <h1> Notifications </h1>
-    </div>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Notifications</h2>
+<div class="container" style = "text-align: center;background-color: rgba(245, 245, 245, 0.4);">
     <br>
     {% for notification in notifications %}
 
         {% if notification.isActive %}
-            <a href="{% url 'main:handleNotification' pk=notification.id %}">
-                {{ notification.message }}
+        
+        <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
+        <a href="{% url 'main:handleNotification' pk=notification.id %}" style = "text-decoration: none;
+            color:black;text-align: center;">  
+            {{ notification.message }}
             </a>
-            <br/>
+        
+            <br><br>
         {% endif %}
     {% endfor %}
 </div>

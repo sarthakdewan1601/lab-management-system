@@ -14,20 +14,15 @@
         text-align: center;
     }
 </style>
-
-<div class="wrapper_">
-
-    
-    <div>
-        <h1>
-            Labs Asigned 
-        </h1>
-    </div>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Lab Assigned</h2><br>
+<div class="container">
     <div class="row">
         {% for lab in userLabs %}
             <div class="col-sm-6">
-            <div class="card">
-                <div class="card-body">
+            <div class="card"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card-body" >
                     <h5 class="card-title">{{ lab.lab.room_id }}</h5>
                     <p class="card-text">floor - {{lab.lab.floor}}</p>
                     <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-dark btn-sm">View Lab</a>

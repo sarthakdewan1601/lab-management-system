@@ -3,10 +3,11 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Pending Leaves</h2>
 <div class="container mt-5">
-    <h2>Pending Leaves</h2>
-<table class="table">
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Sender</th>
@@ -14,13 +15,13 @@
         <th scope="col">From Date</th>
         <th scope="col">To Date</th>
         <th scope="col">Status</th>
-        <th scope="col">view</th>
+        <th scope="col">View</th>
       </tr>
     </thead>
         <tbody>
         {% for pendingRequest in pendingRequests %}
         {% if not pendingRequest.admin_approval %}
-            <tr>
+            <tr class="table-success" style = "text-align: center;">
                 <td>{{ pendingRequest.staff.name }} (you)</td>
                 <td>{{ pendingRequest.substitute.name }}</td>
                 <td>{{ pendingRequest.date_from }}</td>
@@ -33,6 +34,7 @@
         </tbody>
   </table>
   </div>
+  </section>
 
 
 {% endblock body %}

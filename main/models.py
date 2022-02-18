@@ -332,7 +332,7 @@ class Class(models.Model):
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return self.lab.room.room_id + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
+        return self.lab.lab.room_id + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
 
 
 

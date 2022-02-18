@@ -22,9 +22,11 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Leave Request</h2>
 <div class="container">
-    <div class="form-control container">
+    <div class="form-control container" style = "color: black;text-decoration: none;background-color: rgba(245, 245, 245, 0.4);margin-top: 40px;padding:20px">
         <form method="POST">
             {% csrf_token %}
             <div class="mb-3 row">
@@ -84,7 +86,6 @@
                     <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>            
                 </div>
               </div>
-
               <div class="mb-3 row">
                   <div class="col-sm-10 col-lg-4">
                     <button type="submit" class="btn btn-dark btn-sm">Send Request</button>

@@ -3,10 +3,14 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Add Group Course</h2>
 <form method="post" id="groupcourseform" data-courses-url="{% url 'main:ajax_load_courses' %}" data-groups-url="{% url 'main:ajax_load_groups' %}">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit">
+    <br>
+    <button class= "btn btn-dark btn-sm" type="submit">Submit</button>
 </form>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

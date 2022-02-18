@@ -3,18 +3,20 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">All Group-Courses</h2>
 <div class="container">
         <div class="col">
-            <div class=" card card-body">
+            <div class=" card card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                 <form method="get">
                     {{myFilter.form}}
-                    <button class="btn btn-primary" type="submit">Filter Search</button>
+                    <button class="btn btn-dark btn-sm" type="submit">Filter Search</button>
                 </form>
             </div>
         </div>
     <div class="courses-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Course-id</th>
@@ -26,7 +28,7 @@
     
             <tbody>
               {% for gc in faculty_groupcourses %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{gc.course.course.course_id}}</td>
                 <td>{{gc.course.course.course_name}}</td>
                 <td>{{gc.group.groups.group_id}}</td>

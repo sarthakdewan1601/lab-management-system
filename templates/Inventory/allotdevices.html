@@ -3,13 +3,17 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-<h1>Staff Name: {{inventorystaff.name}}</h1>
-<h2>Staff Office : {{inventorystaff.room.room_id}}</h2>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Allot Devices</h2>
+<h1 style = "text-align: center;">Staff Name: {{inventorystaff.name}}</h1>
+<h2 style = "text-align: center;">Staff Office : {{inventorystaff.room.room_id}}</h2>
 <form method="post" id="devicesform" data-devices-url="{%url 'main:ajax_load_devices' id=inventorystaff.room.id%}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
 </form>
+</section>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
     $("#id_name").change(function () {

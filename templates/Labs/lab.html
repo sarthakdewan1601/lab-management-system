@@ -3,14 +3,16 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-<div class="wrapper_">
-<h1>{{lab.lab.name}} ({{lab.lab.room_id}})</h1>
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">{{lab.lab.name}} ({{lab.lab.room_id}})</h2>
+<div class="container">
 <div class = "lab-h1">
-    <h1>Devices</h1>
+    <h3 style = "text-align: center;">Devices</h3>
 </div>
 <div class = "lab-computers">
     
-    <table class="table">
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
@@ -25,7 +27,7 @@
         
         <tbody>
         {% for device in devices %}
-          <tr>
+          <tr class="table-success" style = "text-align: center;">
             <td scope="row">{{forloop.counter}}</td>
             <td>{{ device.device_id }}</td>
             <td>{{ device.name.category }}</td>
@@ -37,11 +39,11 @@
         {% endfor %}
         </tbody>
     </table>
-</div>
-<h5 class = "viewtimetable"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
+</div><br><br><hr>
+<h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
 {% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst"%}
-<h5 class = "viewtimetable"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>
+<h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>
 {%endif%}
-<h5 class = "lab-add-h5"> If you want to add Devices <a href="{% url 'main:add_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
-</div>
+<h5 class = "lab-add-h5" style = "text-align: center;"> If you want to add Devices <a href="{% url 'main:add_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
+</div></section>
 {% endblock body %}

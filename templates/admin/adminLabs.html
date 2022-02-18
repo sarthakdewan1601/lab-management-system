@@ -4,10 +4,12 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff%}
 
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Labs</h2>
 <div class="container">
 <div class="labs-table">
-    <table class="table">
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
           <tr>
             <th scope="col" >Lab</th>
@@ -19,11 +21,11 @@
 
         <tbody>
           {% for lab in labs %}
-          <tr>
+          <tr class="table-success">
             <td>{{lab.lab.room_id}}</td>
             <td>{{lab.lab.name}}</td>
             <td>{{lab.staff.name}}</td>
-            <td style="text-align: center;"><a  href="{% url 'main:lab' pk=lab.id%}"style="color: rgb(48, 1, 1); text-decoration: underline;">View Lab</a></td>
+            <td style="text-align: center;"><a  href="{% url 'main:lab' pk=lab.id%}"style="color: black; text-decoration: none;">View Lab</a></td>
             
           </tr>
           {% endfor %}
@@ -31,11 +33,11 @@
       </table>
 
     <div class="new-user-form">
-        <h6>If you want to add a Lab,<a href="{% url 'main:adminaddlab' %}">click here</a></h6>
+        <h6 style = "text-align: center;">If you want to add a Lab,<a href="{% url 'main:adminaddlab' %}">click here</a></h6>
     </div>
     </div>
 </div>
-
+</section>
 
 
 {% endblock body %}

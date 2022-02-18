@@ -4,8 +4,10 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
 
-
-<table class="table">
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Dashboard</h2>
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Lab</th>
@@ -17,7 +19,7 @@
         <tbody>
         {% for complaint in complaints %}
             {% if complaint.isActive %}
-        <tr>
+        <tr  class="table-success" style = "text-align: center;">
             <td>{{ complaint }}</td>
             <td>{{ complaint.computer }}</td>
             <td>{{ complaint.computer.lab_id }}</td>
@@ -27,7 +29,7 @@
         {% endfor %}
         </tbody>
   </table>
-
+</section>
 
 
 {% endblock body %}

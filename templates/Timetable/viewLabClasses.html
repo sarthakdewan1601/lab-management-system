@@ -3,10 +3,12 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">View Lab Classes</h2>
 <div class="container">
     <div class="labs-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Lab</th>
@@ -25,7 +27,7 @@
     
             <tbody>
               {% for class in classes %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{class.lab.lab}}</td>
                 <td>{{class.faculty.name}}</td>
                 <td>{{class.faculty_group_course.course.course.course_name}}</td>
@@ -43,4 +45,5 @@
         </div>
     </div>
     <p>If you want to add classes,<a href="{% url 'main:add_classes' id=labid %}">click here</a></p>
+  </section>
 {% endblock body %}

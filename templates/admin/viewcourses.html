@@ -5,34 +5,35 @@
 {% include 'navbar.html' with staff=staff %}
 
 
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Courses</h2>
 <div class="container">
-  <div class="add-room">
-    <p>If you want to add a Course,<a href="{%url 'main:adminaddcourse'%}" style="color: black; text-decoration: underline;">click here</a></p>
-  </div>
+  
     <div class="col">
-        <div class=" card card-body">
+        <div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
             <form method="get">
                 {{myFilter.form}}
                 <button class="btn btn-dark btn-sm" type="submit">Search</button>
             </form>
         </div>
     </div>
+    <br>
     <div class="courses-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Course-ID</th>
                 <th scope="col" >Course Name</th>
                 <th scope="col" >Course Credit</th>
                 <th scope="col" >Sem</th>
-                <th scope="col" >edit</th>
+                <th scope="col" >Edit</th>
               </tr>
             </thead>
     
             <tbody>
               {% for course in courses %}
-              <tr>
+              <tr class="table-success">
                 <td>{{course.course_id}}</td>
                 <td>{{course.course_name}}</td>
                 <td>{{course.course_credit}}</td>
@@ -45,5 +46,9 @@
             </tbody>
           </table>
         </div>
+        <div class="add-room" style = "text-align: center;">
+          <p>If you want to add a Course,<a href="{%url 'main:adminaddcourse'%}" style="color: black; text-decoration: underline;">click here</a></p>
+        </div>
 </div>
+</section>
 {% endblock body %}

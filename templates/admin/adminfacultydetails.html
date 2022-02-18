@@ -3,13 +3,15 @@
 {% load static %}
 
 {% block body %}
-
 {% include 'navbar.html' with staff=staff %}
-
-<div class="labs-table">
-    <table class="table">
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Faculty Details</h2>
+<div class="container">
+  <br>
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
-          <tr>
+          <tr style = "text-align: center;">
             <th scope="col" >Faculty</th>
             <th scope="col" >Groups</th>
             <th scope="col" >Courses</th>
@@ -21,20 +23,20 @@
 
         <tbody>
           {% for x in faculty %}
-          <tr>
-            <td>{{x.name}}</td>
+          <tr class="table-success" style = "text-align: center;">
+            <td class="table-success">{{x.name}}</td>
             <!-- % url 'main:add_classes' id=labid % -->
-            <td><a href = "{% url 'main:adminviewgroups' id=x.id %}" style = "color : black"> View Groups </a></td>
-            <td><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black"> View Courses </a></td>
-            <td><a href = "{% url 'main:adminviewgroupcourses' id=x.id %}" style = "color : black"> View Group-Course </a></td>
-            <td><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black"> View Classes </a></td>
-            <td><a href = "{% url 'main:viewfacultytimetable' id=x.id %}" style = "color : black"> View Time Table </a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroups' id=x.id %}" style = "color : black;text-decoration: none;"> View Groups </a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black;text-decoration: none;"> View Courses </a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroupcourses' id=x.id %}" style = "color : black;text-decoration: none;">View</a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black;text-decoration: none;">View</a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:viewfacultytimetable' id=x.id %}" style = "color : black;text-decoration: none;text-align: center;"><i class="fa-regular fa-calendar"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
+  </section>
 
 
 {% endblock body %}

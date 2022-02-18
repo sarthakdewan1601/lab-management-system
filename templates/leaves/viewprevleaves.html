@@ -4,12 +4,14 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
-
-<div class='Wrapper'>
-    <div class="all-leaves-container">
-        <h1 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h1>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">View Previous Leaves</h2>
+<div class='container'>
+    <div class="all-leaves-container" style = "text-align: center;">
+        <h3 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h3>
         <div class = "tables-leaves card">
-            <table>
+            <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
                 <thead class="thead-dark">
                     <th>Sender</th>
                     <th>Substitute</th>
@@ -20,7 +22,7 @@
                     <th>Status</th>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr class="table-success" style = "text-align: center;">
                     {% for leave in all_leaves %}
                         <td>{{leave.staff.name}}</td>
                         <td>{{leave.substitute.name}}</td>
@@ -38,7 +40,7 @@
 
     </div>
 
-</div>
+</div></section>
 
 
 {% endblock body %}

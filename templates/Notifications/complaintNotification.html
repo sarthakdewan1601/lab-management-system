@@ -1,44 +1,47 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% extends 'base.html' %} {% load static %} {% block body %} {% include
+'navbar.html' with staff=staff %}
 
 <div class="container mt-5">
   <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Lab ID</th>
-          <th scope="col">Lab Name</th>
-          <th scope="col">Device Number</th>
-          <th scope="col">Complaint</th>
-          <th scope="col" style="text-align: center;">Resolve Complaint</th>
-          <th scope="col" style="text-align: center;">Complaint Status</th>
-        </tr>
-      </thead>
-          <tbody>
-  
-          <tr>
-              <td>{{ complaint.device.room.room_id }}</td>
-              <td>{{ complaint.device.room.name }}</td>
-              <td>{{ complaint.device.device_id }} </td>
-              <td>{{ complaint.complaint }}</td>
-              <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
-              {% if complaint.isActive %}
-                <td>Active</td>
-                {% else %}
-                <td>Resolved</td>
-              {% endif %}
-              
-              {% comment %}
-                  <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td> 
-              {% endcomment %}
-          </tr>
-
-          </tbody>
-    </table>
-    </div>
-  
-
+    <thead>
+      <tr>
+        <th scope="col">Lab ID</th>
+        <th scope="col">Lab Name</th>
+        <th scope="col">Device Number</th>
+        <th scope="col">Complaint</th>
+        <th scope="col" style="text-align: center">Resolve Complaint</th>
+        <th scope="col" style="text-align: center">Complaint Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ complaint.device.room.room_id }}</td>
+        <td>{{ complaint.device.room.name }}</td>
+        <td>{{ complaint.device.device_id }}</td>
+        <td>{{ complaint.complaint }}</td>
+        <td>
+          <a
+            href="{% url 'main:resolveConflict' pk=complaint.id %}"
+            style="color: rgb(48, 1, 1); text-decoration: underline"
+            >Resolve</a
+          >
+        </td>
+        {% if complaint.isActive %}
+        <td>Active</td>
+        {% else %}
+        <td>Resolved</td>
+        {% endif %} {% comment %}
+        <td style="text-align: center">
+          <a
+            href="{% url 'main:resolveConflict' pk=complaint.id %}"
+            style="color: rgb(48, 1, 1); text-decoration: underline"
+            >Resolve</a
+          >
+        </td>
+        {% endcomment %}
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 {% endblock body %}

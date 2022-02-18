@@ -6,9 +6,11 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff %}
-
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Profile</h2>
 <div class="container">
-    <div class="form-control container">
+    <div class="form-control container" style = "background-color: rgba(245, 245, 245, 0.2);margin:auto;">
         <form method="POST">
             {% csrf_token %}
             
@@ -62,6 +64,6 @@
         </form>
     </div>
 
-</div>
+</div></section>
 
 {% endblock body %}

@@ -5,14 +5,18 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff %}
 
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Add Group</h2>
 <div class="container">
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
+        <br>
         <button type="submit" class="btn btn-dark btn-sm">Add Group</button>
       </form>
 </div>
+</section>
 
 
 

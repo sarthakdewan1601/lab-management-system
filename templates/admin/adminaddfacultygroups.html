@@ -93,16 +93,21 @@
 
 {% include 'navbar.html' with staff=staff %}
 {% load crispy_forms_tags %} 
-<div class = "wrapper_">
-    <h3 class = "heading-3"> Faculty: {{ faculty.name }}</h3>
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Add Group</h2>
+<div class = "container">
+    <!-- <h5 style= "text-align: center;"> Faculty: {{ faculty.name }}</h5> -->
     <div class = "form-add-computer">
         <form method="POST">
             {% csrf_token %}
             {{form|crispy}}
+            <br>
         <button class= "btn btn-dark btn-sm" type="submit">Submit</button>
         </form>
     </div>
 </div>
+</section>
 
 
 {% endblock %}
