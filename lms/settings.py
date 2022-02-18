@@ -36,7 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'django_crontab',
+    'django_crontab',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -195,9 +195,9 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 # }
 
 
-# CRONJOBS = [
-#     ('*/5 * * * *', 'cron.print_hello', '>> C:\Users\Atharvan Dogra\Documents\GitHub\lab-management-system\logger.log')
-# ]
+CRONJOBS = [
+    ('*/1 * * * *', 'cron.print_hello', '>> C:\Users\Atharvan Dogra\Documents\GitHub\lab-management-system\logger.log')
+]
 
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
