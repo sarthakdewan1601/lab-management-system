@@ -26,7 +26,7 @@ from .managers import CustomUserManager
 class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
-    is_email_verified = models.BooleanField(default=False)        
+    is_email_verified = models.BooleanField(default=False)   
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -185,7 +185,7 @@ class Devices(models.Model):
     description = models.TextField(max_length=1024)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
-
+    # is_working=models.BooleanField(default=True)
     def __str__(self):
         return self.device_id +" - "+str(self.room)
 
@@ -324,7 +324,7 @@ class Class(models.Model):
     )
     lab=models.ForeignKey('Lab',on_delete=CASCADE)
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE, default=0)
+    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE,default=0)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)

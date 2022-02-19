@@ -2,11 +2,15 @@
 {% load static %}
 {% block body %}
 
+
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Faculty Classes</h2><br><br>
 
 <div class="container">
     <div class="labs-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Faculty</th>
@@ -21,7 +25,7 @@
     
             <tbody>
               {% for class in classes %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{class.faculty.name}}</td>
                 <td>{{class.lab.lab}}</td>
                 <td>{{class.faculty_group_course.course.course.course_id}}</td>
@@ -35,6 +39,7 @@
             </tbody>
           </table>
         </div>
-        <a href="{% url 'main:viewallfacultyclasses' id=staff.id %}" class="btn btn-primary">View All Classes</a>
+        <a href="{% url 'main:viewallfacultyclasses' id=staff.id %}" class="btn btn-dark btn-sm">View All Classes</a>
     </div>
+    </section>
 {% endblock body %}

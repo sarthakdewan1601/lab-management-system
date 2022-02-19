@@ -3,10 +3,14 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Faculty Group Courses</h2>
+
 
 <div class="container">
     <div class="courses-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Faculty</th>
@@ -20,7 +24,7 @@
     
             <tbody>
               {% for gc in groupcourses %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{gc.faculty.name}}</td>
                 <td>{{gc.course.course.course_id}}</td>
                 <td>{{gc.course.course.course_name}}</td>
@@ -35,4 +39,5 @@
         </div>
         <p>If you want to add a group-course <a href = "{% url 'main:adminaddgroupcourse' id=faculty.id %}">click here</a></p>
     </div>
+    </section>
 {% endblock body %}
