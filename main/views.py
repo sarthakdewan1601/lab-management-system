@@ -1085,7 +1085,16 @@ def add_devices(request, pk):
 			device.save()
 			return redirect('main:lab',pk=lab.id)
 		else:
-			return HttpResponse(200)
+			messages.error(request, "This Device Already exists")
+			form = NewComputerForm()
+
+			context = {
+				'staff': staff,
+				'form': form,
+				'labid':lab,
+				'notification_count':notification_count,
+			}
+			return render(request, 'Labs/add_computer.html', context)
 	else:
 		form = NewComputerForm()
 		context={
@@ -1167,7 +1176,6 @@ def adminStaff(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		# faculty_designation = Category.objects.get(category="Lab Staff")
 		staffs = Staff.objects.all().order_by('-designation')
 		
 		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff,'notification_count':notification_count,})
