@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+
+<div class="container mt-5">
+
+<h1> Device id : {{device.device_id}}</h1>
+<h1>Device Category :{{device.name}}</h1>
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Complaint Sender</th>
+        <th scope="col">Complaint Created At</th>
+        <th scope="col">Complaint Reason</th>
+        <th scope="col">Complaint Active Status</th>
+      </tr>
+    </thead>
+        <tbody>
+
+        {% for active_complaint in active_complaints %}
+        <tr>
+            <td>{{ active_complaint.created_by }}</td>
+            <td>{{ active_complaint.created_at }}</td>
+            <td>{{ active_complaint.complaint }} </td>
+            <td>{{ active_complaint.isActive }}</td>
+                </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+  <br>
+  <h1> Resolved Complaints </h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Complaint Sender</th>
+        <th scope="col">Complaint Created At</th>
+        <th scope="col">Complaint Reason</th>
+        <th scope="col">Work Done</th>
+        <th scope="col">Complaint Active Status</th>
+      </tr>
+    </thead>
+        <tbody>
+
+        {% for complaint in resolved_complaints %}
+        <tr>
+            <td>{{ complaint.created_by }}</td>
+            <td>{{ complaint.created_at }}</td>
+            <td>{{ complaint.complaint }} </td>
+            <td>{{ complaint.work_done }} </td>
+            <td>{{ complaint.isActive }}</td>
+                </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+
+  </div>
+
+
+{% endblock body %}
