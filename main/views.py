@@ -44,6 +44,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
 from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
+from django.utils.dateparse import parse_date
 
 
 UserModel = get_user_model()
@@ -549,6 +550,7 @@ def requestleave(request):
 		substituteName = Staff.objects.get(id=substitute)
 		multipleLeaves = None
 
+		# print('MultipleLeaves --->>', form['multipleLeaveCheckbox'])
 		# checking if multiple check is true or not
 		try:
 			multipleLeaves = form['multipleLeaveCheckbox']
@@ -557,12 +559,25 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
+
+			# print("debug toData -->>",toDate)		#debug
+
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
+
+			# print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
+
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
+			
+			# print('DEBUG leave availability-->>', leaveAvailability)	#debug
+			print('DEBUG toDate type-->>', type(toDate), toDate)	#debug
+
 			print(leaveAvailability,leaveAvailabilityCount, leaveAvailabilityMessage)
 			if leaveAvailability:
-					
+
+				# print("DEBUG toDate -->>",parse_date(toDate), type(parse_date(toDate)))	#debug
+
 				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName)
+				print("userstatus -->>", UserLeaveStatus.objects.get(reason=reason).to_date)	#debug
 				userstatus.save()
 				##notification
 				customMessage1 = staff.name + " requested for leave"
@@ -593,7 +608,7 @@ def requestleave(request):
 		else:
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, 1)
 			if leaveAvailability:
-				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate, reason=reason,substitute=substituteName)
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName)
 				userstatus.save()
 				##notification
 
@@ -763,7 +778,7 @@ def approveRequest(request, pk):
 		notification, was_created = Notification.objects.get_or_create(
 			sender=sender,
 			reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
-			message="your " + str(leave.leave_type.LeaveName) + " leave application was approved by admin",
+			message="Your " + str(leave.leave_type.LeaveName) + " leave application was approved by admin",
 			notification_type="LEAVE_ACCEPTED",
 			taskId=str(leave.id)
 		)
@@ -953,7 +968,9 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 	if notification.isActive==False:
 		return redirect('main:notification')
 
-	notification.isActive=False
+	# notification.isActive=False
+	notification.checked = True
+	
 	notification.save()
 	taskId = notification.taskId
 	
@@ -1080,8 +1097,20 @@ def resolveConflict(request, pk):
 		complaint.who_resolved=resolver
 		complaint.save()
 		notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
-		notification.isActive = False
+		# notification.isActive = False
+		notification.expired=True
+
+		notification_resolve, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever=complaint.created_by.id+" " + complaint.created_by.name, 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+complaint.id +", has been resolved",
+				notification_type = 'TECH_RESOLVE',
+				taskId=complaint.id
+			)			
+
 		notification.save()
+		notification_resolve.save()
+
 		if request.user.is_staff:
 			return redirect("main:adminComplaints")
 

@@ -1,3 +1,4 @@
+
 from random import choice
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -116,8 +117,8 @@ class TotalLeaves(models.Model):
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
-    from_date=models.DateField(null=True, default=None)    # jis din chahiye
-    to_date=models.DateField(null=True, default=None)
+    from_date=models.CharField(max_length=11, blank=False, default=None)    # jis din chahiye
+    to_date=models.CharField(max_length=11, null=True, default=None)
     reason = models.TextField()
     substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
@@ -221,6 +222,7 @@ NOTIFICATION_FIELDS = [
     ('LEAVE_ACCEPTED', 'Leave Accepted'),
     ('LEAVE_REJECTED', 'Leave Rejected'),
     ('INVENTORY','Inventory'),  
+    ('TECH_RESOLVE', 'Technician Resolved'),
 ] 
 
 class Notification(models.Model):
@@ -231,6 +233,9 @@ class Notification(models.Model):
     message = models.TextField()
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_FIELDS, default='LEAVE')
     taskId = models.CharField(max_length=100, blank=True, null=True, default=None)
+
+    checked = models.BooleanField(default=False)
+    expired = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return str(self.time.date()) + " " +  self.notification_type + " from "  + self.sender.name + " to " + self.reciever
@@ -331,9 +336,7 @@ class Class(models.Model):
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return self.lab.lab + ' ' + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
-
-
+        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
 
 #Adogra professor:-> dbms coe2
 #Adogra professor-> ds coe1

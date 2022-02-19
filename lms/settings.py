@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import logging 
 
 from pathlib import Path
 import os
@@ -35,6 +36,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_crontab',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -169,12 +172,37 @@ MESSAGE_TAGS = {
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
+#######################################################################################################################################
+# APP_LOG_FILENAME = os.path.join(BASE_DIR, 'ḷog/app.log')
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'INFO',
+#             'class': 'logging.FileHandler',
+#             'filename': APP_LOG_FILENAME,
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG ',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+
+CRONJOBS = [
+    ('59 23 * * *', 'main.cron.delete_leave_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.delete_timetable_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.delete_inventory_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.elete_techResolve_notification', '>> /home/atharvan/lab-management-system-1/logging.log')
+]
+
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_SECURITY_PASSIVE_URL_NAMES = ['ignore']
-# DEBUG = True
-# TEMPLATE_DEBUG = DEBUG
-
-# SESSION_SECURITY_EXPIRE_AFTER=10
-# SESSION_SECURITY_WARN_AFTER=5
-# SESSION_EXPIRE_AT_BROWSER_CLOSE=True
+# SESSION_COOKIE_AGE = 5 * 60 #
+#######################################################################################################################################
