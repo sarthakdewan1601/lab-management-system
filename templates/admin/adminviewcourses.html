@@ -3,10 +3,14 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Courses</h2>
+
 
 <div class="container">
     <div class="courses-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Faculty</th>
@@ -20,7 +24,7 @@
     
             <tbody>
               {% for course in courses %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{course.faculty.name}}</td>
                 <td>{{course.course.course_id}}</td>
                 <td>{{course.course.course_name}}</td>
@@ -35,4 +39,5 @@
         <p>If you want to add a course <a href = "{% url 'main:adminaddcourses' id=faculty.id %}">click here</a></p>
         <a href="{% url 'main:viewallfacultycourses' id=faculty.id %}" class="btn btn-primary">View All Courses</a>
     </div>
+  </section>
 {% endblock body %}

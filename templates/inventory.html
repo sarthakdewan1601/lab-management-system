@@ -4,6 +4,10 @@
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Inventory</h2>
+<br>
 
 {% if staff.room.room_id %}
   <h1>Office : {{staff.room.room_id}}</h1> 
@@ -12,8 +16,7 @@
 <div class="container">
 
     <div class="inventory-table">
-      <h2>Items Alloted:-> </h2>
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Item Id</th>
@@ -28,7 +31,7 @@
             <tbody>
               {% for device in inventory %}
               {% if device.is_requested_for_return %}
-              <tr style="color: red;">
+              <tr class="table-success" style = "text-align: center;color: red;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
@@ -37,7 +40,7 @@
                 <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
               </tr>
               {% else %}
-              <tr style="color: green;">
+              <tr class="table-success" style = "text-align: center;color: green;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
@@ -49,7 +52,7 @@
               {% endfor %}
             </tbody>
           </table>
-          <p>If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
+          <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
         </div>
     </div> 
     {% else %}  

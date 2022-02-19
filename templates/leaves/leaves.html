@@ -4,26 +4,36 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+<div class = "container">
 
 <div class = "wrapper">
     <div class = "leaves container">
-        <h1>Leaves Status</h1>
+        <h1 style = "text-align: center;">Leaves Status</h1>
 
-        <div class="card w-50 flex">
-            <div  class="nav-link nav_text">
-                <a href="{% url 'main:approveLeaves' %}">Leave Approval</a>
+        <div class="card w-70 flex" style = "color: black;text-decoration: none;background-color: rgba(245, 245, 245, 0.4);margin-bottom: 40px;padding:20px">
+            <div  class="nav-link nav_text" style = "text-decoration: none;">
+                <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
+                <a href="{% url 'main:approveLeaves' %}" style = "text-align:center;color: black;text-decoration: none;">     Leave Approval</a>
             </div>
             <div  class="nav-link nav_text">
-                <a href="{% url 'main:checkLeaveStatus' %}">Pending Leaves</a>
+                <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
+                <a href="{% url 'main:checkLeaveStatus' %}" style = "color: black;text-decoration: none;">     Pending Leaves</a>
             </div>
+
             <div  class="nav-link nav_text">
-                <a href="{% url 'main:viewprevleaves' %}">View Previous Leaves taken</a>
+                <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
+                <a href="{% url 'main:viewprevleaves' %}" style = "color: black;text-decoration: none;">     View Previous Leaves taken</a>
             </div>
         </div>
 
-        <div class = "tables-leaves card">
-            <table>
-                <h5>Leaves for: {{year}}</h5>
+        <div class = "tables-leaves card" style = "color: black;text-decoration: none;background-color: rgba(245, 245, 245, 0.4);margin-bottom: 40px;padding:20px">
+            <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+                <h5 style = "text-align: center;"><b>
+                    Leaves for : {{year}}
+                </b>
+                </h5>
                 <thead class="thead-dark">
                     <th>Leaves Name</th>
                     <th>Total Leaves Alloted</th>
@@ -31,7 +41,7 @@
                 </thead>
                 <tbody>
                     {% for leave in userLeavesTaken %}
-                    <tr>
+                    <tr class="table-success" style = "text-align: center;">
                         <td>{{leave.leave_taken.LeaveName}}</td>
                         <td> {{leave.leave_taken.count}}</td>
                         <td> {{leave.count}}</td>
@@ -45,5 +55,5 @@
         </div>
     </div>
 </div>
-
+</section>
 {% endblock body %}

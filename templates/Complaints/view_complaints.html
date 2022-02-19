@@ -3,12 +3,16 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h1 style = "text-align: center;">Complaints</h1><br>
+<div class="container">
 
-<div class="container mt-5">
 
-<h1> Active Complaints </h1>
+<h2 style = "text-align: center;"> Active Complaints </h2>
+<br>
 
-<table class="table">
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Room ID</th>
@@ -24,7 +28,7 @@
         <tbody>
 
         {% for active_complaint in active_complaints %}
-        <tr>
+        <tr class="table-success" style = "text-align: center;">
             <td>{{ active_complaint.device.room.room_id }}</td>
             <td>{{ active_complaint.device.room.name }}</td>
             <td>{{ active_complaint.device.device_id }} </td>
@@ -46,10 +50,10 @@
         {% endfor %}
         </tbody>
   </table>
-  <br>
-  <h1> Resolved Complaints </h1>
+  <br><hr>
+  <h2 style = "text-align: center;"> Resolved Complaints </h2>
 
-  <table class="table">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Room ID</th>
@@ -66,7 +70,7 @@
         <tbody>
 
         {% for resolved_complaint in resolved_complaints %}
-        <tr>
+        <tr class="table-success" style = "text-align: center;">
             <td>{{ resolved_complaint.device.room.room_id }}</td>
             <td>{{ resolved_complaint.device.room.name }}</td>
             <td>{{ resolved_complaint.device.device_id }} </td>
@@ -75,8 +79,8 @@
         </tr>
         {% endfor %}
         </tbody>
-  </table>
-
+  </table><br>
+<hr>
   </div>
 
 

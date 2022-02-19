@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 {% load static %}
 
 {% block body %}
@@ -34,11 +34,5 @@
                   <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td> 
               {% endcomment %}
           </tr>
-
-          </tbody>
-    </table>
-    </div>
-  
-
 
 {% endblock body %}

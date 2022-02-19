@@ -3,30 +3,34 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Leave Approval</h2>
 <div class="container mt-5">
     <div class="row" >
-        <div class="card col-lg-3 col-sm-12 col-md-6">
+        <div class = "card-group" style = "margin: 20px;">
+        <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
             <div class="card-body">
                 <h5 class="card-title">Requested Leaves</h5>
                 <a href="{% url 'main:adminRequestedLeaves' %}" class="btn btn-dark btn-sm">View requested Leaves</a>
             </div>
         </div>
 
-        <div class="card col-lg-3 col-sm-12 col-md-6">
+        <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
             <div class="card-body">
                 <h5 class="card-title">Approved leaves</h5>
                 <a href="{% url 'main:adminApprovedLeaves' %}" class="btn btn-dark btn-sm">View Approved Leaves</a>
             </div>
         </div>
-        <div class="card col-lg-3 col-sm-12 col-md-6">
+        <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
             <div class="card-body">
                 <h5 class="card-title">Rejected Leaves</h5>
                 <a href="{% url 'main:adminRejectedLeaves' %}" class="btn btn-dark btn-sm">View Rejected Leaves</a>
             </div>
         </div>
     </div>
+    </div>
   </div>
-
+</section>
 
 {% endblock body %}
