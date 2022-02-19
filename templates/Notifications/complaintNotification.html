@@ -1,5 +1,8 @@
-{% extends 'base.html' %} {% load static %} {% block body %} {% include
-'navbar.html' with staff=staff %}
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <div class="container mt-5">
   <table class="table">

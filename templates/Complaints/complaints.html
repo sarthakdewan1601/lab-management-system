@@ -4,12 +4,17 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff%}
 {% load crispy_forms_tags %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">Complaints</h2>
 <div class = "container">
     <div class = "complaint-h3" style = "text-align: center;">
         <span style = "text-align: center;">
+
+{% load crispy_forms_tags %}   
+<div class = "wrapper_">
+    <div class = "complaint-h3">
         <h3>Device Name : {{ name }}</h3>
         <br><br>
         <h3>Device ID : {{ id }}</h3>

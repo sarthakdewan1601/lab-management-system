@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 
 <section class="sectionLogin">
@@ -11,6 +11,13 @@
   <h1 style = "text-align: center;"> Items Alloted to {{inventorystaff.name}}</h1>
   <br>
   <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
+  {% if inventorystaff.room.room_id %}
+    <h1>Office : {{inventorystaff.room.room_id}}</h1> 
+  {% else %}  
+    <h1>Office : No office Assigned</h1> 
+  {% endif %}
+  <h2> Items Alloted to You</h2>
+
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -45,6 +52,7 @@
   <h1 style = "text-align: center;"> Items Request for Return by {{inventorystaff.name}}</h1>
   <br>
   <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
+  <h2> Items Request for Return</h2>
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>

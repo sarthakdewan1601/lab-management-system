@@ -21,6 +21,9 @@ body {
   height: 100%;
   width: 100%;
 }
+a {
+  text-decoration: none;
+}
 :root {
   --green-main-1: #6ecbc1;
   --green-main-2: #6cccc1;
@@ -35,6 +38,10 @@ body {
   --purple-main-1: #57428d;
   --purple-main-2: #5e497e;
 }
+
+/* .navlink:hover {
+  border-bottom: 5px solid red;
+} */
 
 /* -------------------------------- LOGIN --------------------------------*/
 

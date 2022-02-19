@@ -2,7 +2,8 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">Add Group Course</h2>
@@ -12,7 +13,7 @@
     <br>
     <button class= "btn btn-dark btn-sm" type="submit">Submit</button>
 </form>
-
+</section>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
     $("#id_faculty").change(function () {

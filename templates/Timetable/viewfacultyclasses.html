@@ -2,10 +2,12 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Faculty Classes</h2><br><br>
+
 <div class="container">
     <div class="labs-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
@@ -39,4 +41,5 @@
         </div>
         <a href="{% url 'main:viewallfacultyclasses' id=staff.id %}" class="btn btn-dark btn-sm">View All Classes</a>
     </div>
+    </section>
 {% endblock body %}

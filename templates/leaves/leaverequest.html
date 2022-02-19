@@ -21,10 +21,11 @@
 {% endblock head %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Leave Request</h2>
+
 <div class="container">
     <div class="form-control container" style = "color: black;text-decoration: none;background-color: rgba(245, 245, 245, 0.4);margin-top: 40px;padding:20px">
         <form method="POST">

@@ -39,21 +39,23 @@
             <span class="navbar-toggler-icon"></span>
           </button>
         </li>
-        <li class="nav-item">
-          <a class="nav-link nav_text" href="{% url 'main:home' %}">Home</a>
+        {% if user.is_authenticated %}
+        <li class="nav-link nav-text navLink">
+          <a href="{% url 'main:userProfileDetails' %}" style="text-decoration: none; color : white">{{ staff.name }} </a>
+        </li>
+        {% endif %}
+        <li class="nav-item navLink">
+          <a class="nav-link nav_text" href="{% url 'main:home' %}" style="text-decoration: none; color : white">Home</a>
         </li>
         {% if user.is_authenticated %}
-        <li class="nav-link nav-text">
-          Hi <a href="{% url 'main:userProfileDetails' %}" style="text-decoration: none; color : white">{{ staff.name }} </a>
+        <li class="nav-link nav_text navLink">
+          <a href="{% url 'main:userLeaves' %}" style="text-decoration: none; color : white">Your Leaves</a> 
         </li>
-        <li class="nav-link nav_text">
-          <a href="{% url 'main:userLeaves' %}" style="text-decoration: none; color : white">Leaves</a> 
-        </li>
-        <li class="nav-link nav_text">
+        <li class="nav-link nav_text navLink">
           <a href="{% url 'main:viewinventory' %}" style="text-decoration: none; color : white">Inventory</a> 
         </li>
         {% if staff.designation.designation == 'Lab Technician'%}
-        <li class="nav-link nav_text">
+        <li class="nav-link nav_text navLink">
             <a href = "{% url 'main:viewcomplaints' %}" style="text-decoration: none; color : white">Complaints</a>
         </li>
         {%endif%}
@@ -68,17 +70,17 @@
           <a class="fas fa-bell" href="{% url 'main:notification' %}" style="text-decoration: none; color : white">
 
               <span class="fa fa-comment"></span>
-              <span class="num">7</span>
+              <span class="num">{{notification_count}}</span>
             
           </a>
           
         </li>
         
         
-        <li class="nav-link nav_text"><a href="{% url 'main:logout_request' id=staff.id%}" style="text-decoration: none; color : white">Logout</a></li>
+        <li class="nav-link nav_text navLink"><a href="{% url 'main:logout_request' id=staff.id%}" style="text-decoration: none; color : white">Logout</a></li>
         
         {% else %}
-        <li class="nav-link nav_text"><a href="{% url 'main:login' %}">Login</a></li>
+        <li class="nav-link nav_text navLink"><a href="{% url 'main:login' %}">Login</a></li>
         {%endif%}
       </ul>
     </div>

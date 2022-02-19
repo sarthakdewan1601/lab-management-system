@@ -3,14 +3,13 @@
 
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">View Previous Leaves</h2>
 <div class='container'>
     <div class="all-leaves-container" style = "text-align: center;">
         <h3 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h3>
-        <div class = "tables-leaves card">
             <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
                 <thead class="thead-dark">
                     <th>Sender</th>
@@ -35,10 +34,9 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
 
 
-    </div>
+   
 
 </div></section>
 

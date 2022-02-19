@@ -5,10 +5,11 @@
 
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">Profile</h2>
+
 <div class="container">
     <div class="form-control container" style = "background-color: rgba(245, 245, 245, 0.2);margin:auto;">
         <form method="POST">
@@ -43,13 +44,13 @@
             </div>
             <div class="mb-3 row">
                 <label for="designation" class="col-sm-2 col-form-label">Designation</label>
-                <div class="col-sm-10 col-lg-4">
+                <div class="col-sm-10 col-lg-4" style = "margin-left: 20px;">
                     <input type="text" readonly class="form-control-plaintext" name="designation" id="designation" value="{{staff.designation}}"/>
                     </div>
             </div>
             <div class="mb-3 row">
                 <label for="agency" class="col-sm-2 col-form-label">Agency</label>
-                <div class="col-sm-10 col-lg-4">
+                <div class="col-sm-10 col-lg-4" >
                     <input type="text" readonly class="form-control-plaintext" name="agency" id="agency" value="{{staff.agency}}"/>
                     </div>
             </div>

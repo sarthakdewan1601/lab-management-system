@@ -196,7 +196,7 @@
 
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <div class="container">
     <h1 class = "temp1"> Time Table for Lab {{lab.lab}}</h1>
     <h2 class = "temp2">{{lab.name}}</h2>

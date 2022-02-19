@@ -2,7 +2,7 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Group-Courses</h2>
@@ -32,4 +32,5 @@
         </div>
         <a href="{% url 'main:viewallfacultygroupcourses' id=staff.id %}" class="btn btn-dark btn-sm">View All Groups-Courses</a>
     </div>
+    </section>
 {% endblock body %}

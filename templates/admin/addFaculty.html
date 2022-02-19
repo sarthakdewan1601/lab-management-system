@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{%load crispy_forms_tags %} 
+
+{% block head %}
+
+  
+<script>
+    const agencys = {
+      "Regular": 1,
+      "Adhoc": 2,
+      "Randstad" : 3,
+    }
+  
+    window.onload = ()=> {
+    var agency = document.getElementById('agency');
+console.log(agency)
+    for(var i in agencys ) {
+      agency.options[agency.options.length] = new Option(i, i);
+    }
+  }
+</script>
+
+{% endblock head %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count%}
+
+
+<div class="container mt-3">
+    <h1>Add Faculty Details</h1>
+
+    <form method="POST" class="form">
+          {% csrf_token %}
+     <div class="bg-white p-3">
+          <div class="input-group mb-3">
+               <span class="input-group-text" id="name"><i class="fas fas fa-user"></i></span>
+               <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+          </div>
+          <div class="input-group mb-3">
+               <span class="input-group-text" id="email"><i class="fas fa-envelope"></i></span>
+               <input type="email" name="email" class="form-control" placeholder="Email" required>
+          </div>
+          <div class="input-group mb-3">
+               <span class="input-group-text" id="mobile_number"><i class="fas fa-phone"></i></span>
+               <input type="number" name="mobile_number" class="form-control" placeholder="Mobile Number" required>
+          </div>
+          <div class="input-group mb-3">
+               <span class="input-group-text" id="designation"><i class="fas fas fa-briefcase"></i></span>
+               <select name="designation" id="designation" class="form-control" required>
+                    <option value="">-------</option>
+                    <option value="Professor">Professor</option>
+                    <option value="Assistant Professor">Assistant Professor</option>
+                    <option value="Associate Professor">Associate Professor</option>
+               </select>
+          </div>
+          <div class="input-group mb-3">
+               <span class="input-group-text" id="agency"><i class="fas fas far fas fa-building"></i></span>
+               <select class="form-select" aria-label="Default select example" id="agency" name="agency" required>        
+                    <option id="selectedAgency"> ----- </option>
+                    <option value="Regular">Regular</option>
+                    <option value="Adhoc">Adhoc</option>
+                    <option value="Randstad">Randstad</option>
+               </select>
+          </div>
+
+          <div class="btn-group-toggle">
+               <button type="submit" class="btn btn-dark text-white">Submit Details</button>
+          </div>
+     </div>
+    </form>
+</div>
+
+{% endblock body %}

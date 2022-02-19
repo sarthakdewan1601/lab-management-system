@@ -2,14 +2,19 @@
 {% load static %}
 {% block body %}
 
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Inventory</h2>
-<h3 style = "text-align: center;"> Items Alloted to {{staff.name}}</h3>
-<h4 style = "text-align: center;">Office : {{staff.room.room_id}}</h4> 
 <br>
+
+{% if inventorystaff.room.room_id %}
+  <h4 style = "text-align: center;">Office : {{inventorystaff.room.room_id}}</h4> 
+{% else %}  
+  <h3 style = "text-align: center;">Office : No office Assigned</h3> 
+{% endif %}
+<h4 style = "text-align: center;"> Items Alloted to You</h4>
 <div class="container">
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
@@ -25,14 +30,14 @@
             <tbody>
               {% for device in inventory %}
               {% if device.is_requested_for_return %}
-              <tr class="table-success" style = "text-align: center;" style="color: red;">
+              <tr class="table-success" style = "text-align: center;color: red;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
                 <td>{{device.date_added}}</td>                     
               </tr>
               {% else %}
-              <tr class="table-success" style = "text-align: center;" style="color: green;">
+              <tr class="table-success" style = "text-align: center;color: green;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
@@ -45,4 +50,5 @@
           <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
         </div>
     </div>
+    </section>
 {% endblock body %}

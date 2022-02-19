@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;"> Active Complaints</h2>
+<div class="container mt-5">
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+    <thead>
+      <tr>
+        <th scope="col">Sender</th>
+        <th scope="col">Lab</th>
+        <th scope="col">Device</th>
+        <th scope="col">Complaint</th>
+        <th scope="col">Active Status</th>
+        <th scope="col" style="text-align: center;">Resolve Complaint</th>
+      </tr>
+    </thead>
+        <tbody>
+        {% for complaint in complaints %}
+        <tr class="table-success" style = "text-align: center;">
+            <td>{{ complaint.created_by.name }}</td>
+            <td>{{ complaint.device.room.name }} ({{complaint.device.room.room_id}})</td>
+            <td>{{ complaint.device.name }}</td>
+            <td>{{ complaint.complaint }}</td>
+            <td>Active</td>
+            <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+  </table>
+  
+  </div>
+</section>
+
+{% endblock body %}

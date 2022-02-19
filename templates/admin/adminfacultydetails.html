@@ -3,12 +3,16 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Faculty Details</h2>
 <div class="container">
   <br>
+
+
+
+<div class="labs-table">
     <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
           <tr style = "text-align: center;">
@@ -35,6 +39,10 @@
           {% endfor %}
         </tbody>
       </table>
+      <div class="col-lg-12">
+        <button class="btn btn-dark"><a style="color: white;text-decoration: none;" href="{% url 'main:addFaculty' %}">Add Faculty</a></button>
+      </div>
+      
     </div>
   </section>
 

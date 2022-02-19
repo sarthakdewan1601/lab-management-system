@@ -2,72 +2,24 @@
 {% load static %}
 
 {% block body %}
-{% include 'navbar.html' with staff=staff%}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
-<div class="container">
-  <h1 style="text-align: center;"> Active Complaints</h1>
-<table class="table table-borderless table-dark table-hover">
-    <thead>
-      <tr style = "text-align: center;">
-        <th scope="col">Sender</th>
-        <th scope="col">Lab</th>
-        <th scope="col">Device</th>
-        <th scope="col">Complaint</th>
-        <th scope="col">Active Status</th>
-        <th scope="col" style="text-align: center;">Resolve Complaint</th>
-      </tr>
-    </thead>
-        <tbody>
-        {% for complaint in complaints %}
-        <tr  class="table-success" style = "text-align: center;">
-          {% if complaint.isActive%}
-            <td class="table-success">{{ complaint.created_by.name }}</td>
-            <td class="table-success">{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
-            <td class="table-success">{{ complaint.device.name }}</td>
-            <td class="table-success">{{ complaint.complaint }}</td>
-            <td class="table-success">Active</td>
-            <td class="table-success" style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-  </table>
-  <h1 style="text-align: center;"> Resolved Complaints</h1>
-<table class="table table-borderless table-dark table-hover" style = "text-align: center;">
-    <thead>
-      <tr>
-        <th scope="col">Sender</th>
-        <th scope="col">Lab</th>
-        <th scope="col">Device</th>
-        <th scope="col">Complaint</th>
-        <th scope="col">Active Status</th>
-        <th scope="col">Work Done</th>
-        <th scope="col">Resolved By</th>
-      </tr>
-    </thead>
-        <tbody>
-        {% for complaint in complaints %}
-          <tr class="table-success">
-            {% if complaint.isActive == False %}
-              <td class="table-success">{{ complaint.created_by.name }}</td>
-              <td class="table-success">{{ complaint.device.lab.name }} ({{complaint.device.lab.lab}})</td>
-              <td class="table-success">{{ complaint.device.name }}</td>
-              <td class="table-success">{{ complaint.complaint }}</td>
-              <td class="table-success">Resolved</td>
-              <td class="table-success">{{ complaint.work_Done }}</td>
-
-              {%if complaint.who_resolved.designation.designation == 'Lab Supervisor' or complaint.who_resolved.designation.designation == 'Lab Analyst' %}
-                <td class="table-success">{{ complaint.who_resolved.name }} (admin)</td>
-              {% else %}
-                <td class="table-success">{{ complaint.who_resolved.name }} (Technician)</td>
-              {% endif %}
-              
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-  </table>
+  <br>
+  <h4 style = "text-align: center;">View Complaints</h4>
+<div class="container" style = "margin-top: 50px;">
+  <div class="card-group" style = "margin: 20px;text-align: center;">
+    <div class="card col-lg-4 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black" >
+      <div class="card-body">
+          <a href="{% url 'main:adminactivecomplaints' %}" class="btn btn-dark btn-sm" style = "text-align: center;">View Approved Complaints </a>
+      </div>
   </div>
+  <div class="card col-lg-4 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+      <div class="card-body">
+          <a href="{% url 'main:adminresolvedcomplaints' %}" class="btn btn-dark btn-sm">View Resolved Complaints</a>
+      </div>
+  </div>
+  </div>
+  
 </section>
 
 {% endblock body %}
