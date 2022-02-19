@@ -5,14 +5,14 @@
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
 
-{% if inventorystaff.room.room_id %}
-  <h1>Office : {{inventorystaff.room.room_id}}</h1> 
-{% else %}  
-  <h1>Office : No office Assigned</h1> 
-{% endif %}
-<h2> Items Alloted to You</h2>
+{% if staff.room.room_id %}
+  <h1>Office : {{staff.room.room_id}}</h1> 
+
+<h2> Items Alloted to You </h2>
 <div class="container">
+
     <div class="inventory-table">
+      <h2>Items Alloted:-> </h2>
         <table class="table">
             <thead>
               <tr>
@@ -20,6 +20,8 @@
                 <th scope="col" >Item Name</th>
                 <th scope="col" >Item Description</th>
                 <th scope="col" >Date Alloted</th>
+                <th scope="col" >Add Complaint</th>
+                <th scope="col" >All Complaints</th>
               </tr>
             </thead>
     
@@ -30,14 +32,18 @@
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td> 
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
               </tr>
               {% else %}
               <tr style="color: green;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td> 
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>   
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                  
               </tr>
               {% endif %} 
               {% endfor %}
@@ -45,5 +51,8 @@
           </table>
           <p>If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
         </div>
-    </div>
+    </div> 
+    {% else %}  
+      <h1>Office : No office Assigned </h1> 
+    {% endif %}
 {% endblock body %}

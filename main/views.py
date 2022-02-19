@@ -425,6 +425,7 @@ def user_profile(request):
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
 
+
 			context = { 
 				"staff":staff,
 				"complaints": complaints,
@@ -867,6 +868,8 @@ def complaint(request, pk):
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
+			dev.is_working=False
+			dev.save()
 			complaint=form.cleaned_data['complaint']
 			# staff=Staff.objects.get(user_obj=request.user)	
 			complaint, was_created = Complaint.objects.get_or_create(
@@ -884,9 +887,12 @@ def complaint(request, pk):
 				taskId=complaint.id
 			)			
 			notification.save()
-			labid=Lab.objects.get(lab=device.room).id
-			
-			return redirect("main:lab",labid)
+			room=device.room
+			if room.is_lab and device.in_inventory==False:
+				labid=Lab.objects.get(lab=device.room).id
+				return redirect("main:lab",labid)
+			else:
+				return redirect("main:viewinventory")
 
 	else:   #get
 		form = ComplaintForm()
@@ -953,7 +959,8 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 	if notification.isActive==False:
 		return redirect('main:notification')
 
-	notification.isActive=False
+	# notification.isActive=False
+	notification.checked=True
 	notification.save()
 	taskId = notification.taskId
 	
@@ -1047,9 +1054,13 @@ def add_devices(request, pk):
 	notification_count=get_notifications(staff.id)
 	lab=Lab.objects.get(id=pk)
 	room=lab.lab
+	# print('hi')
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
+		print('hi')
+		# print(form.is_valid()
 		if form.is_valid():
+			# print('hi again')
 			deviceid=form.cleaned_data['device_id']
 			name = form.cleaned_data['name']
 			name=CategoryOfDevice.objects.get(category=name)
@@ -1057,9 +1068,10 @@ def add_devices(request, pk):
 			device, was_created=Devices.objects.get_or_create(device_id=deviceid,name = name, description = description,room=room)
 			device.save()
 			return redirect('main:lab',pk=lab.id)
+		else:
+			return HttpResponse(200)
 	else:
 		form = NewComputerForm()
-
 		context={
 			'staff': staff,
 			'form': form,
@@ -1079,6 +1091,11 @@ def resolveConflict(request, pk):
 		complaint.isActive=False
 		complaint.who_resolved=resolver
 		complaint.save()
+		device=Devices.objects.get(id=complaint.device)
+		complaints=Complaint.objects.filter(device=device,isActive=True)
+		if(len(list(complaints))==0):
+			device.is_working=True
+		device.save()
 		notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
 		notification.isActive = False
 		notification.save()
@@ -1098,13 +1115,32 @@ def resolveConflict(request, pk):
 		}
 		return render(request, 'admin/adminResolveComplaint.html', context)
 
+def viewdevicecomplaints(request,id):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device=Devices.objects.get(id=id)
+	active_compaints=Complaint.objects.filter(device=device,isActive=True,created_by=staff)
+	resolved_complaints=Complaint.objects.filter(device=device,isActive=False,created_by=staff)
+	context={
+		'staff':staff,
+		'device':device,
+		'notification_count':notification_count,
+		'active_complaints':active_compaints,
+		'resolved_complaints':resolved_complaints,
+	}
+	return render(request,'Complaints/viewdevicecomplaints.html',context)
+
+
+
+	 
+
 @login_required
 def adminStaff(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		faculty_designation = Category.objects.get(category="Lab Staff")
-		staffs = Staff.objects.filter(category=faculty_designation).order_by('-designation')
+		# faculty_designation = Category.objects.get(category="Lab Staff")
+		staffs = Staff.objects.all().order_by('-designation')
 		
 		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff,'notification_count':notification_count,})
 	else:
@@ -1929,6 +1965,8 @@ def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
+	active_inventory=[i for i in inventory if i.device.is_working==True]
+	inactive_inventory=[i for i in inventory if i.device.is_working==False]
 	# print(len(inventory))
 	context={
 		'staff':staff,
@@ -1991,7 +2029,7 @@ def allotdevices(request,id):
 			log.save()
 			return redirect('main:adminviewinventory', id=id)
 		
-	return render(request,'inventory/allotd evices.html',{'form':form,'staff':staff,'inventorystaff':fac,'notification_count':notification_count,})
+	return render(request,'inventory/allotdevices.html',{'form':form,'staff':staff,'inventorystaff':fac,'notification_count':notification_count,})
 
 @login_required
 def devicesreturnrequest(request,id):
@@ -2248,6 +2286,24 @@ def adminaddlab(request):
 	}
 	return render(request,'admin/addlab.html',context)
 
+@login_required
+def load_prev_assigned_offices(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	room_id=request.GET.get('room_id')
+	room=Room.objects.get(id=room_id)
+	all_staffs=Staff.objects.all()
+	already_assigned_staffs=[st for st in all_staffs if st.room == room]
+	print(already_assigned_staffs)
+	message=''
+	if len(already_assigned_staffs)>0:
+		message='This room is already alloted to '
+		for i in already_assigned_staffs:
+			message+=i.name + ','
+		message=message[:-1]	
+	print(message)
+	return HttpResponse(message)
+
 @login_required		
 def adminassignoffice(request):
 	staff=Staff.objects.get(user_obj=request.user)
@@ -2264,7 +2320,7 @@ def adminassignoffice(request):
 		office=Room.objects.get(id=office_id)
 		selected_staff.room=office
 		selected_staff.save()
-
+ 
 		return redirect('main:adminassignoffice')
 	context={
 		'staff':staff,
@@ -2496,3 +2552,76 @@ def admineditTypeOfDevice(request,id):
 		return render(request,'admin/adminaddTypeOfDevice.html',context)
 	else:
 		return render(request,'pagenotfound.html')
+
+def adminviewdevices(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	}
+	return render(request,'admin/adminviewdevices.html',context)
+	
+def adminview_warehouse_devices(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	devices=Devices.objects.filter(room=None)
+	myFilter = filterWarehouseDevices(request.GET,queryset=devices)
+	devices=myFilter.qs
+	context={
+		'staff':staff,
+		'devices':devices,
+		'myFilter':myFilter,
+		'notification_count':notification_count,
+	}
+	return render(request,'admin/adminview_warehouse_devices.html',context)
+	
+def adminview_assigned_devices(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	all_devices=Devices.objects.all()
+	devices=Devices.objects.filter(room=None)
+	assigned_devices=[dev for dev in all_devices if dev not in devices]
+	assigned_devices=Devices.objects.filter(id__in={instance.id for instance in assigned_devices})
+	myFilter = filterAssignedDevices(request.GET,queryset=assigned_devices)
+	assigned_devices=myFilter.qs
+	context={
+		'staff':staff,
+		'devices':assigned_devices,
+		'myFilter':myFilter,
+		'notification_count':notification_count,
+	}
+	return render(request,'admin/adminview_assigned_devices.html',context)
+
+def adminadd_device(request):
+		if request.user.is_staff:
+			staff=Staff.objects.get(user_obj=request.user)
+			notification_count=get_notifications(staff.id)
+			form=NewDeviceForm
+			if request.method == 'POST':
+					form=NewDeviceForm(request.POST)
+					if form.is_valid:
+						form.save()
+						# device_id=form.cleaned_data['device_id']
+						# name=form.cleaned_data['name']
+						# room=form.full_clean['room']
+						# description=form.cleaned_data['description']
+						# device,was_created=Devices.objects.get_or_create(
+						# 	device_id=device_id,
+						# 	name=name,
+						# 	room=room,
+						# 	description=description,
+						# 	room=room,
+						# 	in_inventory=False,
+						# 	is_working=True,
+						# )
+						# device.save()
+						return redirect('main:adminview_assigned_devices')
+			context={
+					'staff':staff,
+					'notification_count':notification_count,
+					'form':form,
+			}
+			return render(request,'admin/adminadd_assigned_devices.html',context)
+		else:
+			return render(request,'pagenotfound.html')

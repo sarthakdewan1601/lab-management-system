@@ -93,6 +93,12 @@ urlpatterns = [
     path('admin-dashboard/type-of-devices/', views.adminviewTypeOfDevices, name='adminviewTypeOfDevices'),
     path('admin-dashboard/type-of-devices/add-type-of-device', views.adminaddTypeOfDevice, name='adminaddTypeOfDevice'),
     path('admin-dashboard/type-of-devices/edit-type-of-device/<id>', views.admineditTypeOfDevice, name='admineditTypeOfDevice'),
+    path('admin-dashboard/Assign-office/load_previous_assigned_staff',views.load_prev_assigned_offices,name='ajax_load_prev_assigned_offices'),
+    path('admin-dashboard/view-devices',views.adminviewdevices,name='adminviewdevices'),
+    path('admin-dashboard/view-devices/view-warehouse-devices',views.adminview_warehouse_devices,name='adminview_warehouse_devices'),
+    path('admin-dashboard/view-devices/view-assigned-devices',views.adminview_assigned_devices,name='adminview_assigned_devices'),
+    path('admin-dashboard/view-devices/view-assigned-devices/add-device/',views.adminadd_device,name='adminadd_device'),
+    
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
     path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),
@@ -110,4 +116,6 @@ urlpatterns = [
     path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
+
+    path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
 ]
