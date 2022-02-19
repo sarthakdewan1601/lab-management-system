@@ -196,8 +196,10 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 
 CRONJOBS = [
-    ('*/1 * * * *', 'main.cron.delete_leave_notification', '>> logging.log'),
-    ('* * * * */0', 'main.cron.delete_techResolve_notification', '>> /home/atharvan/lab-management-system-1/logging.log')
+    ('59 23 * * *', 'main.cron.delete_leave_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.delete_timetable_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.delete_inventory_notification', '>> /home/atharvan/lab-management-system-1/logging.log'),
+    ('59 23 * * 0', 'main.cron.elete_techResolve_notification', '>> /home/atharvan/lab-management-system-1/logging.log')
 ]
 
 

@@ -1102,7 +1102,7 @@ def resolveConflict(request, pk):
 
 		notification_resolve, was_created = Notification.objects.get_or_create(
 				sender=staff, 
-				reciever=complaint.created_by.name+ " " + complaint.created_by.id, 
+				reciever=complaint.created_by.id+" " + complaint.created_by.name, 
 				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+complaint.id +", has been resolved",
 				notification_type = 'TECH_RESOLVE',
 				taskId=complaint.id
