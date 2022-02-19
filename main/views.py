@@ -968,7 +968,9 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 	if notification.isActive==False:
 		return redirect('main:notification')
 
-	notification.isActive=False
+	# notification.isActive=False
+	notification.checked = True
+	
 	notification.save()
 	taskId = notification.taskId
 	
@@ -1095,8 +1097,20 @@ def resolveConflict(request, pk):
 		complaint.who_resolved=resolver
 		complaint.save()
 		notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
-		notification.isActive = False
+		# notification.isActive = False
+		notification.expired=True
+
+		notification_resolve, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever=complaint.created_by.name+ " " + complaint.created_by.id, 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+complaint.id +", has been resolved",
+				notification_type = 'TECH_RESOLVE',
+				taskId=complaint.id
+			)			
+
 		notification.save()
+		notification_resolve.save()
+
 		if request.user.is_staff:
 			return redirect("main:adminComplaints")
 

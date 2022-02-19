@@ -1,3 +1,4 @@
+
 from random import choice
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -221,6 +222,7 @@ NOTIFICATION_FIELDS = [
     ('LEAVE_ACCEPTED', 'Leave Accepted'),
     ('LEAVE_REJECTED', 'Leave Rejected'),
     ('INVENTORY','Inventory'),  
+    ('TECH_RESOLVE', 'Technician Resolved'),
 ] 
 
 class Notification(models.Model):
@@ -231,6 +233,9 @@ class Notification(models.Model):
     message = models.TextField()
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_FIELDS, default='LEAVE')
     taskId = models.CharField(max_length=100, blank=True, null=True, default=None)
+
+    checked = models.BooleanField(default=False)
+    expired = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return str(self.time.date()) + " " +  self.notification_type + " from "  + self.sender.name + " to " + self.reciever

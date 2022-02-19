@@ -173,7 +173,7 @@ MESSAGE_TAGS = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 #######################################################################################################################################
-APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
+# APP_LOG_FILENAME = os.path.join(BASE_DIR, 'ḷog/app.log')
 
 # LOGGING = {
 #     'version': 1,
@@ -196,7 +196,8 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 
 CRONJOBS = [
-    ('*/1 * * * *', 'cron.print_hello', '>> logging.log')
+    ('*/1 * * * *', 'main.cron.delete_leave_notification', '>> logging.log'),
+    ('* * * * */0', 'main.cron.delete_techResolve_notification', '>> /home/atharvan/lab-management-system-1/logging.log')
 ]
 
 
