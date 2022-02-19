@@ -34,7 +34,7 @@
       <ul class="navbar-nav me-auto">
 
         <li class="nav-item active navbar-brand">
-          <a class="navbar-brand" href="{% url 'main:home' %}" style="text-decoration: none;"><i class="fas fa-university"></i></a>
+          <a class="navbar-brand" href="{% url 'main:user_profile' %}" style="text-decoration: none;"><i class="fas fa-university"></i></a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -45,7 +45,7 @@
         </li>
         {% endif %}
         <li class="nav-item navLink">
-          <a class="nav-link nav_text" href="{% url 'main:home' %}" style="text-decoration: none; color : white">Home</a>
+          <a class="nav-link nav_text" href="{% url 'main:user_profile' %}" style="text-decoration: none; color : white">Home</a>
         </li>
         {% if user.is_authenticated %}
         <li class="nav-link nav_text navLink">

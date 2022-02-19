@@ -272,3 +272,8 @@ class NewTypeOfDeviceForm(forms.ModelForm):
     class Meta:
         model=CategoryOfDevice
         fields='__all__'
+
+class NewDeviceForm(forms.ModelForm):
+    class Meta:
+        model=Devices
+        fields=['device_id','name','room','description']

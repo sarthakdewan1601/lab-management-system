@@ -165,7 +165,7 @@ class Complaint(models.Model):
     isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    # date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return "Complaint for lab " + str(self.device.room.room_id)
@@ -186,7 +186,9 @@ class Devices(models.Model):
     description = models.TextField(max_length=1024)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
-    # is_working=models.BooleanField(default=True)
+    is_working=models.BooleanField(default=True)
+
+
     def __str__(self):
         return self.device_id +" - "+str(self.room)
 
