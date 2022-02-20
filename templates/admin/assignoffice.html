@@ -53,6 +53,31 @@
           </div>
     </form>
 </div>
+
+
 </div>
-</section>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script language="JavaScript" type="text/javascript"> 
+        window.onload = ()=> {
+        var office = document.getElementById('office');
+        office.addEventListener('change', ()=> {
+           const url1 = "{% url 'main:ajax_load_prev_assigned_offices'%}";
+           const roomId = office.value;  
+           console.log(roomId) 
+           $.ajax({                       // initialize an AJAX request
+             url: url1,                    // set the url of the request (= /persons/ajax/load-cities/ )
+             data: {
+                 'room_id': roomId       // add the country id to the GET parameters
+             },
+             success: function (data) {   // `data` is the return of the `load_cities` view function
+               console.log(data)  // replace the contents of the city input with the data that came from the server
+               if(data.length !=0)
+                  alert(data)
+             }
+           });
+        })
+        }
+
+     
+</script>
 {% endblock body %}

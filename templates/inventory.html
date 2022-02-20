@@ -9,13 +9,12 @@
   <h2 style = "text-align: center;">Inventory</h2>
 <br>
 
-{% if inventorystaff.room.room_id %}
-  <h4 style = "text-align: center;">Office : {{inventorystaff.room.room_id}}</h4> 
-{% else %}  
-  <h3 style = "text-align: center;">Office : No office Assigned</h3> 
-{% endif %}
-<h4 style = "text-align: center;"> Items Alloted to You</h4>
+{% if staff.room.room_id %}
+  <h1>Office : {{staff.room.room_id}}</h1> 
+
+<h2> Items Alloted to You </h2>
 <div class="container">
+
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -24,6 +23,8 @@
                 <th scope="col" >Item Name</th>
                 <th scope="col" >Item Description</th>
                 <th scope="col" >Date Alloted</th>
+                <th scope="col" >Add Complaint</th>
+                <th scope="col" >All Complaints</th>
               </tr>
             </thead>
     
@@ -34,21 +35,28 @@
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td> 
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
               </tr>
               {% else %}
               <tr class="table-success" style = "text-align: center;color: green;">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td> 
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>   
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                  
               </tr>
               {% endif %} 
               {% endfor %}
             </tbody>
           </table>
           <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
+          <p style = "text-align: center;">If you want to view your Inventory Logs <a href = "{%url 'main:viewinventorylogs'%}">click here</a></p>
         </div>
-    </div>
-    </section>
+    </div> 
+    {% else %}  
+      <h1>Office : No office Assigned </h1> 
+    {% endif %}
 {% endblock body %}
