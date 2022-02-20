@@ -14,7 +14,7 @@
         <th scope="col">Date</th>
         <th scope="col">Status</th>
         {% if not same %}
-
+            
             {% if not leave.substitute_approval and not leave.rejected%}
             <th>Accept/Decline</th>
             {% elif leave.substitute_approval %}

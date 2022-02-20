@@ -62,15 +62,15 @@ def get_notifications(id):
 	notifications=[]
 	
 	if designation == 'Lab Technician':
-		notification = Notification.objects.filter(notification_type='TECH',isActive=True).order_by('-time').all()
+		notification = Notification.objects.filter(notification_type='TECH',isActive=True,checked=False).order_by('-time').all()
 		notifications.extend(notification)
 
 	receiver=str(current_user.id) +' '+current_user.name
-	notification = Notification.objects.filter(reciever=receiver,isActive=True).order_by('-time').all()
+	notification = Notification.objects.filter(reciever=receiver,isActive=True,checked=False).order_by('-time').all()
 	notifications.extend(notification)
 
 	if designation == 'System Analyst' or designation == 'Lab Supervisor':
-		notification=Notification.objects.filter(reciever='admin',isActive=True).order_by('-time').all()
+		notification=Notification.objects.filter(reciever='admin',isActive=True,checked=False).order_by('-time').all()
 		notifications.extend(notification)
 	return len(notifications)
 
@@ -560,16 +560,17 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
+			print(fromDate,toDate)
 
-			# print("debug toData -->>",toDate)		#debug
+			print("debug toData -->>",toDate)		#debug
 
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
 
-			# print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
+			print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
 
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			
-			# print('DEBUG leave availability-->>', leaveAvailability)	#debug
+			print('DEBUG leave availability-->>', leaveAvailability)	#debug
 			print('DEBUG toDate type-->>', type(toDate), toDate)	#debug
 
 			print(leaveAvailability,leaveAvailabilityCount, leaveAvailabilityMessage)
@@ -584,7 +585,7 @@ def requestleave(request):
 				customMessage1 = staff.name + " requested for leave"
 				notification, was_created = Notification.objects.get_or_create(
 					sender=staff, 
-					reciever=str(substituteName)+' '+substituteName.name, 
+					reciever=str(substituteName.id)+' '+substituteName.name, 
 					message=customMessage1,
 					notification_type = 'LEAVE',
 					taskId = userstatus.id
@@ -928,8 +929,8 @@ def complaint(request, pk):
 def view_complaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	active_complaints = Complaint.objects.filter(isActive = True).order_by('-date_created')
-	resolved_complaints=Complaint.objects.filter(isActive = False).order_by('-date_created')
+	active_complaints = Complaint.objects.filter(isActive = True).order_by('-created_at')
+	resolved_complaints=Complaint.objects.filter(isActive = False).order_by('-created_at')
 	# userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
 	# # complaint -> device
 	# deviceNo = Complaint.objects.filter(complaint = complaint)	
@@ -971,6 +972,8 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)	 	# current user		
 	notification = Notification.objects.get(id=pk)
+	# print(notification.notification_type)
+	# print(notification.isActive)
 	if notification.isActive==False:
 		return redirect('main:notification')
 
@@ -989,6 +992,7 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 	same = False
 	if notification.notification_type == 'LEAVE' or notification.notification_type == 'LEAVE_ACCEPTED' or notification.notification_type == 'LEAVE_REJECTED':
 		leave = UserLeaveStatus.objects.get(id=taskId)
+		print('hi')
 		if staff == leave.substitute:
 			same = True
 		return render(request, "Notifications/leaveRequestStatusNotification.html", {"leave":leave, "notification":notification, "staff":staff, "same":same,'notification_count':notification_count,})
@@ -1107,7 +1111,7 @@ def resolveConflict(request, pk):
 		complaint.isActive=False
 		complaint.who_resolved=resolver
 		complaint.save()
-		device=Devices.objects.get(id=complaint.device)
+		device=Devices.objects.get(id=complaint.device.id)
 		complaints=Complaint.objects.filter(device=device,isActive=True)
 		if(len(list(complaints))==0):
 			device.is_working=True
@@ -1118,8 +1122,8 @@ def resolveConflict(request, pk):
 
 		notification_resolve, was_created = Notification.objects.get_or_create(
 				sender=staff, 
-				reciever=complaint.created_by.id+" " + complaint.created_by.name, 
-				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+complaint.id +", has been resolved",
+				reciever=str(complaint.created_by.id)+" " + complaint.created_by.name, 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+str(complaint.id) +", has been resolved",
 				notification_type = 'TECH_RESOLVE',
 				taskId=complaint.id
 			)			
@@ -2630,20 +2634,6 @@ def adminadd_device(request):
 					form=NewDeviceForm(request.POST)
 					if form.is_valid:
 						form.save()
-						# device_id=form.cleaned_data['device_id']
-						# name=form.cleaned_data['name']
-						# room=form.full_clean['room']
-						# description=form.cleaned_data['description']
-						# device,was_created=Devices.objects.get_or_create(
-						# 	device_id=device_id,
-						# 	name=name,
-						# 	room=room,
-						# 	description=description,
-						# 	room=room,
-						# 	in_inventory=False,
-						# 	is_working=True,
-						# )
-						# device.save()
 						return redirect('main:adminview_assigned_devices')
 			context={
 					'staff':staff,
@@ -2653,3 +2643,14 @@ def adminadd_device(request):
 			return render(request,'admin/adminadd_assigned_devices.html',context)
 		else:
 			return render(request,'pagenotfound.html')
+
+def viewinventorylogs(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	inventorylogs=Inventory_log.objects.filter(staff=staff)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	    'inventorylogs':inventorylogs,				
+	}
+	return render(request,'inventory/viewinventorylogs.html',context)
