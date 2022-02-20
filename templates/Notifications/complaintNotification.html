@@ -23,7 +23,11 @@
               <td>{{ complaint.device.room.name }}</td>
               <td>{{ complaint.device.device_id }} </td>
               <td>{{ complaint.complaint }}</td>
+              {% if complaint.isActive %}
               <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+              {% else %}
+              <td> Resolved </td>
+              {% endif %}
               {% if complaint.isActive %}
                 <td>Active</td>
                 {% else %}

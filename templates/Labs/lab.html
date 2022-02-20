@@ -20,8 +20,9 @@
             <th scope="col">Device ID</th>
             <th scope="col">Device Category</th>
             <th scope="col">Devices Descirption</th>
-            {% if not user.is_staff %}
-              <th scope="col">Add Complaint</th>
+            {% if staff.designation.designation == "Lab Attendant" %}
+               <th scope="col">Add Complaint</th>
+               <th scope="col" >All Complaints</th>
             {% endif %}
           </tr>
         </thead>
@@ -33,8 +34,9 @@
             <td>{{ device.device_id }}</td>
             <td>{{ device.name.category }}</td>
             <td>{{ device.description }}</td>
-            {% if not user.is_staff %}
-              <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+            {% if staff.designation.designation ==  "Lab Attendant" %}
+            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
             {%endif%}
           </tr>
         {% endfor %}
@@ -42,7 +44,7 @@
     </table>
 </div><br><br><hr>
 <h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
-{% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst"%}
+{% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst" or staff.designation.designation == "Lab Attendant" %}
 <h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>
 {%endif%}
 <h5 class = "lab-add-h5" style = "text-align: center;"> If you want to add Devices <a href="{% url 'main:add_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>

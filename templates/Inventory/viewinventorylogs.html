@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count%}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Inventory Logs for {{staff.name}}</h2>
+
+<div class="container">
+    <div class="courses-table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+            <thead>
+              <tr>
+                <th scope="col" >Staff Name</th>
+                <th scope="col" >Device ID</th>
+                <th scope="col" >Device Type</th>
+                <th scope="col" >Request Type</th>
+                <th scope="col" >date</th>
+                
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for il in inventorylogs %}
+              <tr class="table-success" style = "text-align: center;">
+                <td>{{il.staff.name}}</td>
+                <td>{{il.device_id}}</td>
+                <td>{{il.device_name}}</td>
+                <td>{{il.request_type}}</td>
+                <td>{{il.date}}</td>
+                              
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+    </section>
+{% endblock body %}
