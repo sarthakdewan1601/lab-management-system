@@ -560,13 +560,7 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
-
-			# print("debug toData -->>",toDate)		#debug
-
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
-
-			# print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
-
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			
 			# print('DEBUG leave availability-->>', leaveAvailability)	#debug
@@ -657,7 +651,6 @@ def requestleave(request):
 		}
 	
 		return render(request,"leaves/leaverequest.html",context)
-
 
 @login_required
 def checkLeaveStatus(request):

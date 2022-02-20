@@ -117,10 +117,10 @@ class TotalLeaves(models.Model):
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
-    from_date=models.CharField(max_length=11, blank=False, default=None)    # jis din chahiye
-    to_date=models.CharField(max_length=11, null=True, default=None)
+    from_date=models.DateField(blank=False, default=None)   
+    to_date=models.DateField(blank=True, default=None)
     reason = models.TextField()
-    substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
+    substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute', null=True)
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
     admin_approval = models.BooleanField(default=False)                       # field -> admin ka
     admin=models.ForeignKey("Staff", on_delete=models.SET_DEFAULT, default=None, blank=True, related_name='admin', null=True)
