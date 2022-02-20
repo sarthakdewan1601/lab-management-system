@@ -116,6 +116,7 @@ urlpatterns = [
     path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
+        path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
 
     path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
 ]

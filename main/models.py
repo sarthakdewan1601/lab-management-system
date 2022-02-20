@@ -76,6 +76,7 @@ class Room(models.Model):
 class Staff(models.Model):
     user_obj = models.ForeignKey(User, on_delete=CASCADE, blank=False, null=False, default=None)
     name=models.CharField(max_length=100)
+    initials=models.CharField(max_length=4,null=True,blank=False,default=None)
     mobile_number=models.IntegerField()
     email=models.EmailField()
     category=models.ForeignKey('Category',on_delete=CASCADE)
