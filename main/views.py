@@ -1,50 +1,29 @@
-from .models import *
-from .forms import *
 import threading
 import datetime
-import email
-from distutils.log import error
-from email import message
-from genericpath import exists
-from json import tool
-from re import template
-from sqlite3 import Time
-from time import time
-from click import group
 from django.conf import settings
 from email.message import EmailMessage
-# from readline import write_history_file
-from tracemalloc import start
-from django import http
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
-from django.db.models.base import Model
-from django.http.response import Http404
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import ModelBackend
-from django.db import IntegrityError
-from django.urls import reverse_lazy
-from .models import *
-from .forms import *
-from .filters import *
-from django.http import JsonResponse
 import threading
 import datetime
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
 from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
-from django.utils.dateparse import parse_date
+
+from .models import *
+from .forms import *
+from .filters import *
 
 
 UserModel = get_user_model()
