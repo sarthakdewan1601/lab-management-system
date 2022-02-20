@@ -687,7 +687,7 @@ def adminApprovedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False, staff=staff)
 		context={
 			'staff':staff,
 			"approvedleaves":approvedleaves,
