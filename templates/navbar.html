@@ -2,6 +2,9 @@
 {% load static %}
 {% block head %}
 <style>
+  .navbar {
+    height: 80px;
+  }
     a.fa-bell {
     position: relative;
     font-size: 1.25em;
@@ -39,11 +42,6 @@
             <span class="navbar-toggler-icon"></span>
           </button>
         </li>
-        {% if user.is_authenticated %}
-        <li class="nav-link nav-text navLink">
-          <a href="{% url 'main:userProfileDetails' %}" style="text-decoration: none; color : white">{{ staff.name }} </a>
-        </li>
-        {% endif %}
         <li class="nav-item navLink">
           <a class="nav-link nav_text" href="{% url 'main:user_profile' %}" style="text-decoration: none; color : white">Home</a>
         </li>
@@ -65,6 +63,9 @@
     <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
       <ul class="navbar-nav ms-auto">
         {% if user.is_authenticated %}
+        <li class="nav-link nav-text navLink mr-5" style="margin-right: 20px;">
+          <a href="{% url 'main:userProfileDetails' %}" style="text-decoration: none; color : white">{{ staff.name }} </a>
+        </li>
         <li class="nav-item navbar-brand">
           <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
           <a class="fas fa-bell" href="{% url 'main:notification' %}" style="text-decoration: none; color : white">

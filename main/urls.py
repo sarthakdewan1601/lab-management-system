@@ -6,7 +6,6 @@ app_name='main'
 
 urlpatterns = [
     # auth paths
-    # add account/ in front of these urls
     path("accounts/signup/", views.register_request, name="register"),
     path('accounts/email-confirmation/<uidb64>/<token>', views.activate_user, name='active_email'),
     path("accounts/login/", views.login_request, name="login"),
@@ -117,7 +116,6 @@ urlpatterns = [
     path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
-        path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
-
+    path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
     path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
 ]

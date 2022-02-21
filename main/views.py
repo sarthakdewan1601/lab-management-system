@@ -1,50 +1,29 @@
-from .models import *
-from .forms import *
 import threading
 import datetime
-import email
-from distutils.log import error
-from email import message
-from genericpath import exists
-from json import tool
-from re import template
-from sqlite3 import Time
-from time import time
-from click import group
 from django.conf import settings
 from email.message import EmailMessage
-# from readline import write_history_file
-from tracemalloc import start
-from django import http
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
-from django.db.models.base import Model
-from django.http.response import Http404
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import ModelBackend
-from django.db import IntegrityError
-from django.urls import reverse_lazy
-from .models import *
-from .forms import *
-from .filters import *
-from django.http import JsonResponse
 import threading
 import datetime
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
 from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
-from django.utils.dateparse import parse_date
+
+from .models import *
+from .forms import *
+from .filters import *
 
 
 UserModel = get_user_model()
@@ -551,8 +530,6 @@ def requestleave(request):
 		substituteName = Staff.objects.get(id=substitute)
 		multipleLeaves = None
 
-		# print('MultipleLeaves --->>', form['multipleLeaveCheckbox'])
-		# checking if multiple check is true or not
 		try:
 			multipleLeaves = form['multipleLeaveCheckbox']
 		except Exception as e:
@@ -560,26 +537,10 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
-			print(fromDate,toDate)
-
-			print("debug toData -->>",toDate)		#debug
-
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
-
-			print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
-
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
-			
-			print('DEBUG leave availability-->>', leaveAvailability)	#debug
-			print('DEBUG toDate type-->>', type(toDate), toDate)	#debug
-
-			print(leaveAvailability,leaveAvailabilityCount, leaveAvailabilityMessage)
 			if leaveAvailability:
-
-				# print("DEBUG toDate -->>",parse_date(toDate), type(parse_date(toDate)))	#debug
-
 				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName)
-				print("userstatus -->>", UserLeaveStatus.objects.get(reason=reason).to_date)	#debug
 				userstatus.save()
 				##notification
 				customMessage1 = staff.name + " requested for leave"
@@ -659,7 +620,6 @@ def requestleave(request):
 	
 		return render(request,"leaves/leaverequest.html",context)
 
-
 @login_required
 def checkLeaveStatus(request):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -727,7 +687,7 @@ def adminApprovedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False, staff=staff)
 		context={
 			'staff':staff,
 			"approvedleaves":approvedleaves,

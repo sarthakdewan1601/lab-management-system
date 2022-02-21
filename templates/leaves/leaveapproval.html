@@ -8,7 +8,7 @@
     <h2 style = "text-align: center;">Pending Leaves</h2>
 
 <div class="container mt-5">
-<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+<table class="table1 table table-borderless table-dark" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Sender</th>
@@ -19,35 +19,32 @@
         <th scope="col">Approve/Decline</th>
       </tr>
     </thead>
-        <tbody>
-        {% for leave in leaves %}
-
+    <tbody>
+    {% for leave in leaves %}
         {% if not leave.admin_approval %}
-            <tr>
-                <td>{{ leave.staff.name }}</td>
-                <td>{{ leave.substitute.name }} (you) </td>
-                <td>{{ leave.to_date }}</td>
-                <td>{{ leave.from_date }}</td>
-                <td>{{ leave.status }}</td>
-                {% if not leave.substitute_approval and not leave.rejected%}
-                <td>
-                    <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
-                    <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
-                </td>
-                {% elif leave.substitute_approval %}
-                    <td>Already Approved</tr>
-                {% elif leave.rejected %}
-                    <td>Declined</tr>
-                {% endif %}
-            </tr>
+        <tr>
+            <td style="background-color: #fff; color: #000;">{{ leave.staff.name }}</td>
+            <td style="background-color: #fff; color: #000;">{{ leave.substitute.name }} (you) </td>
+            <td style="background-color: #fff; color: #000;">{{ leave.to_date }}</td>
+            <td style="background-color: #fff; color: #000;">{{ leave.from_date }}</td>
+            <td style="background-color: #fff; color: #000;">{{ leave.status }}</td>
+            {% if not leave.substitute_approval and not leave.rejected%}
+            <td style="background-color: #fff; color: #000;">
+                <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
+                <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
+            </td>
+            {% elif leave.substitute_approval %}
+                <td style="background-color: #fff; color: rgb(0, 129, 17);">Already Approved</tr>
+            {% elif leave.rejected %}
+                <td style="background-color: #fff; color: #f00;">Declined</tr>
+            {% endif %}
+        </tr>
         {% else %}
-
             <h2>No active requests for leave </h2>
-            <a href="#">Click to apply a new leave</a>
         {% endif %}
         
-        {% endfor %}
-        </tbody>
+    {% endfor %}
+    </tbody>
   </table>
   </div>
 
