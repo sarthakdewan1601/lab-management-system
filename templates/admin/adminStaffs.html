@@ -31,7 +31,7 @@
                     <td class="table-success">{{staff.designation.designation}}</td>
                     <td class="table-success">{{staff.agency.agency}}</td>
                     <td class="table-success">{{staff.room}}</td>
-                    <td class="table-success"><a href=" {% url 'main:editProfile' pk=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
+                    <td class="table-success"><a href=" {% url 'main:admineditstaffprofile' id=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
                     <td class="table-success"><a href="{% url 'main:adminviewinventory' id=staff.id %} " style="color: black; text-decoration: underline;"><i class="fa-solid fa-warehouse"></i></a></td>
                 </tr>
                 {% endfor %}

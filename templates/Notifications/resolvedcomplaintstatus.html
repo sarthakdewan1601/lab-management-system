@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Complaint Status</h2>
+<div class="container">
+
+    <div class="card p-5 card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+        <p>Created By: {{complaint.created_by.name}}</p>
+        <p>Date: {{complaint.created_at}}</p>
+        <p>Device ID: {{complaint.device.device_id}}</p>
+        <p>Device Category: {{complaint.device.name}}</p>
+        <p>Complaint: {{complaint.complaint}}</p>
+        <p>Work Done: {{complaint.work_Done}}</p>
+    </div>
+</div>
+</section>
+
+{% endblock body %}
