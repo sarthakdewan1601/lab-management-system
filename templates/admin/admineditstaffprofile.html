@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile {% endblock %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+
+
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">EDIT PROFILE</h2>
+<div class="container">
+<br/><br/>
+<div class = "form-control" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+    <form method="POST">
+            {% csrf_token %}
+            {% if user.is_staff %}
+
+            <div class="mb-3 row" >
+              <label for="applicant" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10 col-lg-4">
+                <input type="text" name="name" placeholder="Full Name" required id="id_name" value="{{staff1.name}}" >
+              </div>
+            </div>
+
+            <div class="mb-3 row">
+              <label for="mobile_number" class="col-sm-2 col-form-label">Mobile Number</label>
+              <div class="col-sm-10 col-lg-4">
+                <input type="text" name="mobile_number" placeholder="Mobile Number" required_id ="mobileno" value="{{staff1.mobile_number}}">
+              </div>
+            </div>
+
+            <div class="mb-3 row">
+              <label for="category" class="col-sm-2 col-form-label">Category</label>
+              <div class="col-sm-10 col-lg-4">
+                <input type="text" name="category" placeholder="Category" required id="category" value="{{staff1.category.category}}" disabled>
+              </div>
+            </div>
+
+            <div class="mb-3 row">
+              <label for="designation" class="col-sm-2 col-form-label">Designation</label>
+              <div class="col-sm-10 col-lg-4">
+                <select id="designation" name="designation" required>
+                  <option value={{staff1.designation.id}}>{{staff1.designation.designation}}</option>
+                  {% for des in designations %}
+                    <option value={{des.id}}>{{des}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3 row">
+              <label for="applicant" class="col-sm-2 col-form-label">Agency</label>
+              <div class="col-sm-10 col-lg-4">
+                <select id="agency" name="agency" required id="agency">
+                  <option value={{staff1.agency.id}}>{{staff1.agency.agency}}</option>
+                  {% for i in agency %}
+                    <option value={{i.id}}>{{i.agency}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
+            <div class="mb-3 row">
+              <div class="col-sm-10 col-lg-4">
+                <button type="submit" class="btn btn-secondary"> Update Profile </button>
+              </div>
+            </div>  
+            {% endif %}   
+    </form>
+
+</div>
+</div></section>
+{% endblock body %}

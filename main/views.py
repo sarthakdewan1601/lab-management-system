@@ -961,6 +961,15 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 		complaint = Complaint.objects.get(id=taskId)
 		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,'notification_count':notification_count,})
 
+
+	if notification.notification_type== 'TECH_RESOLVE':
+		complaint=Complaint.objects.get(id=taskId)
+		context={
+			'staff':staff,
+			'complaint':complaint,
+			'notification_count':notification_count,
+		}
+		return render(request,'Notifications/resolvedcomplaintstatus.html',context)
 	if notification.notification_type == 'INVENTORY' and notification.reciever=='admin':
 		fac=Staff.objects.get(id=taskId)
 		inventory_devices=StaffInventory.objects.filter(staff=fac)
@@ -2622,3 +2631,38 @@ def viewinventorylogs(request):
 	    'inventorylogs':inventorylogs,				
 	}
 	return render(request,'inventory/viewinventorylogs.html',context)
+
+def admineditstaffprofile(request,id):
+	if request.user.is_staff:
+		staff = Staff.objects.get(id=id)	
+		admin=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(admin.id)
+		if request.method=="POST":
+			form=request.POST
+			name=form['name']
+			designationId = form['designation']
+			agencyId=form['agency']
+			mobile_number=form['mobile_number']
+			updatedAgency = Agency.objects.get(id=agencyId)
+			updatedDesgination = Designation.objects.get(id=designationId)
+			staff.name=name
+			staff.designation=updatedDesgination
+			staff.agency = updatedAgency
+			staff.mobile_number=mobile_number
+			staff.save()
+			return redirect('main:adminStaff')
+		else:
+			category=Category.objects.get(category=staff.category)
+			designations=Designation.objects.filter(category=category)
+			designations=designations.exclude(designation=staff.designation)
+			agency=Agency.objects.exclude(agency=staff.agency)
+			context = {
+				"staff": admin,
+				"staff1": staff,
+				"designations":designations,
+				"agency":agency,
+				'notification_count':notification_count,
+			}
+			return render(request, "admin/admineditstaffprofile.html", context)		
+	else:
+		return render(request,'pagenotfound.html',{})
