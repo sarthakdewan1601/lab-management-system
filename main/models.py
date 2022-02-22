@@ -1,5 +1,8 @@
 
+from calendar import month
 from random import choice
+from statistics import mode
+from tkinter.messagebox import NO
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from email.policy import default
@@ -67,7 +70,7 @@ class CategoryOfDevice(models.Model):
 class Room(models.Model):
     room_id = models.CharField(max_length=20, blank=False)
     name = models.CharField(max_length=255, blank=True)
-    floor = models.CharField(max_length=10,blank=False, null=False)
+    floor = models.IntegerField(blank=False, null=False, default=0)
     is_lab=models.BooleanField(default=False)
     def __str__(self):
         return self.room_id + ' ('+self.name+')'
@@ -127,6 +130,8 @@ class UserLeaveStatus(models.Model):
     admin=models.ForeignKey("Staff", on_delete=models.SET_DEFAULT, default=None, blank=True, related_name='admin', null=True)
     status = models.CharField(max_length=100, default="Pending", blank=False)
     rejected = models.BooleanField(default=False) 
+    month = models.CharField(max_length=20, default=None, null=True, blank=False)
+    year = models.IntegerField(default=None, null=True, blank=False)
 
     def __str__(self):
         return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name

@@ -1,4 +1,5 @@
 from email.headerregistry import Group
+from operator import iconcat
 import django_filters
 from django_filters import CharFilter
 from .models import *
@@ -40,5 +41,3 @@ class filterAssignedDevices(django_filters.FilterSet):
     class Meta:
         model=Devices
         fields=['name','room','in_inventory','is_working']
-
-
