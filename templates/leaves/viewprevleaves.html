@@ -21,8 +21,8 @@
                     <th>Status</th>
                 </thead>
                 <tbody>
-                    <tr class="table-success" style = "text-align: center;">
                     {% for leave in all_leaves %}
+                    <tr class="table-success" style = "text-align: center;">
                         <td>{{leave.staff.name}}</td>
                         <td>{{leave.substitute.name}}</td>
                         <td>{{leave.leave_type.LeaveName}}</td>
@@ -30,8 +30,8 @@
                         <td>{{leave.to_date}}</td>
                         <td>{{leave.reason}}</td>
                         <td>{{leave.status}}</td>
-                    {% endfor %}
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
 

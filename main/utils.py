@@ -39,6 +39,7 @@ def getNumberOfDays(fromDate, toDate):
         return 1
     toDate = str(toDate)
     fromDate = str(fromDate)
+    print(toDate, fromDate)
     fromDateNumber = fromDate.split("-")[2]
     todateNumber = toDate.split("-")[2]
 

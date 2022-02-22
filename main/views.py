@@ -220,7 +220,7 @@ def login_request(request):
 		except User.DoesNotExist:
 			print("some error occured")
 			current_site = get_current_site(request)
-			messages.error(request, f"This email is not registered. Please signup first: <a href='http://{current_site}/accounts/signup'>click here</a>")
+			messages.error(request, f"This email is not registered. Please signup first")
 			user = None
 			return redirect('main:login')
 
@@ -516,8 +516,8 @@ def requestleave(request):
 	staff= Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
-		# form data
 		form=request.POST
+		# form data
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
 		fromDate=form['fromDate']
@@ -526,10 +526,10 @@ def requestleave(request):
 
 		# processed data
 		year=datetime.datetime.now().year
+		month=datetime.datetime.now().month
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
 		substituteName = Staff.objects.get(id=substitute)
 		multipleLeaves = None
-
 		try:
 			multipleLeaves = form['multipleLeaveCheckbox']
 		except Exception as e:
@@ -540,7 +540,8 @@ def requestleave(request):
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			if leaveAvailability:
-				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName)
+				fromDateMonth = fromDate.split("-")[1]
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName, month=fromDateMonth, year=year)
 				userstatus.save()
 				##notification
 				customMessage1 = staff.name + " requested for leave"
@@ -571,7 +572,9 @@ def requestleave(request):
 		else:
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, 1)
 			if leaveAvailability:
-				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName)
+				year=datetime.datetime.now().year
+				fromDateMonth = fromDate.split("-")[1]
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName, month=fromDateMonth, year=year)
 				userstatus.save()
 				##notification
 
@@ -683,11 +686,12 @@ def approveLeaves(request):
 	}
 	return render(request, 'leaves/leaveapproval.html', context)
 
+@login_required
 def adminApprovedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False, staff=staff)
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
 		context={
 			'staff':staff,
 			"approvedleaves":approvedleaves,
@@ -697,6 +701,7 @@ def adminApprovedLeaves(request):
 	else:
 		return render(request,'pagenotfound.html',{})
 
+@login_required
 def adminRequestedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -711,17 +716,19 @@ def adminRequestedLeaves(request):
 	else:
 		return render(request,'pagenotfound.html',{})
 
+@login_required
 def adminRejectedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
+		print(rejectedleaves)
 		context={
 			'staff':staff,
 			"rejectedleaves":rejectedleaves,
 			'notification_count':notification_count,
 		}
-		return render(request,'admin/adminRequestedLeaves.html',context)
+		return render(request,'admin/adminRejectedLeaves.html',context)
 	else:
 		return render(request,'pagenotfound.html',{})
 
@@ -756,7 +763,7 @@ def approveRequest(request, pk):
 		userleavetaken.count += getTotalLeaveDays
 		userleavetaken.save()
 		
-		return redirect("main:approveLeaves")
+		return redirect("main:adminRequestedLeaves")
 
 	leave = UserLeaveStatus.objects.get(id=pk)
 	leave.substitute_approval = True
@@ -798,7 +805,7 @@ def declineRequest(request, pk):
 			taskId=str(leave.id)
 		)
 		notification.save()
-		existingNotification = Notification.objects.get(taskId = leave.id, notification_type="LEAVE")
+		existingNotification = Notification.objects.filter(taskId = leave.id, notification_type="LEAVE")
 		existingNotification.isActive = False
 		existingNotification.save()
 		return redirect("main:approveLeaves")
@@ -1205,6 +1212,9 @@ def adminLeaves(request):
 
 @login_required
 def newLeave(request):
+	if not request.user.is_staff:
+		return render(request, "pagenotfound.html")
+
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.method == "POST":
@@ -1234,6 +1244,116 @@ def newLeave(request):
 	else:
 		form = AddNewLeave()
 		return render(request, "admin/addLeaveForm.html", {"form":form, "staff":staff,'notification_count':notification_count,})
+
+
+@login_required
+def leaveUsersHistory(request):
+	if not request.user.is_staff:
+		return render(request, "pagenotfound.html")
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	year = datetime.datetime.now().year
+	leave_types = TotalLeaves.objects.filter(year=year)
+	# allLeavesTaken = UserLeavesTaken.objects.all();  # count
+	# allLeavesStatus = UserLeaveStatus.objects.all(); # date
+
+
+	if request.method == "POST":
+		form = request.POST
+		print(form)
+		monthForm = form["month"]
+		year = form["year"]
+		type = form['leaveType']
+		download=''
+		try:
+			download = form['download']
+		except:
+			pass
+		
+		all = "------"
+		leaveType = ''
+		allLeavesStatus = None
+		if type == '':
+			all = "All"
+			leaveType = TotalLeaves.objects.all()
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year).order_by("-id")
+		else:
+			leaveType = TotalLeaves.objects.get(id=type)
+			all = leaveType.LeaveName
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year, leave_type=leaveType).order_by("-id")
+
+
+		leaves = []
+		for leave in allLeavesStatus:
+			if leave.admin_approval:
+				leaves.append(leave)
+
+		# make query set
+
+		currLeaveCount = []
+		for leave in leaves:
+			array = {};
+			currUser = leave.staff
+			currType = leave.leave_type
+			leaveTakenObj = UserLeavesTaken.objects.get(staff=currUser, leave_taken=currType)
+			# currLeaveCount.append(leaveTakenObj)
+			totalLeavesAssigned = leave.leave_type.count
+			totalLeavesTakenOfThisType = leaveTakenObj.count
+			leavesThisMonth = UserLeaveStatus.objects.filter(
+				staff=currUser, 
+				month=monthForm,
+				leave_type=currType,
+				admin_approval=True	
+			)
+			countDays = 0
+			for a in leavesThisMonth:
+				countDays += getNumberOfDays(a.from_date, a.to_date)
+
+			array['leaveTakenObj'] = leaveTakenObj
+			array['totalLeavesAssigned']=totalLeavesAssigned
+			array['totalLeavesTakenOfThisType']=totalLeavesTakenOfThisType
+			array['leavesThisMonth'] = countDays
+			currLeaveCount.append(array)
+
+		
+		defaultParams = {
+			'year':year,
+			'month':str(monthForm),
+			'leavee': all
+		}
+		context = {
+			"staff":staff,
+			'notification_count':notification_count,
+			"leaves": leaves,
+			"leave_types": leave_types,
+			"defaultParams": defaultParams,
+			"leaveObjs": currLeaveCount
+		}
+
+		if download:
+			# make csv and download
+			pass
+
+		return render(request, "admin/adminLeavesHistory.html", context)
+
+	else:
+		year=datetime.datetime.now().year
+		month=datetime.datetime.now().month
+
+		allLeavesTaken = UserLeavesTaken.objects.all();  # count
+		allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-id")
+
+		leaves = []
+		for leave in allLeavesStatus:
+			if leave.admin_approval:
+				leaves.append(leave)
+		context = {
+			"staff":staff,
+			'notification_count':notification_count,
+			"leaves": leaves,
+			"leave_types": leave_types
+		}
+		return render(request, "admin/adminLeavesHistory.html", context)
 
 @login_required
 def adminEditLeave(request, pk):
@@ -1428,6 +1548,7 @@ def load_groups(request):
 			curr_groups.append(group)
 	return render(request, 'TimeTable/group_dropdown_list_option.html', {'groups': curr_groups, "staff":staff,'notification_count':notification_count,})
 	# return JsonResponse(list(groups.values('id', 'name')), safe=False)
+
 @login_required
 def load_groupcourses(request):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -1582,6 +1703,7 @@ def addFaculty(request):
 		mobile_number = form['mobile_number']
 		designation = form['designation']
 		agency = form['agency']
+		initials = form['initials']
 		password = 'Qwerty!@#$%pass@123'
 		agen = Agency.objects.get(agency=agency)
 		cat = Category.objects.get(category="Faculty")
@@ -1589,7 +1711,7 @@ def addFaculty(request):
 		user = User.objects.create_user(email, password, is_active=True)
 		user.is_email_verified=True
 		user.save()
-		staff, was_created = Staff.objects.get_or_create(user_obj=user, name=name, email=email, mobile_number=mobile_number, designation=des, agency=agen, category=cat)
+		staff, was_created = Staff.objects.get_or_create(user_obj=user, name=name, email=email, mobile_number=mobile_number, designation=des, agency=agen, category=cat, initials=initials)
 		staff.save()
 		return redirect("main:adminfacultydetails")
 	else:
