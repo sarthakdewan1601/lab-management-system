@@ -58,7 +58,7 @@
                     <option value="{{type.id}}">{{ type.LeaveName }}</option>
                      {% endfor %}
                 </select>
-                     <label for="download">Download Date</label>
+                     <label for="download">Download Table</label>
                     <input type="checkbox" name="download" id="download" value="download" style="margin-right: 10px;">
 
                   <button class="btn btn-dark btn-sm" type="submit">Proceed</button>
@@ -78,6 +78,7 @@
                        <th>Total</th>
                        <th>Taken</th>
                        <th>Taken This Month</th>
+                       <th>Days</th>
                    </tr>
                </thead>
                <tbody>
@@ -90,6 +91,7 @@
                          <td>{{leave.totalLeavesAssigned}}</td>
                          <td>{{leave.totalLeavesTakenOfThisType}}</td>
                          <td>{{leave.leavesThisMonth}}</td>
+                         <td>{{leave.days}}</td>
                     </tr>
                     {% endfor %}
                </tbody>

@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 import threading
 import datetime
-
+import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -1269,7 +1269,7 @@ def leaveUsersHistory(request):
 
 	if request.method == "POST":
 		form = request.POST
-		print(form)
+		# print(form)
 		monthForm = form["month"]
 		year = form["year"]
 		type = form['leaveType']
@@ -1317,14 +1317,57 @@ def leaveUsersHistory(request):
 			countDays = 0
 			for a in leavesThisMonth:
 				countDays += getNumberOfDays(a.from_date, a.to_date)
+			days=[]
+			for x in leavesThisMonth:
+				if x.from_date==x.to_date:
+					start=int(str(x.from_date)[-2:])
+					if start not in days:
+						days.append(start)
+				else:
+					start=int(str(x.from_date)[-2:])
+					end=int(str(x.to_date)[-2:])
+					while start<=end:
+						if start not in days:
+							days.append(start)
+						start+=1
+
+			# print(days)
+			s=""
+			for i in days:
+				s+=str(i)+','
+			s=s[:-1]
+
 
 			array['leaveTakenObj'] = leaveTakenObj
 			array['totalLeavesAssigned']=totalLeavesAssigned
 			array['totalLeavesTakenOfThisType']=totalLeavesTakenOfThisType
 			array['leavesThisMonth'] = countDays
+			array['days']=s
 			currLeaveCount.append(array)
 
-		
+		if download:
+			response = HttpResponse(content_type='text/csv')
+
+			writer = csv.writer(response)
+			writer.writerow(['Name', 'Designation', 'Leave Type', 'Total Leaves','Total Leaves Taken','Leaves Taken this month','Leave Days'])
+
+			for x in currLeaveCount:
+				arr=[]
+				arr.append(x['leaveTakenObj'].staff.name)
+				arr.append(x['leaveTakenObj'].staff.designation.designation)
+				arr.append(x['leaveTakenObj'].leave_taken.LeaveName)
+				arr.append(x['totalLeavesAssigned'])
+				arr.append(x['totalLeavesTakenOfThisType'])
+				arr.append(x['leavesThisMonth'])
+				arr.append(x['days'])
+				writer.writerow(arr)
+
+			response['Content-Disposition'] = 'attachment; filename="leaves_this_month.csv"'
+
+			return response
+			
+			
+
 		defaultParams = {
 			'year':year,
 			'month':str(monthForm),
@@ -1336,13 +1379,8 @@ def leaveUsersHistory(request):
 			"leaves": leaves,
 			"leave_types": leave_types,
 			"defaultParams": defaultParams,
-			"leaveObjs": currLeaveCount
+			"leaveObjs": currLeaveCount,
 		}
-
-		if download:
-			# make csv and download
-			pass
-
 		return render(request, "admin/adminLeavesHistory.html", context)
 
 	else:
