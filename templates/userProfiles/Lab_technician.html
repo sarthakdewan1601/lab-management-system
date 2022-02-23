@@ -6,10 +6,86 @@
 
 <section class="sectionLogin">
     <br>
-    <h2 style = "text-align: center;">Dashboard</h2>
-{% for complaint in complaints %}
-    {{complaint}}
-{% endfor %}
+    <h2 style = "text-align: center;">Technician Dashboard</h2>
+
+    <div class="container">
+
+
+        <h2 style = "text-align: center;"> Active Complaints </h2>
+        <br>
+        
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+            <thead>
+              <tr>
+                <th scope="col">Room ID</th>
+                <th scope="col">Room Name</th>
+                <th scope="col">Device Number</th>
+                <th scope="col">Complaint</th>
+                <th scope="col" style="text-align: center;">Resolve Complaint</th>
+                {% comment %}
+                <th scope="col" style="text-align: center;">Complaint Status</th>
+                {% endcomment %}
+              </tr>
+            </thead>
+                <tbody>
+        
+                {% for active_complaint in active_complaints %}
+                <tr class="table-success" style = "text-align: center;">
+                    <td>{{ active_complaint.device.room.room_id }}</td>
+                    <td>{{ active_complaint.device.room.name }}</td>
+                    <td>{{ active_complaint.device.device_id }} </td>
+                    <td>{{ active_complaint.complaint }}</td>
+                    <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+        
+                    {% comment %}
+        
+                    {% if complaint.isActive %}
+                    <td>Active</td>
+                    {% else %}
+                    <td>Resolved</td>
+                    {% endif %}
+        
+                    {% endcomment %}
+        
+        
+                </tr>
+                {% endfor %}
+                </tbody>
+          </table>
+          <br><hr>
+          <h2 style = "text-align: center;"> Resolved Complaints </h2>
+        
+          <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+            <thead>
+              <tr>
+                <th scope="col">Room ID</th>
+                <th scope="col">Room Name</th>
+                <th scope="col">Device Number</th>
+                <th scope="col">Complaint</th>
+                <th scope = "col"> Work Done </th>
+                {% comment %}
+                <th scope="col" style="text-align: center;">Resolve Complaint</th>
+                <th scope="col" style="text-align: center;">Complaint Status</th>
+                {% endcomment %}
+              </tr>
+            </thead>
+                <tbody>
+        
+                {% for resolved_complaint in resolved_complaints %}
+                <tr class="table-success" style = "text-align: center;">
+                    <td>{{ resolved_complaint.device.room.room_id }}</td>
+                    <td>{{ resolved_complaint.device.room.name }}</td>
+                    <td>{{ resolved_complaint.device.device_id }} </td>
+                    <td>{{ resolved_complaint.complaint }}</td>
+                    <td>{{ resolved_complaint.work_Done }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+          </table><br>
+        <hr>
+          </div>
+        
+
 </section>
 
 

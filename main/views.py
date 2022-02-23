@@ -412,7 +412,7 @@ def user_profile(request):
 				"notifications": current_notifications,
 				'notification_count':notification_count,
 			}
-			return render(request, "userProfiles/Lab_technician.html", context)
+			return redirect('main:viewcomplaints')
 			
 			# complaint resolve form details
 			# static-> device id, lab id, complaint, jisne complaint kri hai vo user, 
