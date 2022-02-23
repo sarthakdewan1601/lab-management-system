@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 import threading
 import datetime
-
+import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -968,6 +968,15 @@ def handleNotification(request, pk):							# get notification and userleavestatu
 		complaint = Complaint.objects.get(id=taskId)
 		return render(request, 'Notifications/complaintNotification.html', {"complaint":complaint,"staff":staff,'notification_count':notification_count,})
 
+
+	if notification.notification_type== 'TECH_RESOLVE':
+		complaint=Complaint.objects.get(id=taskId)
+		context={
+			'staff':staff,
+			'complaint':complaint,
+			'notification_count':notification_count,
+		}
+		return render(request,'Notifications/resolvedcomplaintstatus.html',context)
 	if notification.notification_type == 'INVENTORY' and notification.reciever=='admin':
 		fac=Staff.objects.get(id=taskId)
 		inventory_devices=StaffInventory.objects.filter(staff=fac)
@@ -1260,7 +1269,7 @@ def leaveUsersHistory(request):
 
 	if request.method == "POST":
 		form = request.POST
-		print(form)
+		# print(form)
 		monthForm = form["month"]
 		year = form["year"]
 		type = form['leaveType']
@@ -1308,14 +1317,57 @@ def leaveUsersHistory(request):
 			countDays = 0
 			for a in leavesThisMonth:
 				countDays += getNumberOfDays(a.from_date, a.to_date)
+			days=[]
+			for x in leavesThisMonth:
+				if x.from_date==x.to_date:
+					start=int(str(x.from_date)[-2:])
+					if start not in days:
+						days.append(start)
+				else:
+					start=int(str(x.from_date)[-2:])
+					end=int(str(x.to_date)[-2:])
+					while start<=end:
+						if start not in days:
+							days.append(start)
+						start+=1
+
+			# print(days)
+			s=""
+			for i in days:
+				s+=str(i)+','
+			s=s[:-1]
+
 
 			array['leaveTakenObj'] = leaveTakenObj
 			array['totalLeavesAssigned']=totalLeavesAssigned
 			array['totalLeavesTakenOfThisType']=totalLeavesTakenOfThisType
 			array['leavesThisMonth'] = countDays
+			array['days']=s
 			currLeaveCount.append(array)
 
-		
+		if download:
+			response = HttpResponse(content_type='text/csv')
+
+			writer = csv.writer(response)
+			writer.writerow(['Name', 'Designation', 'Leave Type', 'Total Leaves','Total Leaves Taken','Leaves Taken this month','Leave Days'])
+
+			for x in currLeaveCount:
+				arr=[]
+				arr.append(x['leaveTakenObj'].staff.name)
+				arr.append(x['leaveTakenObj'].staff.designation.designation)
+				arr.append(x['leaveTakenObj'].leave_taken.LeaveName)
+				arr.append(x['totalLeavesAssigned'])
+				arr.append(x['totalLeavesTakenOfThisType'])
+				arr.append(x['leavesThisMonth'])
+				arr.append(x['days'])
+				writer.writerow(arr)
+
+			response['Content-Disposition'] = 'attachment; filename="leaves_this_month.csv"'
+
+			return response
+			
+			
+
 		defaultParams = {
 			'year':year,
 			'month':str(monthForm),
@@ -1327,13 +1379,8 @@ def leaveUsersHistory(request):
 			"leaves": leaves,
 			"leave_types": leave_types,
 			"defaultParams": defaultParams,
-			"leaveObjs": currLeaveCount
+			"leaveObjs": currLeaveCount,
 		}
-
-		if download:
-			# make csv and download
-			pass
-
 		return render(request, "admin/adminLeavesHistory.html", context)
 
 	else:
@@ -2744,3 +2791,38 @@ def viewinventorylogs(request):
 	    'inventorylogs':inventorylogs,				
 	}
 	return render(request,'inventory/viewinventorylogs.html',context)
+
+def admineditstaffprofile(request,id):
+	if request.user.is_staff:
+		staff = Staff.objects.get(id=id)	
+		admin=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(admin.id)
+		if request.method=="POST":
+			form=request.POST
+			name=form['name']
+			designationId = form['designation']
+			agencyId=form['agency']
+			mobile_number=form['mobile_number']
+			updatedAgency = Agency.objects.get(id=agencyId)
+			updatedDesgination = Designation.objects.get(id=designationId)
+			staff.name=name
+			staff.designation=updatedDesgination
+			staff.agency = updatedAgency
+			staff.mobile_number=mobile_number
+			staff.save()
+			return redirect('main:adminStaff')
+		else:
+			category=Category.objects.get(category=staff.category)
+			designations=Designation.objects.filter(category=category)
+			designations=designations.exclude(designation=staff.designation)
+			agency=Agency.objects.exclude(agency=staff.agency)
+			context = {
+				"staff": admin,
+				"staff1": staff,
+				"designations":designations,
+				"agency":agency,
+				'notification_count':notification_count,
+			}
+			return render(request, "admin/admineditstaffprofile.html", context)		
+	else:
+		return render(request,'pagenotfound.html',{})
