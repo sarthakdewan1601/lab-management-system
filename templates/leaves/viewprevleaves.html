@@ -4,12 +4,13 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
-<div class='Wrapper'>
-    <div class="all-leaves-container">
-        <h1 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h1>
-        <div class = "tables-leaves card">
-            <table>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">View Previous Leaves</h2>
+<div class='container'>
+    <div class="all-leaves-container" style = "text-align: center;">
+        <h3 style="text-align: center;"> All Leaves Taken by {{staff.name}}</h3>
+            <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
                 <thead class="thead-dark">
                     <th>Sender</th>
                     <th>Substitute</th>
@@ -20,8 +21,8 @@
                     <th>Status</th>
                 </thead>
                 <tbody>
-                    <tr>
                     {% for leave in all_leaves %}
+                    <tr class="table-success" style = "text-align: center;">
                         <td>{{leave.staff.name}}</td>
                         <td>{{leave.substitute.name}}</td>
                         <td>{{leave.leave_type.LeaveName}}</td>
@@ -29,16 +30,15 @@
                         <td>{{leave.to_date}}</td>
                         <td>{{leave.reason}}</td>
                         <td>{{leave.status}}</td>
-                    {% endfor %}
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-        </div>
 
 
-    </div>
+   
 
-</div>
+</div></section>
 
 
 {% endblock body %}

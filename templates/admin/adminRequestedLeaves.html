@@ -4,14 +4,16 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Pending Leaves</h2>
 <div class="container mt-5">
-    <h2>Pending Leaves</h2>
 
-    <table class="table">
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
         <tr>
             <th scope="col">Sender</th>
-            <th scope="col">Sunstitute</th>
+            <th scope="col">Substitute</th>
             <th scope="col">From Date</th>
             <th scope="col">To Date</th>
             <th scope="col">Reason</th>
@@ -23,7 +25,7 @@
         </thead>
             <tbody>
             {% for leave in requestedleaves %}
-                <tr>
+                <tr class="table-success" style = "text-align: center;">
                     <td>{{ leave.staff.name }}</td>
                     <td>{{ leave.substitute.name }} </td>
                     <td>{{ leave.from_date }}</td>
@@ -45,6 +47,7 @@
             </tbody>
     </table>   
   </div>
+  </section>
 
 
 {% endblock body %}

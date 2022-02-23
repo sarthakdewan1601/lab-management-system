@@ -3,10 +3,14 @@
 {% block body %}
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Groups</h2>
+
 
 <div class="container">
     <div class="groups-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Faculty</th>
@@ -19,7 +23,7 @@
     
             <tbody>
               {% for group in groups %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{group.faculty.name}}</td>
                 <td>{{group.groups.group_id}}</td>
                 <td>{{group.groups.branch.branch_name}}</td>
@@ -31,5 +35,7 @@
           </table>
         </div>
         <p>If you want to add a group <a href = "{% url 'main:adminaddgroup' id=faculty.id%}">click here</a></p>
+        <a href="{% url 'main:viewallfacultygroups' id=faculty.id %}" class="btn btn-primary">View All Groups</a>
     </div>
+    </section>
 {% endblock body %}

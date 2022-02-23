@@ -4,12 +4,13 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
-
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Staff Members</h2>
 <div class="container">
-    <div class="card custom-card-list">
-    <h2>Staff Members</h2>
     
-    <table class="table">
+    
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead class="thead-dark">
             <tr>
                 <th>Name</th>
@@ -24,23 +25,26 @@
         <tbody>
             
                 {% for staff in staffs %}
-                <tr>
-                    <td>{{staff.name}}</td>
-                    <td>{{staff.category.category}}</td>
-                    <td>{{staff.designation.designation}}</td>
-                    <td>{{staff.agency.agency}}</td>
-                    <td>{{staff.room}}</td>
-                    <td><a href=" {% url 'main:editProfile' pk=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
-                    <td><a href="{% url 'main:adminviewinventory' id=staff.id %} " style="color: black; text-decoration: underline;">View Inventory</a></td>
+                <tr class="table-success">
+                    <td class="table-success">{{staff.name}}</td>
+                    <td class="table-success">{{staff.category.category}}</td>
+                    <td class="table-success">{{staff.designation.designation}}</td>
+                    <td class="table-success">{{staff.agency.agency}}</td>
+                    <td class="table-success">{{staff.room}}</td>
+                    <td class="table-success"><a href=" {% url 'main:admineditstaffprofile' id=staff.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
+                    <td class="table-success"><a href="{% url 'main:adminviewinventory' id=staff.id %} " style="color: black; text-decoration: underline;"><i class="fa-solid fa-warehouse"></i></a></td>
                 </tr>
                 {% endfor %}
             
         </tbody>
     </table>
+    <br>
+    <div class="new-user-form">
+        <h6 style = "text-align: center;">Create new staff member <a href="#">click here</a></h6>
     </div>
     </div>
-</div>
-
+    
+</section>
 
 
 {% endblock body %}

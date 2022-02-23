@@ -1,15 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 {% load static %}
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Complaint</h2>
 <div class="container mt-5">
-  <table class="table">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
       <thead>
         <tr>
-          <th scope="col">Lab ID</th>
-          <th scope="col">Lab Name</th>
+          <th scope="col">Room ID</th>
+          <th scope="col">Room Name</th>
           <th scope="col">Device Number</th>
           <th scope="col">Complaint</th>
           <th scope="col" style="text-align: center;">Resolve Complaint</th>
@@ -18,27 +20,30 @@
       </thead>
           <tbody>
   
-          <tr>
+          <tr class="table-success" style = "text-align: center;">
               <td>{{ complaint.device.room.room_id }}</td>
               <td>{{ complaint.device.room.name }}</td>
               <td>{{ complaint.device.device_id }} </td>
               <td>{{ complaint.complaint }}</td>
+              {% if complaint.isActive %}
               <td><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+              {% else %}
+              <td> Resolved </td>
+              {% endif %}
               {% if complaint.isActive %}
                 <td>Active</td>
                 {% else %}
-                <td>Resolved</td>
+                <td>Resolved</td> 
               {% endif %}
               
               {% comment %}
                   <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td> 
               {% endcomment %}
           </tr>
-
           </tbody>
-    </table>
-    </div>
-  
-
+          </table>
+          </div>
+          </section>
+          
 
 {% endblock body %}

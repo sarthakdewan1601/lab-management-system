@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count%}
+
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;"> View Warehouse Devices</h2>
+<div class="container">
+    <div class="col">
+        <div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
+            <form method="get">
+              {% load crispy_forms_tags %}
+                {{myFilter.form|crispy}}
+                <br>
+                <button class="btn btn-dark btn-sm" type="submit">Filter Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="courses-table" style = "margin-top: 20px;">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+            <thead>
+              <tr>
+                <th scope="col" >Device-ID</th>
+                <th scope="col" >Device Category</th>
+                <th scope="col" >Device Description</th>
+                <th scope="col" >Device Location</th>
+                <th scope="col" >In inventory</th>
+                <th scope="col" >Is Working</th>
+                
+              </tr>
+            </thead>
+            
+            <tbody>
+              {% for device in devices %}
+            <tr class="table-success" style = "text-align: center;">
+                <td>{{device.device_id}}</td>
+                <td>{{device.name.category}}</td>
+                <td>{{device.description}}</td>
+                <td> Ware House</td>
+                <td>{{device.in_inventory}}</td>
+                <td>{{device.is_working}}</td>
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p>If you want to add a device, <a href = "{% url 'main:adminadd_device' %}">click here</a></p>
+</div>
+{% endblock body %}

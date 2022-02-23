@@ -4,24 +4,34 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
-<div class="container">
-    <div class="align-center">
-    <div class="card w-50">
-        <div class="card-body bg-light text-dark">
-            <form method="POST">
-                {% csrf_token %}
-                <h3 class="card-title">{{leave.LeaveName}}</h3>
-                <label for="leaveCount">Leave Count</label>
-                <input type="number" id="leaveCount" name="leaveCount" value="{{leave.count}}">                
-                <br/><br/>
-                <button type="submit" class="btn btn-dark btn-sm"><a>Update</a></button>
-                <button class="btn btn-dark btn-sm"><a href="{% url 'main:removeLeave' pk=leave.id %}" style="color: white; text-decoration: none;">Remove</a></button>
-            </form>
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Leave Edit Form</h2>
+    <div class="container" style = "margin-top: 10%;">
+        <div class="align-center" style = "align-items:">
+        <div class="card w-50" style = " background-color: rgba(245, 245, 245, 0.4); margin:auto;padding:20px">
+            <div class="card-body text-dark">
+                <form method="POST">
+                    {% csrf_token %}
+                    <h3 class="card-title">{{leave.LeaveName}}</h3>
+                    <label for="leaveCount">Leave Count</label>
+                    <input type="number" id="leaveCount" name="leaveCount" value="{{leave.count}}">                
+                    <br/><br/>
+                    <button type="submit" class="btn btn-dark btn-sm"><a>Update</a></button>
+                    <button class="btn btn-dark btn-sm"><a href="{% url 'main:removeLeave' pk=leave.id %}" style="color: white; text-decoration: none;">Remove</a></button>
+                </form>
+            </div>
+          </div>
         </div>
-      </div>
     </div>
-</div>
+    </section>
+<!-- <div class="container" style = "margin-top: 10%;">
+    <div class="align-center" style = "align-items: center;">
+    <div class="card w-50" style = " background-color: rgba(245, 245, 245, 0.4); margin:auto;padding:20px">
+        <div class="card-body text-dark" > -->
+
+
+
 
 
 

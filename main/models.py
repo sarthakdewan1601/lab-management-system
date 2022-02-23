@@ -1,5 +1,8 @@
 
+from calendar import month
 from random import choice
+from statistics import mode
+from tkinter.messagebox import NO
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from email.policy import default
@@ -27,7 +30,7 @@ from .managers import CustomUserManager
 class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
-    is_email_verified = models.BooleanField(default=False)        
+    is_email_verified = models.BooleanField(default=False)   
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -67,7 +70,7 @@ class CategoryOfDevice(models.Model):
 class Room(models.Model):
     room_id = models.CharField(max_length=20, blank=False)
     name = models.CharField(max_length=255, blank=True)
-    floor = models.CharField(max_length=10,blank=False, null=False)
+    floor = models.IntegerField(blank=False, null=False, default=0)
     is_lab=models.BooleanField(default=False)
     def __str__(self):
         return self.room_id + ' ('+self.name+')'
@@ -76,6 +79,7 @@ class Room(models.Model):
 class Staff(models.Model):
     user_obj = models.ForeignKey(User, on_delete=CASCADE, blank=False, null=False, default=None)
     name=models.CharField(max_length=100)
+    initials=models.CharField(max_length=4,null=True,blank=False,default=None)
     mobile_number=models.IntegerField()
     email=models.EmailField()
     category=models.ForeignKey('Category',on_delete=CASCADE)
@@ -117,15 +121,17 @@ class TotalLeaves(models.Model):
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
     leave_type=models.ForeignKey(TotalLeaves, on_delete=CASCADE)
-    from_date=models.CharField(max_length=11, blank=False, default=None)    # jis din chahiye
-    to_date=models.CharField(max_length=11, null=True, default=None)
+    from_date=models.DateField(blank=False, default=None)   
+    to_date=models.DateField(blank=True, default=None)
     reason = models.TextField()
-    substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute')
+    substitute=models.ForeignKey('Staff', blank=None, on_delete=CASCADE, related_name='Substitute', null=True)
     substitute_approval = models.BooleanField(default=False)               # field -> substitute ka
     admin_approval = models.BooleanField(default=False)                       # field -> admin ka
     admin=models.ForeignKey("Staff", on_delete=models.SET_DEFAULT, default=None, blank=True, related_name='admin', null=True)
     status = models.CharField(max_length=100, default="Pending", blank=False)
     rejected = models.BooleanField(default=False) 
+    month = models.CharField(max_length=20, default=None, null=True, blank=False)
+    year = models.IntegerField(default=None, null=True, blank=False)
 
     def __str__(self):
         return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name
@@ -165,7 +171,7 @@ class Complaint(models.Model):
     isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    # date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return "Complaint for lab " + str(self.device.room.room_id)
@@ -186,6 +192,8 @@ class Devices(models.Model):
     description = models.TextField(max_length=1024)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
+    is_working=models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.device_id +" - "+str(self.room)
@@ -329,7 +337,7 @@ class Class(models.Model):
     )
     lab=models.ForeignKey('Lab',on_delete=CASCADE)
     faculty=models.ForeignKey('Staff',on_delete=CASCADE)
-    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE, default=0)
+    faculty_group_course=models.ForeignKey('GroupCourse',on_delete=CASCADE,default=0)
     day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
     starttime=models.TimeField(auto_now=False)
     endtime = models.TimeField(auto_now=False)

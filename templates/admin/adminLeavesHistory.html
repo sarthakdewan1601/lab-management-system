@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<head>
+     <script>
+          window.onload =()=> {
+               preventDefault();
+          }
+     </script>
+</head>
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Leaves Taken</h2>
+<div class="container mt-5">
+     <div class="col">
+          <div class=" card card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+              <form method="POST">
+                   {% csrf_token %}
+               <label for="month">Month</label>
+               <select id="month" name="month" required>
+                    <option value="{{defaultParams.month}}">{{defaultParams.month}}</option>
+                    <option value="01">01</option>
+                    <option value="02">02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                    <option value="05">05</option>
+                    <option value="06">06</option>
+                    <option value="07">07</option>
+                    <option value="08">08</option>
+                    <option value="09">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                  <label for="year" style="margin-left: 10px;">Year</label>
+                  <select id="year" name="year" style="margin-right: 15px;" required>
+                    <option value="{{defaultParams.year}}">{{defaultParams.year}}</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                    <option value="2029">2029</option>
+                    <option value="2030">2030</option>
+                    <option value="2031">2031</option>
+                    <option value="2032">2032</option>
+                </select>
+                <label for="leaveType">Leave Type</label>
+                <select name="leaveType" id="leaveType">
+                     <option value="">{{defaultParams.leavee}}</option>
+                     <option value="">All</option>
+                     {% for type in leave_types %}
+                    <option value="{{type.id}}">{{ type.LeaveName }}</option>
+                     {% endfor %}
+                </select>
+                     <label for="download">Download Table</label>
+                    <input type="checkbox" name="download" id="download" value="download" style="margin-right: 10px;">
+
+                  <button class="btn btn-dark btn-sm" type="submit">Proceed</button>
+               </form>
+          </div>
+      </div>
+    <div class="row">
+     <div class = "card-group" style = "margin: 20px;">
+          
+          <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+               <thead class="thead-dark">
+                   <tr>
+                       <th>Name</th>
+                       <th>Designation</th>
+                       <th>Leave Type</th>
+                       <th>Total</th>
+                       <th>Taken</th>
+                       <th>Taken This Month</th>
+                       <th>Days</th>
+                   </tr>
+               </thead>
+               <tbody>
+                    {% for leave in leaveObjs %}
+                    <tr class="table-success" style = "text-align: center;">
+                         <td>{{leave.leaveTakenObj.staff.name}}</td>
+                         <td>{{leave.leaveTakenObj.staff.designation.designation}}</td>
+                         <td>{{leave.leaveTakenObj.leave_taken.LeaveName}}</td>
+                         <td>{{leave.totalLeavesAssigned}}</td>
+                         <td>{{leave.totalLeavesTakenOfThisType}}</td>
+                         <td>{{leave.leavesThisMonth}}</td>
+                         <td>{{leave.days}}</td>
+                    </tr>
+                    {% endfor %}
+               </tbody>
+           </table>
+
+    </div>
+    </div>
+  </div>
+</section>
+
+{% endblock body %}

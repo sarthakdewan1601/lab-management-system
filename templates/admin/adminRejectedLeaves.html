@@ -3,16 +3,18 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;"> Rejected Leaves</h2>
 <div class="container mt-5">
-    <h2>Rejected Leaves</h2>
-<table class="table">
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
     <tr>
         <th scope="col">Sender</th>
         <th scope="col">Substitute</th>
         <th scope="col">Substitue Approval</th>
-        <th scope="col">Date</th>
+        <th scope="col">From Date</th>
+        <th scope="col">To Date</th>
         <th scope="col">Reason</th>
         <th scope="col">Status</th>
         <th scope="col">Rejected By</th>
@@ -20,11 +22,12 @@
     </thead>
         <tbody>
         {% for leave in rejectedleaves %}
-            <tr>
+            <tr class="table-success" style = "text-align: center;">
                 <td>{{ leave.staff.name }}</td>
                 <td>{{ leave.substitute.name }} </td>
                 <td>{{ leave.substitute_approval }}  </td>
-                <td>{{ leave.date_time|date }}</td>
+                <td>{{ leave.from_date }}</td>
+                <td>{{ leave.to_date }}</td>
                 <td>{{leave.reason}}</td>
                 <td>{{ leave.status }}</td>
                 <td> {{leave.admin.name}}(admin)</td> 
@@ -33,6 +36,7 @@
         </tbody>
 </table>
   </div>
+  </section>
 
 
 {% endblock body %}

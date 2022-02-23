@@ -6,7 +6,6 @@ app_name='main'
 
 urlpatterns = [
     # auth paths
-    # add account/ in front of these urls
     path("accounts/signup/", views.register_request, name="register"),
     path('accounts/email-confirmation/<uidb64>/<token>', views.activate_user, name='active_email'),
     path("accounts/login/", views.login_request, name="login"),
@@ -17,7 +16,7 @@ urlpatterns = [
     path('accounts/password-change/<id>', views.passwordChange, name="passwordChange"),
  
     # user paths
-    path('', views.home, name='home'),
+    path('', views.user_profile, name='home'),
     path('profile/user-profile/' ,views.user_profile, name='user_profile'),
     path('profile/user-profile-details/',views.user_profile_details, name='userProfileDetails'),
     path('profile/edit-profile/<pk>',views.editProfile, name='editProfile'),
@@ -50,24 +49,26 @@ urlpatterns = [
     path('admin-dashboard/leaves/rejected-leaves', views.adminRejectedLeaves, name='adminRejectedLeaves'),
     path('admin-dashboard/leaves/approved-leaves', views.adminApprovedLeaves, name='adminApprovedLeaves'),
     path('admin-dashboard/staff-members-list/', views.adminStaff, name='adminStaff'),
+    path('admin-dashboard/staff-members-list/edit_profile/<id>', views.admineditstaffprofile, name='admineditstaffprofile'),
     path('admin-dashboard/view-inventory/<id>',views.adminviewinventory,name='adminviewinventory'),
     path('admin-dashboard/view-inventory/approveDeviceRequest/<pk>',views.approveDeviceRequest,name='approveDeviceRequest'),
     path('admin-dashboard/view-inventory/declineDeviceRequest/<pk>',views.declineDeviceRequest,name='declineDeviceRequest'),
     path('admin-dashboard/current-year-leaves/', views.adminLeaves, name='adminLeaves'),
     path('admin-dashboard/current-year-leaves/new-leave-form', views.newLeave, name='newLeave'),
+    path('admin-dashboard/leaves-history/', views.leaveUsersHistory, name='leaveUsersHistory'),
     path('admin-dashboard/current-year-leaves/leave/<pk>', views.adminEditLeave, name='adminEditLeave'),
     path('admin-dashboard/current-year-leaves/remove-leave/<pk>', views.removeLeave, name='removeLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
     path('admin-dashboard/labs-list/add-lab', views.adminaddlab, name='adminaddlab'),
-    path('admin-dashboard/Rooms/', views.adminviewrooms, name='adminviewrooms'),
-    path('admin-dashboard/Rooms/add-room/', views.adminaddroom, name='adminaddroom'),
-    path('admin-dashboard/Rooms/edit-room/<id>', views.admineditroom, name='admineditroom'),
-    path('admin-dashboard/Courses/', views.viewallcourses, name='viewallcourses'),
-    path('admin-dashboard/Courses/add-Course/', views.adminaddcourse, name='adminaddcourse'),
-    path('admin-dashboard/Courses/edit-Course/<id>', views.admineditcourse, name='admineditcourse'),
-    path('admin-dashboard/Groups/', views.viewallgroups, name='viewallgroups'),
-    path('admin-dashboard/Groups/add-Group/', views.addgroup, name='addgroup'),
-    path('admin-dashboard/Groups/edit-Group/<id>', views.admineditgroup, name='admineditgroup'),
+    path('admin-dashboard/rooms/', views.adminviewrooms, name='adminviewrooms'),
+    path('admin-dashboard/rooms/add-room/', views.adminaddroom, name='adminaddroom'),
+    path('admin-dashboard/rooms/edit-room/<id>', views.admineditroom, name='admineditroom'),
+    path('admin-dashboard/courses/', views.viewallcourses, name='viewallcourses'),
+    path('admin-dashboard/courses/add-Course/', views.adminaddcourse, name='adminaddcourse'),
+    path('admin-dashboard/courses/edit-Course/<id>', views.admineditcourse, name='admineditcourse'),
+    path('admin-dashboard/groups/', views.viewallgroups, name='viewallgroups'),
+    path('admin-dashboard/groups/add-group/', views.addgroup, name='addgroup'),
+    path('admin-dashboard/groups/edit-group/<id>', views.admineditgroup, name='admineditgroup'),
     path('admin-dashboard/complaints-list/', views.adminComplaints, name='adminComplaints'),
     path('admin-dashboard/complaints-list/Active-Complaints', views.adminactivecomplaints, name='adminactivecomplaints'),
     path('admin-dashboard/complaints-list/Resolved-Complaints', views.adminresolvedcomplaints, name='adminresolvedcomplaints'),
@@ -86,13 +87,19 @@ urlpatterns = [
     path('admin-dashboard/faculty-details/admin-view-courses/update-faculty-class/<id><pk>',views.adminupdatefacultyclass,name='adminupdatefacultyclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-class/<id>',views.admindeleteclass,name='admindeleteclass'),
     path('admin-dashboard/faculty-details/admin-view-courses/delete-faculty-class/<id>',views.admindeletefacultyclass,name='admindeletefacultyclass'),
-    path('admin-dashboard/Assign-Office/', views.adminassignoffice, name='adminassignoffice'),
+    path('admin-dashboard/assign-office/', views.adminassignoffice, name='adminassignoffice'),
     path('admin-dashboard/branches/', views.adminviewbranches, name='adminviewbranches'),
     path('admin-dashboard/branches/add-branch', views.adminaddbranch, name='adminaddbranch'),
     path('admin-dashboard/branches/edit-branch/<id>', views.admineditbranch, name='admineditbranch'),
     path('admin-dashboard/type-of-devices/', views.adminviewTypeOfDevices, name='adminviewTypeOfDevices'),
     path('admin-dashboard/type-of-devices/add-type-of-device', views.adminaddTypeOfDevice, name='adminaddTypeOfDevice'),
     path('admin-dashboard/type-of-devices/edit-type-of-device/<id>', views.admineditTypeOfDevice, name='admineditTypeOfDevice'),
+    path('admin-dashboard/Assign-office/load_previous_assigned_staff',views.load_prev_assigned_offices,name='ajax_load_prev_assigned_offices'),
+    path('admin-dashboard/view-devices',views.adminviewdevices,name='adminviewdevices'),
+    path('admin-dashboard/view-devices/view-warehouse-devices',views.adminview_warehouse_devices,name='adminview_warehouse_devices'),
+    path('admin-dashboard/view-devices/view-assigned-devices',views.adminview_assigned_devices,name='adminview_assigned_devices'),
+    path('admin-dashboard/view-devices/view-assigned-devices/add-device/',views.adminadd_device,name='adminadd_device'),
+    
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
     path('timetable/view-lab-classes/<id>',views.viewLabClasses,name='viewLabClasses'),
@@ -110,4 +117,6 @@ urlpatterns = [
     path('inventory/allot-devices/<id>',views.allotdevices,name='allotdevices'),
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
+    path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
+    path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
 ]

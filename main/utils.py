@@ -1,3 +1,5 @@
+import moment
+from datetime import datetime
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -37,6 +39,7 @@ def getNumberOfDays(fromDate, toDate):
         return 1
     toDate = str(toDate)
     fromDate = str(fromDate)
+    print(toDate, fromDate)
     fromDateNumber = fromDate.split("-")[2]
     todateNumber = toDate.split("-")[2]
 

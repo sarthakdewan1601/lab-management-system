@@ -4,12 +4,14 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
-<div class="wrapper_">
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Dashboard</h2>
+<div class="container">
     <div class="row">
         {% for lab in userLabs %}
             <div class="col-sm-6">
-            <div class="card">
+            <div class="card" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                 <div class="card-body">
                     <h5 class="card-title">{{ lab }}</h5>
                     <p class="card-text">floor number (later)</p>
@@ -20,5 +22,5 @@
         {% endfor %}
     </div>
 </div>
-
+</section>
 {% endblock body %}

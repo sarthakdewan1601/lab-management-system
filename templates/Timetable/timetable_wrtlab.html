@@ -224,12 +224,6 @@
 				
                 
       {% endfor %}
-      <!--      <div>10:00 - 12:00</div>
-      <div>12:00 - 14:00</div>
-      <div>14:00 - 16:00</div>
-      <div>16:00 - 18:00</div>
-      <div>18:00 - 20:00</div>
-      -->
     </div>
     
     <div class="content">
@@ -243,36 +237,14 @@
         {% if class.day == day %}
         {% if  x == class.starttime %}
                     <div class="found">
-                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty.name}}</p>
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty.initials}}</p>
                     <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty_group_course.course.course.course_name}}</p>
                     <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.faculty_group_course.group.groups.group_id}}</p>
                     </div>
                     {% endif %}
                 {% endif %}
             {% endfor %}
-             <br>
-            <!-- {% for class in activities %}
-              {% for professor in professors %}
-                {% if activity.professor_id == professor.professor_id %}
-                  {% if activity.day == day %}
-                    {% if  x == activity.starttime %}
-                      {{professor.professor_name}}
-                    {% endif %}
-                  {% endif %}
-                {% endif %}      
-              {% endfor %}
-            {% endfor %} 
-            <br>
-            {% for activity in activities %}
-                  {% if activity.day == day %}
-                    {% if  x == activity.start_time %}
-                      {{activity.classroom_id}}
-                    {% endif %}
-                  {% endif %}
-            {% endfor %}     -->
-               
-                
-            
+             <br>            
           </div>
         {% endfor %}
       {% endfor %}
