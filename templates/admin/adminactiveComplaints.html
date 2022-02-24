@@ -10,22 +10,44 @@
 <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
-        <th scope="col">Sender</th>
         <th scope="col">Lab</th>
         <th scope="col">Device</th>
+        <th scope="col">Sender</th>
+        <th scope="col">Assigned To</th>
+        <th scope="col">Complaint Created At</th>
         <th scope="col">Complaint</th>
-        <th scope="col">Active Status</th>
+        {% comment %} <th scope="col">Active Status</th> {% endcomment %}
+        <th scope="col">Escalated By</th>
+        <th scope="col">Escalated At</th>
+        <th scope="col">Escalation Note</th>
         <th scope="col" style="text-align: center;">Resolve Complaint</th>
       </tr>
     </thead>
         <tbody>
         {% for complaint in complaints %}
         <tr class="table-success" style = "text-align: center;">
-            <td>{{ complaint.created_by.name }}</td>
             <td>{{ complaint.device.room.name }} ({{complaint.device.room.room_id}})</td>
             <td>{{ complaint.device.name }}</td>
-            <td>{{ complaint.complaint }}</td>
-            <td>Active</td>
+            <td>{{ complaint.created_by.name }}</td>
+            <td>{{ complaint.assigned_to.name }}</td>
+            <td>{{ complaint.created_at }}</td>
+            <td>{{ complaint.complaint }} </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalated_by }} 
+              {% endif %}
+            </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalated_at }} 
+              {% endif %}
+            </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalation_note }} 
+              {% endif %}
+            </td>
+            {% comment %} <td>Active</td> {% endcomment %}
             <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
           </tr>
         {% endfor %}

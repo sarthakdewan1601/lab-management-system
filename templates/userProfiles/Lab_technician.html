@@ -1,16 +1,39 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block body %}
-
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
-<section class="sectionLogin">
+<style>
+    h1{
+        text-align: center;
+        color: black;
+        padding: 2px;
+    }
+    .request{
+        text-align: center;
+    }
+</style>
+<section class="sectionLogin" style="text-align: center;">
     <br>
-    <h2 style = "text-align: center;">Dashboard</h2>
-{% for complaint in complaints %}
-    {{complaint}}
-{% endfor %}
-</section>
-
+    <a href="{% url 'main:adminfacultydetails' %}" class="btn btn-dark btn-large">View Faculty Details</a>
+    <br><br>
+    <h2 style = "text-align: center;">Lab Assigned</h2><br>
+<div class="container">
+    
+    <div class="row">
+        {% for lab in userLabs %}
+            <div class="col-sm-6" style="text-align: left;">
+            <div class="card"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card-body" >
+                    <h5 class="card-title">{{ lab.lab.room_id }}</h5>
+                    <p class="card-text">floor - {{lab.lab.floor}}</p>
+                    <a href="{% url 'main:lab' pk=lab.id%}" class="btn btn-dark btn-sm">View Lab</a>
+                </div>
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock body %}
