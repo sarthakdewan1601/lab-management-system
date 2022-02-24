@@ -1096,6 +1096,54 @@ def add_devices(request, pk):
 		}
 		return render(request, 'Labs/add_computer.html', context)
 
+def escalation(request, pk):
+	staff= Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	complaint = Complaint.objects.get(id=pk)
+
+	if request.method == 'POST':
+
+		complaint.escalated=True
+		complaint.escalated_by=staff
+		complaint.escalation_note=request.POST['escalate_note']
+		complaint.escalated_at= timezone.now()
+		complaint.save()
+		device=Devices.objects.get(id=complaint.device.id)
+		complaints=Complaint.objects.filter(device=device,isActive=True)
+		if(len(list(complaints))==0):
+			device.is_working=True
+		device.save()
+		# notification = Notification.objects.get(taskId=complaint.id, reciever='admin')
+		# notification.isActive = False
+		# notification.expired=True
+
+		notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever='admin', 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+str(complaint.id) +", has been escalated",
+				notification_type = 'ESCALATION',
+				taskId=complaint.id
+			)			
+		
+		notification.save()
+		# notification_resolve.save()
+
+		if request.user.is_staff:
+			return redirect("main:adminComplaints")
+
+		else:
+			return redirect("main:user_profile")
+		
+	else:   
+		admin_status = request.user.is_staff
+		context={
+			"staff":staff,
+			'complaint':complaint,
+			'admin_status': admin_status,
+			'notification_count':notification_count,
+		}
+		return render(request, 'Complaints/escalation.html', context)
+
 @login_required
 def resolveConflict(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -1145,10 +1193,11 @@ def resolveConflict(request, pk):
 
 def viewdevicecomplaints(request,id):
 	staff = Staff.objects.get(user_obj=request.user)
+	print("is_staff --->>>", staff.user_obj.is_staff)	#debug
 	notification_count=get_notifications(staff.id)
 	device=Devices.objects.get(id=id)
-	active_compaints=Complaint.objects.filter(device=device,isActive=True,created_by=staff)
-	resolved_complaints=Complaint.objects.filter(device=device,isActive=False,created_by=staff)
+	active_compaints=Complaint.objects.filter(device=device,isActive=True)
+	resolved_complaints=Complaint.objects.filter(device=device,isActive=False)
 	context={
 		'staff':staff,
 		'device':device,
@@ -2312,13 +2361,13 @@ def adminviewrooms(request):
 		# message_to_display= 'No rooms added on this floor'
 	
 	print('rooms: ', rooms)
-	currFloor = rooms[0].floor
-	print(currFloor)
+	# currFloor = rooms[0].floor
+	# print(currFloor)
 	context={
 		'staff':staff,
 		'rooms':rooms,
 		'myFilter':myFilter,
-		'currFloor':currFloor,
+		# 'currFloor':currFloor,
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewrooms.html',context)

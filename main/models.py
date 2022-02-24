@@ -168,10 +168,16 @@ class Complaint(models.Model):
     device=models.ForeignKey('Devices', on_delete=models.CASCADE,default=None)
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
+    isActive=models.BooleanField(default=True)
 
     assigned_to = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='assignedtechnician',blank=True)
 
-    isActive=models.BooleanField(default=True)
+    escalated = models.BooleanField(default=False)
+    escalated_by = models.ForeignKey(Staff,null=True,blank=True,related_name='escalatedBy',on_delete=CASCADE)
+    escalated_at = models.DateTimeField(null=True, blank=True)
+    escalation_note= models.TextField(blank=False)
+
+    
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
     # date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -232,6 +238,7 @@ NOTIFICATION_FIELDS = [
     ('LEAVE_REJECTED', 'Leave Rejected'),
     ('INVENTORY','Inventory'),  
     ('TECH_RESOLVE', 'Technician Resolved'),
+    ('ESCALATION', 'Escalation'),
 ] 
 
 class Notification(models.Model):
