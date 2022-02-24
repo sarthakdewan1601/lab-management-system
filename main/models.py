@@ -1,4 +1,5 @@
 
+from asyncio.windows_events import NULL
 from calendar import month
 from random import choice
 from statistics import mode
@@ -86,7 +87,6 @@ class Staff(models.Model):
     designation=models.ForeignKey('Designation',on_delete=CASCADE)
     agency = models.ForeignKey('Agency',on_delete=CASCADE)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
-    
     
     def __str__(self):
         return self.name + " " + self.designation.designation
@@ -200,6 +200,8 @@ class Devices(models.Model):
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
     is_working=models.BooleanField(default=True)
+    not_working_reason=models.TextField(default=None,blank=True,null=True)
+    who_expired = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
 
 
     def __str__(self):

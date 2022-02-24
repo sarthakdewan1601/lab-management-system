@@ -41,3 +41,10 @@ class filterAssignedDevices(django_filters.FilterSet):
     class Meta:
         model=Devices
         fields=['name','room','in_inventory','is_working']
+
+class filterExpiredDevices(django_filters.FilterSet):
+    device_id=CharFilter(field_name='device_id',lookup_expr='icontains')
+    description=CharFilter(field_name='description',lookup_expr='icontains')
+    class Meta:
+        model=Devices
+        fields=['name']
