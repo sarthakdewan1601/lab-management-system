@@ -258,9 +258,11 @@ class NewLabForm(forms.ModelForm):
         print(labs)
         req_labs=[lab for lab in all_labs if lab not in labs]
         print(req_labs)
-        designation=Designation.objects.get(designation='Lab Attendant')
+        designation_att=Designation.objects.get(designation='Lab Attendant')
+        designation_tech=Designation.objects.get(designation='Lab Technician')
         self.fields['lab'].queryset = Room.objects.filter(id__in={instance.id for instance in req_labs})
-        self.fields['staff'].queryset = Staff.objects.filter(designation=designation)
+        self.fields['attendant'].queryset = Staff.objects.filter(designation=designation_att)
+        self.fields['technician'].queryset = Staff.objects.filter(designation=designation_tech)
 
 class NewBranchForm(forms.ModelForm):
     class Meta:

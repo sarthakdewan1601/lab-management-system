@@ -31,7 +31,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
     is_email_verified = models.BooleanField(default=False)   
-
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -79,7 +79,7 @@ class Room(models.Model):
 class Staff(models.Model):
     user_obj = models.ForeignKey(User, on_delete=CASCADE, blank=False, null=False, default=None)
     name=models.CharField(max_length=100)
-    initials=models.CharField(max_length=4,null=True,blank=False,default=None)
+    initials=models.CharField(max_length=4,null=True,blank=True,default=None)
     mobile_number=models.IntegerField()
     email=models.EmailField()
     category=models.ForeignKey('Category',on_delete=CASCADE)
@@ -168,6 +168,9 @@ class Complaint(models.Model):
     device=models.ForeignKey('Devices', on_delete=models.CASCADE,default=None)
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
+
+    assigned_to = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='assignedtechnician',blank=True)
+
     isActive=models.BooleanField(default=True)
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
@@ -178,13 +181,11 @@ class Complaint(models.Model):
    
 class Lab(models.Model):
     lab=models.ForeignKey(Room,on_delete=CASCADE)
-    staff = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, blank=True)
+    attendant = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='attendant',blank=True)
+    technician = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='technician',blank=True)
 
     def __str__(self): 
-        return self.lab.room_id+ " ("+self.staff.name+')'
-
-
-
+        return self.lab.room_id+ "Attendant: "+self.attendant.name+'Technician: '+ self.technician.name
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=20, blank=False, null=False,unique=True)
@@ -344,7 +345,7 @@ class Class(models.Model):
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
+        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course.course_name + ' ' + self.day + self.faculty_group_course.group.groups.group_id
 
 #Adogra professor:-> dbms coe2
 #Adogra professor-> ds coe1
