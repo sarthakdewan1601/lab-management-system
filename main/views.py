@@ -21,6 +21,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
 from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
+from django.utils.dateparse import parse_date
 
 from .models import *
 from .forms import *
@@ -230,8 +231,7 @@ def login_request(request):
 @login_required
 def logout_request(request, id):
 	staff = Staff.objects.get(id=id)
-	userEmail = staff.email
-	user = User.objects.get(email=userEmail)
+	user = User.objects.get(email=staff.email)
 	user.save()
 	logout(request)
 	messages.info(request, "You have successfully logged out.")
@@ -339,18 +339,18 @@ def	passwordChange(request, id):
 
 
 
-@login_required
-def home(request):
-	staff=Staff.objects.get(user_obj=request.user)
-	notification_count=get_notifications(staff.id)
-	if request.user.is_staff:
-		a = User.objects.get(email=request.user)
-		print(a)
-		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
+# @login_required
+# def home(request):
+# 	staff=Staff.objects.get(user_obj=request.user)
+# 	notification_count=get_notifications(staff.id)
+# 	if request.user.is_staff:
+# 		a = User.objects.get(email=request.user)
+# 		print(a)
+# 		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
 
-	staff = Staff.objects.get(user_obj=request.user)
-	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
+# 	staff = Staff.objects.get(user_obj=request.user)
+# 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+# 	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
 
 	# except:
 	# 	tech = Technician.objects.get(tech_id=request.user.username)
@@ -370,12 +370,12 @@ def user_profile(request):
 	userEmail = request.user.email
 	staff = Staff.objects.get(email=userEmail)
 	notification_count=get_notifications(staff.id)
-	print(notification_count)
+	# print(notification_count)
 
 	if staff.category.category == "Lab Staff":
 		# print("hi")
 		# for admin 
-		print(staff.designation.designation)
+		# print(staff.designation.designation)
 		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
@@ -388,7 +388,7 @@ def user_profile(request):
 		
 		if staff.designation.designation == "Lab Attendant":
 			staff_1 = Staff.objects.get(user_obj=request.user)
-			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+			userLabs = Lab.objects.filter(attendant = staff_1).order_by('id').all()
 
 			#leaves=Leaves.objects.get(staff=staff)
 			context = {
@@ -401,14 +401,17 @@ def user_profile(request):
 			
 		if staff.designation.designation == "Lab Technician":
 			# print("Hello")
-			staff = Staff.objects.get(user_obj=request.user)			
-			complaints = Complaint.objects.filter(isActive=True).all()
+			staff_labTech = Staff.objects.get(user_obj=request.user)			
+
+			complaints = Complaint.objects.filter(isActive=True, assigned_to=staff_labTech)
+			userLabs = Lab.objects.filter(technician = staff_labTech).order_by('id').all()
+
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
-
 			context = { 
-				"staff":staff, 
-				"complaints": complaints,
+				'userLabs' : userLabs,
+				"staff": staff_labTech,
+				# "complaints": complaints,
 				"notifications": current_notifications,
 				'notification_count':notification_count,
 			}
@@ -538,10 +541,16 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
+
+			# print("debug toData -->>",toDate)		#debug
+
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
+
+			# print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
+
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			if leaveAvailability:
-				fromDateMonth = fromDate.split("-")[1]
+				fromDateMonth = fromDate.split("-")[1]						#check 
 				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName, month=fromDateMonth, year=year)
 				userstatus.save()
 				##notification
@@ -846,6 +855,8 @@ def viewprevleaves(request):
 @login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
+	technician = Lab.objects.get(lab=device.room).technician
+	
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
@@ -859,7 +870,8 @@ def complaint(request, pk):
 			complaint, was_created = Complaint.objects.get_or_create(
 				created_by=staff,
 				device=dev,
-				complaint=complaint
+				complaint=complaint,
+				assigned_to = technician
 			)
 			complaint.save()
 
@@ -1120,6 +1132,54 @@ def add_devices(request, pk):
 		}
 		return render(request, 'Labs/add_computer.html', context)
 
+def escalation(request, pk):
+	staff= Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	complaint = Complaint.objects.get(id=pk)
+
+	if request.method == 'POST':
+
+		complaint.escalated=True
+		complaint.escalated_by=staff
+		complaint.escalation_note=request.POST['escalate_note']
+		complaint.escalated_at= timezone.now()
+		complaint.save()
+		device=Devices.objects.get(id=complaint.device.id)
+		complaints=Complaint.objects.filter(device=device,isActive=True)
+		if(len(list(complaints))==0):
+			device.is_working=True
+		device.save()
+		# notification = Notification.objects.get(taskId=complaint.id, reciever='admin')
+		# notification.isActive = False
+		# notification.expired=True
+
+		notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever='admin', 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+str(complaint.id) +", has been escalated",
+				notification_type = 'ESCALATION',
+				taskId=complaint.id
+			)			
+		
+		notification.save()
+		# notification_resolve.save()
+
+		if request.user.is_staff:
+			return redirect("main:adminComplaints")
+
+		else:
+			return redirect("main:user_profile")
+		
+	else:   
+		admin_status = request.user.is_staff
+		context={
+			"staff":staff,
+			'complaint':complaint,
+			'admin_status': admin_status,
+			'notification_count':notification_count,
+		}
+		return render(request, 'Complaints/escalation.html', context)
+
 @login_required
 def resolveConflict(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -1169,10 +1229,11 @@ def resolveConflict(request, pk):
 
 def viewdevicecomplaints(request,id):
 	staff = Staff.objects.get(user_obj=request.user)
+	print("is_staff --->>>", staff.user_obj.is_staff)	#debug
 	notification_count=get_notifications(staff.id)
 	device=Devices.objects.get(id=id)
-	active_compaints=Complaint.objects.filter(device=device,isActive=True,created_by=staff)
-	resolved_complaints=Complaint.objects.filter(device=device,isActive=False,created_by=staff)
+	active_compaints=Complaint.objects.filter(device=device,isActive=True)
+	resolved_complaints=Complaint.objects.filter(device=device,isActive=False)
 	context={
 		'staff':staff,
 		'device':device,
@@ -2405,11 +2466,20 @@ def adminviewrooms(request):
 	notification_count=get_notifications(staff.id)
 	rooms=Room.objects.all()
 	myFilter = filterRoom(request.GET,queryset=rooms)
+	# try:
 	rooms=myFilter.qs
+	# except:
+	# 	rooms = []
+		# message_to_display= 'No rooms added on this floor'
+	
+	print('rooms: ', rooms)
+	# currFloor = rooms[0].floor
+	# print(currFloor)
 	context={
 		'staff':staff,
 		'rooms':rooms,
 		'myFilter':myFilter,
+		# 'currFloor':currFloor,
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewrooms.html',context)

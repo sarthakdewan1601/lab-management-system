@@ -46,6 +46,7 @@ urlpatterns = [
     path('dashboard/faculty-timetable/<id>',views.viewfacultytimetable,name='viewfacultytimetable'),
     path('dashboard/items-alloted/',views.viewinventory,name='viewinventory'),
     path('darshboard/add-faculty', views.addFaculty, name="addFaculty"),
+    path('comlpaints/escalate/<pk>', views.escalation, name="escalate"),
 
     # admin paths
     path('admin-dashboard/leaves/requested-leaves', views.adminRequestedLeaves, name='adminRequestedLeaves'),

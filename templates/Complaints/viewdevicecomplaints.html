@@ -12,49 +12,128 @@
 <h1> Device id : {{device.device_id}}</h1>
 <h1>Device Category :{{device.name}}</h1>
 
+<h2> Escalated Complaints </h2>
+
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+  <thead>
+    <tr>
+      <th scope="col">Complaint Sender</th>
+      <th scope="col">Assigned To</th>
+      <th scope="col">Complaint Created At</th>
+      <th scope="col">Complaint Reason</th>
+      <th scope="col">Escalated By</th>
+      <th scope="col">Escalated At</th>
+      <th scope="col">Escalation Note</th>
+
+      {% if staff.user_obj.is_staff %}
+        <th scope="col" style="text-align: center;">Resolve Complaint</th>
+      {% endif %}
+    </tr>
+  </thead>
+      <tbody>
+
+        {% for active_complaint in active_complaints %}
+        <tr class="table-success" style = "text-align: center;">
+
+          {% if active_complaint.escalated %}
+
+            <td>{{ active_complaint.created_by.name }}</td>
+            <td>{{ active_complaint.assigned_to.name }}</td>
+            <td>{{ active_complaint.created_at }}</td>
+            <td>{{ active_complaint.complaint }} </td>
+            <td>{{ active_complaint.escalated_by }} </td>
+            <td>{{ active_complaint.escalated_at }} </td>
+            <td>{{ active_complaint.escalation_note }} </td>
+
+            {% if staff.user_obj.is_staff %}
+            <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+            {% endif %}
+
+          {% endif %}
+
+        </tr>
+      {% endfor %}
+      </tbody>
+</table>
+
+<h2> Active Complaints </h2>
 <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Complaint Sender</th>
+        <th scope="col">Assigned To</th>
         <th scope="col">Complaint Created At</th>
         <th scope="col">Complaint Reason</th>
-        <th scope="col">Complaint Active Status</th>
+        <th scope="col">Escalated By</th>
+        <th scope="col">Escalated At</th>
+        <th scope="col">Escalation Note</th>
+        <th scope="col" style="text-align: center;">Resolve Complaint</th>
+        <th scope="col" style="text-align: center;">Escalate Complaint</th>
       </tr>
     </thead>
         <tbody>
 
-        {% for active_complaint in active_complaints %}
-        <tr class="table-success" style = "text-align: center;">
-            <td>{{ active_complaint.created_by }}</td>
-            <td>{{ active_complaint.created_at }}</td>
-            <td>{{ active_complaint.complaint }} </td>
-            <td>{{ active_complaint.isActive }}</td>
-                </tr>
-        {% endfor %}
+          {% for active_complaint in active_complaints %}
+            <tr class="table-success" style = "text-align: center;">
+                <td>{{ active_complaint.created_by.name }}</td>
+                <td>{{ active_complaint.assigned_to.name }}</td>
+                <td>{{ active_complaint.created_at }}</td>
+                <td>{{ active_complaint.complaint }} </td>
+                <td>{{ active_complaint.escalated_by }} </td>
+                <td>{{ active_complaint.escalated_at }} </td>
+                <td>
+                {% if active_complaint.escalated %}
+                {{ active_complaint.escalation_note }} 
+                {% endif %}
+                </td>
+                <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+                <td>
+                  {% if not active_complaint.escalated %}
+                  <a href="{% url 'main:escalate' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Escalate</a>
+                  {% endif %}
+                </td>
+
+            </tr>
+          {% endfor %}
         </tbody>
   </table>
   <br>
-  <h1> Resolved Complaints </h1>
+  <h2> Resolved Complaints </h2>
 
   <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Complaint Sender</th>
+        <th scope="col">Assigned To</th>
         <th scope="col">Complaint Created At</th>
         <th scope="col">Complaint Reason</th>
+        <th scope="col">Escalated By</th>
+        <th scope="col">Escalated At</th>
+        <th scope="col">Escalation Note</th>
         <th scope="col">Work Done</th>
-        <th scope="col">Complaint Active Status</th>
+        <th scope="col">Work Done By</th>
       </tr>
     </thead>
         <tbody>
 
         {% for complaint in resolved_complaints %}
         <tr class="table-success" style = "text-align: center;">
-            <td>{{ complaint.created_by }}</td>
+            <td>{{ complaint.created_by.name }}</td>
+            <td>{{ complaint.assigned_to.name }}</td>
             <td>{{ complaint.created_at }}</td>
             <td>{{ complaint.complaint }} </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalated_by }} 
+              {% endif %}
+            </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalated_at }} 
+              {% endif %}
+            </td>
             <td>{{ complaint.work_Done }} </td>
-            <td>{{ complaint.isActive }}</td>
+            <td>{{ complaint.who_resolved.name }}</td>
                 </tr>
         {% endfor %}
         </tbody>
