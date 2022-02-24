@@ -2305,11 +2305,20 @@ def adminviewrooms(request):
 	notification_count=get_notifications(staff.id)
 	rooms=Room.objects.all()
 	myFilter = filterRoom(request.GET,queryset=rooms)
+	# try:
 	rooms=myFilter.qs
+	# except:
+	# 	rooms = []
+		# message_to_display= 'No rooms added on this floor'
+	
+	print('rooms: ', rooms)
+	currFloor = rooms[0].floor
+	print(currFloor)
 	context={
 		'staff':staff,
 		'rooms':rooms,
 		'myFilter':myFilter,
+		'currFloor':currFloor,
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewrooms.html',context)
