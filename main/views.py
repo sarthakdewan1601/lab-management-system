@@ -1,10 +1,11 @@
+from enum import unique
 import threading
 import datetime
 from django.conf import settings
 from email.message import EmailMessage
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-
+import pandas as pd
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -399,15 +400,14 @@ def user_profile(request):
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
-			print("Hello")
+			# print("Hello")
 			staff = Staff.objects.get(user_obj=request.user)			
 			complaints = Complaint.objects.filter(isActive=True).all()
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
 
-
 			context = { 
-				"staff":staff,
+				"staff":staff, 
 				"complaints": complaints,
 				"notifications": current_notifications,
 				'notification_count':notification_count,
@@ -517,6 +517,7 @@ def requestleave(request):
 	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
 		form=request.POST
+		print(form)
 		# form data
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
@@ -851,7 +852,7 @@ def complaint(request, pk):
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
-			dev.is_working=False
+			# dev.is_working=False
 			dev.save()
 			complaint=form.cleaned_data['complaint']
 			# staff=Staff.objects.get(user_obj=request.user)	
@@ -1034,15 +1035,49 @@ def lab(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	lab = Lab.objects.get(id=pk)
-	devices=Devices.objects.filter(room=lab.lab).order_by("id").all()
+	all_devices_len=len(Devices.objects.filter(room=lab.lab,in_inventory=False))
+	devices=Devices.objects.filter(room=lab.lab,is_working=True,in_inventory=False).order_by("id").all()
+	active_devices_len=(len(devices))
+	expired_devices_len=all_devices_len-active_devices_len
+	unique_device_types=[device.name for device in devices]
+	print(expired_devices_len)
+	
+	unique_device_types=list(set(unique_device_types))
+	unique_device_counts=[len(Devices.objects.filter(name=type,room=lab.lab,is_working=True,in_inventory=False)) for type in unique_device_types]
+	# print(unique_device_counts)
+	unique_device_type_and_counts=zip(unique_device_types,unique_device_counts)
+
+	# print(unique_device_type_and_counts)
+	# print(unique_device_type_and_counts)
 	context = {
 		'staff':staff,
 		'devices': devices,
 		'labid': pk,
 		'lab': lab,
 		'notification_count':notification_count,
+		'unique_device_type_and_counts':unique_device_type_and_counts,
+		'active_devices_len':active_devices_len,
+		'expired_devices_len':expired_devices_len,
+		'all_devices_len':all_devices_len,
 	}
 	return render(request, "Labs/lab.html", context)
+def view_lab_devices(request,device_type,lab):
+	# print('hi')
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	lab=Lab.objects.get(id=lab)
+	device_type=CategoryOfDevice.objects.get(category=device_type)
+	devices=Devices.objects.filter(room=lab.lab,name=device_type,is_working=True,in_inventory=False)
+	# print(devices)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+		'devices':devices,
+		'lab':lab,
+	}
+	return render(request,'Labs/view_lab_devices.html',context)
+
+
 
 @login_required
 def add_devices(request, pk):
@@ -1098,9 +1133,9 @@ def resolveConflict(request, pk):
 		complaint.save()
 		device=Devices.objects.get(id=complaint.device.id)
 		complaints=Complaint.objects.filter(device=device,isActive=True)
-		if(len(list(complaints))==0):
-			device.is_working=True
-		device.save()
+		# if(len(list(complaints))==0):
+		# 	device.is_working=True
+		# device.save()
 		notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
 		# notification.isActive = False
 		notification.expired=True
@@ -1269,8 +1304,8 @@ def leaveUsersHistory(request):
 
 	if request.method == "POST":
 		form = request.POST
-		# print(form)
-		monthForm = form["month"]
+		print(form)
+		month = form["month"]
 		year = form["year"]
 		type = form['leaveType']
 		download=''
@@ -1281,24 +1316,25 @@ def leaveUsersHistory(request):
 		
 		all = "------"
 		leaveType = ''
-		allLeavesStatus = None
+		allLeavesStatus =None
+		# print(allLeavesStatus)
 		if type == '':
 			all = "All"
 			leaveType = TotalLeaves.objects.all()
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-id")
 		else:
 			leaveType = TotalLeaves.objects.get(id=type)
 			all = leaveType.LeaveName
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year, leave_type=leaveType).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year, leave_type=leaveType).order_by("-id")
 
-
+		print(allLeavesStatus)
 		leaves = []
 		for leave in allLeavesStatus:
 			if leave.admin_approval:
 				leaves.append(leave)
 
 		# make query set
-
+		print(leaves)
 		currLeaveCount = []
 		for leave in leaves:
 			array = {};
@@ -1310,7 +1346,7 @@ def leaveUsersHistory(request):
 			totalLeavesTakenOfThisType = leaveTakenObj.count
 			leavesThisMonth = UserLeaveStatus.objects.filter(
 				staff=currUser, 
-				month=monthForm,
+				month=month,
 				leave_type=currType,
 				admin_approval=True	
 			)
@@ -1331,7 +1367,8 @@ def leaveUsersHistory(request):
 							days.append(start)
 						start+=1
 
-			# print(days)
+			print(days)
+			print(currLeaveCount)
 			s=""
 			for i in days:
 				s+=str(i)+','
@@ -1370,7 +1407,7 @@ def leaveUsersHistory(request):
 
 		defaultParams = {
 			'year':year,
-			'month':str(monthForm),
+			'month':str(month),
 			'leavee': all
 		}
 		context = {
@@ -2134,15 +2171,89 @@ def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
-	active_inventory=[i for i in inventory if i.device.is_working==True]
-	inactive_inventory=[i for i in inventory if i.device.is_working==False]
-	# print(len(inventory))
+	room=staff.room
+	if room:
+		all_devices=[i.device for i in inventory]
+		all_devices_len=len(all_devices)
+		active_devices=[device for device in all_devices if device.is_working==True]
+		active_devices_len=(len(active_devices))
+		expired_devices_len=all_devices_len-active_devices_len
+		unique_device_types=[device.name for device in active_devices]
+		print(expired_devices_len)
+		
+		unique_device_types=list(set(unique_device_types))
+		unique_device_counts=[len([device for device in active_devices if device.name==type]) for type in unique_device_types]
+		# print(unique_device_counts)
+		unique_device_type_and_counts=zip(unique_device_types,unique_device_counts)
+
+		context={
+			'staff':staff,
+			'active_devices_len':active_devices_len,
+			'expired_devices_len':expired_devices_len,
+			'all_devices_len':all_devices_len,
+			'unique_device_type_and_counts':unique_device_type_and_counts,
+			'notification_count':notification_count,
+		}
+		return render(request,'inventory.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+@login_required
+def view_inventory_devices(request,device_type):
+	# print('hi')
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device_type=CategoryOfDevice.objects.get(category=device_type)
+	inventory_devices=StaffInventory.objects.filter(staff=staff)
+	devices=[i for i in inventory_devices if i.device.name==device_type]
+	devices=[device for device in devices if device.device.is_working==True]
+	# print(devices)
 	context={
 		'staff':staff,
-		'inventory':inventory,
+		'notification_count':notification_count,
+		'devices':devices,
+		'lab':lab,
+	}
+	return render(request,'inventory/view_inventory_devices.html',context)
+@login_required
+def expire_inventory_devices(request,id):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device=StaffInventory.objects.get(id=id)
+	if request.method == 'POST':
+		reason=request.POST['reason']
+		device=device.device
+		device.is_working=False
+		device.not_working_reason=reason
+		device.who_expired=staff
+		device.save()
+		return redirect('main:viewinventory')
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	    'device':device,				
+	}
+	return render(request,'inventory/expire_inventory_devices.html',context)
+def view_expired_inventory_devices(request):
+	# print('hi')
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	devices=StaffInventory.objects.filter(staff=staff)
+	devices=[device for device in devices if device.device.is_working==False]
+	all_devices= Devices.objects.filter(id__in={instance.device.id for instance in devices})
+	print(all_devices)
+	myFilter = filterExpiredDevices(request.GET,queryset=all_devices)
+	all_devices=myFilter.qs
+	devices=[device for device in devices if device.device in all_devices]
+	print(devices)
+	context={
+		'staff':staff,
+		'devices':devices,
+		'myFilter':myFilter,
 		'notification_count':notification_count,
 	}
-	return render(request,'inventory.html',context)
+	return render(request,'Inventory/view_expired_inventory_devices.html',context)
+
 
 @login_required
 def adminviewinventory(request,id):
@@ -2163,10 +2274,10 @@ def loaddevices(request,id):
 	name=CategoryOfDevice.objects.get(id=name_id)
 	# print(name.category)
 	X=[]
-	devices=Devices.objects.filter(name=name,room=None,in_inventory=False)
+	devices=Devices.objects.filter(name=name,room=None,in_inventory=False,is_working=True)
 	# print(devices)
 	X.extend(devices)
-	devices=Devices.objects.filter(name=name,room=room,in_inventory=False)
+	devices=Devices.objects.filter(name=name,room=room,in_inventory=False,is_working=True)
 	# print(devices)
 	X.extend(devices)
 	# print(X)
@@ -2826,3 +2937,42 @@ def admineditstaffprofile(request,id):
 			return render(request, "admin/admineditstaffprofile.html", context)		
 	else:
 		return render(request,'pagenotfound.html',{})
+
+
+def expire_lab_device(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device=Devices.objects.get(id=id)
+	lab=Lab.objects.get(lab=device.room)
+	if request.method == 'POST':
+		reason=request.POST['reason']
+		device.is_working=False
+		device.not_working_reason=reason
+		device.who_expired=staff
+		device.save()
+		return redirect('main:lab',pk=lab.id)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	    'device':device,
+		'lab':lab,				
+	}
+	return render(request,'Labs/expire_lab_device.html',context)
+
+def view_expired_lab_devices(request,pk):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	lab=Lab.objects.get(id=pk)
+	room=Room.objects.get(id=lab.lab.id)
+	devices=Devices.objects.filter(room=room,is_working=False)
+	myFilter = filterExpiredDevices(request.GET,queryset=devices)
+	devices=myFilter.qs
+	context={
+		'staff':staff,
+		'devices':devices,
+		'myFilter':myFilter,
+		'notification_count':notification_count,
+		'lab':lab,
+	}
+	return render(request,'Labs/view_expired_lab_devices.html',context)
+
