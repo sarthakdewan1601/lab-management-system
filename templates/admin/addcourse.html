@@ -8,8 +8,8 @@
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Add Course</h2>
-<div class="container">
-    <form class="form-card" method="post">
+<div class="container" style="background-color: rgba(245, 245, 245,0.4);margin-top:20px">
+    <form class="form-card" method="post" style = "padding:40px">
         {% csrf_token %}
         {{ form|crispy }}
         <br>
