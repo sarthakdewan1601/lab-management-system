@@ -251,16 +251,17 @@ class NewLabForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
         all_labs=Room.objects.filter(is_lab=True)
-        curr_labs=Lab.objects.all()
-        labs=[]
-        for i in curr_labs:
-            labs.append(i.lab)
-        print(labs)
-        req_labs=[lab for lab in all_labs if lab not in labs]
-        print(req_labs)
+        # curr_labs=Lab.objects.all()
+        # labs=[]
+        # for i in curr_labs:
+        #     labs.append(i.lab)
+        # print(labs)
+        # req_labs=[lab for lab in all_labs if lab not in labs]
+        # print(req_labs)
         designation_att=Designation.objects.get(designation='Lab Attendant')
         designation_tech=Designation.objects.get(designation='Lab Technician')
-        self.fields['lab'].queryset = Room.objects.filter(id__in={instance.id for instance in req_labs})
+        # self.fields['lab'].queryset = Room.objects.filter(id__in={instance.id for instance in req_labs})
+        self.fields['lab'].queryset = all_labs
         self.fields['attendant'].queryset = Staff.objects.filter(designation=designation_att)
         self.fields['technician'].queryset = Staff.objects.filter(designation=designation_tech)
 
@@ -279,3 +280,8 @@ class NewDeviceForm(forms.ModelForm):
     class Meta:
         model=Devices
         fields=['device_id','name','room','description']
+
+class NewWareHouseDeviceForm(forms.ModelForm):
+    class Meta:
+        model=Devices
+        fields=['device_id','name','description']

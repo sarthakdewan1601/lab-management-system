@@ -376,15 +376,10 @@ def user_profile(request):
 		# print("hi")
 		# for admin 
 		# print(staff.designation.designation)
-		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
+		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor"  or staff.designation.designation == "Lab Associate":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
 			return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
-
-		
-		if staff.designation.designation == "Lab Associate":
-			pass
-
 		
 		if staff.designation.designation == "Lab Attendant":
 			staff_1 = Staff.objects.get(user_obj=request.user)
@@ -678,7 +673,7 @@ def approveLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	#for admin
-	if request.user.is_staff:
+	if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 		#return HttpResponse(201)
 		context={
 			'staff':staff,
@@ -1100,7 +1095,7 @@ def add_devices(request, pk):
 	# print('hi')
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
-		print('hi')
+		# print('hi')
 		# print(form.is_valid()
 		if form.is_valid():
 			# print('hi again')
@@ -1131,6 +1126,7 @@ def add_devices(request, pk):
 			'notification_count':notification_count,
 		}
 		return render(request, 'Labs/add_computer.html', context)
+
 
 def escalation(request, pk):
 	staff= Staff.objects.get(user_obj=request.user)
@@ -1253,8 +1249,16 @@ def adminStaff(request):
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		staffs = Staff.objects.all().order_by('-designation')
-		
-		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff,'notification_count':notification_count,})
+
+		myFilter = filterStaff(request.GET,queryset=staffs)
+		staffs=myFilter.qs
+		context={
+			'staff':staff,
+			'staffs':staffs,
+			'myFilter':myFilter,
+			'notification_count':notification_count,
+		}
+		return render(request, "admin/adminStaffs.html",context)
 	else:
 		return render(request, "pagenotfound.html")
 
@@ -2636,6 +2640,27 @@ def adminaddlab(request):
 	}
 	return render(request,'admin/addlab.html',context)
 
+def admineditlab(request,pk):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		lab_instance=Lab.objects.get(id=pk)
+		form=NewLabForm(instance=lab_instance)
+		if request.method == 'POST':
+			form=NewLabForm(request.POST,instance=lab_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminLabs')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/addlab.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+
 @login_required
 def load_prev_assigned_offices(request):
 	staff=Staff.objects.get(user_obj=request.user)
@@ -2795,7 +2820,7 @@ def viewallfacultyclasses(request,id):
 		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultyclasses.html',context)
-	
+@login_required
 def adminviewbranches(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2809,7 +2834,7 @@ def adminviewbranches(request):
 		return render(request,'admin/adminviewbranches.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminaddbranch(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2828,7 +2853,7 @@ def adminaddbranch(request):
 		return render(request,'admin/adminaddbranch.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def admineditbranch(request,id):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2848,7 +2873,7 @@ def admineditbranch(request,id):
 		return render(request,'admin/adminaddbranch.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminviewTypeOfDevices(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2863,7 +2888,7 @@ def adminviewTypeOfDevices(request):
 	else:
 		return render(request,'pagenotfound.html')
 	
-
+@login_required
 def adminaddTypeOfDevice(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2882,7 +2907,7 @@ def adminaddTypeOfDevice(request):
 		return render(request,'admin/adminaddTypeOfDevice.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def admineditTypeOfDevice(request,id):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2902,7 +2927,7 @@ def admineditTypeOfDevice(request,id):
 		return render(request,'admin/adminaddTypeOfDevice.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminviewdevices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2911,7 +2936,7 @@ def adminviewdevices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewdevices.html',context)
-	
+@login_required	
 def adminview_warehouse_devices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2925,7 +2950,7 @@ def adminview_warehouse_devices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminview_warehouse_devices.html',context)
-	
+@login_required	
 def adminview_assigned_devices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2942,17 +2967,21 @@ def adminview_assigned_devices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminview_assigned_devices.html',context)
-
+@login_required
 def adminadd_device(request):
 		if request.user.is_staff:
 			staff=Staff.objects.get(user_obj=request.user)
 			notification_count=get_notifications(staff.id)
 			form=NewDeviceForm
 			if request.method == 'POST':
-					form=NewDeviceForm(request.POST)
-					if form.is_valid:
-						form.save()
-						return redirect('main:adminview_assigned_devices')
+				device_id=form['device_id']
+				if Devices.objects.filter(device_id=device_id).exists():
+					messages.error(request, "Device with this id already exists")
+					return redirect('main:adminadd_assigned_device')
+				form=NewDeviceForm(request.POST)
+				if form.is_valid:
+					form.save()
+					return redirect('main:adminview_assigned_devices')
 			context={
 					'staff':staff,
 					'notification_count':notification_count,
@@ -2962,6 +2991,100 @@ def adminadd_device(request):
 		else:
 			return render(request,'pagenotfound.html')
 
+@login_required
+def adminedit_assigned_device(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		device_instance=Devices.objects.get(id=id)
+		form=NewDeviceForm(instance=device_instance)
+		if request.method == 'POST':
+			device_id=form['device_id']
+			if Devices.objects.filter(device_id=device_id).exists():
+				messages.error(request, "Device with this id already exists")
+				return redirect('main:adminedit_assigned_device',id=id)
+			form=NewDeviceForm(request.POST,instance=device_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminview_assigned_devices')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminadd_assigned_devices.html',context)
+	else:
+			return render(request,'pagenotfound.html')
+
+@login_required
+def adminadd_warehouse_device(request):
+		if request.user.is_staff:
+			staff=Staff.objects.get(user_obj=request.user)
+			notification_count=get_notifications(staff.id)
+			form=NewWareHouseDeviceForm
+			if request.method == 'POST':
+					print(request.POST)
+					form=request.POST
+					device_id=form['device_id']
+					if Devices.objects.filter(device_id=device_id).exists():
+						messages.error(request, "Device with this id already exists")
+						return redirect('main:adminadd_warehouse_device')
+					# print(device_id)
+					form=NewWareHouseDeviceForm(request.POST)
+					if form.is_valid:
+						form.save()
+						return redirect('main:adminview_warehouse_devices')
+			context={
+					'staff':staff,
+					'notification_count':notification_count,
+					'form':form,
+			}
+			return render(request,'admin/adminadd_warehouse_device.html',context)
+		else:
+			return render(request,'pagenotfound.html')
+
+@login_required
+def adminedit_warehouse_device(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		device_instance=Devices.objects.get(id=id)
+		form=NewWareHouseDeviceForm(instance=device_instance)
+		if request.method == 'POST':
+			form=request.POST
+			device_id=form['device_id']
+			print(device_id)
+			if Devices.objects.filter(device_id=device_id).exists():
+				messages.error(request, "Device with this id already exists")
+				return redirect('main:adminedit_warehouse_device',id=id)
+			form=NewWareHouseDeviceForm(request.POST,instance=device_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminview_warehouse_devices')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminadd_warehouse_device.html',context)
+	else:
+			return render(request,'pagenotfound.html')
+@login_required
+def admin_delete_device(request,id):
+	device=Devices.objects.get(id=id)
+	check=False
+	if device.room:
+		check=True
+	device.delete()
+	if check:
+		return redirect('main:adminview_assigned_devices')
+	else:
+		return redirect('main:adminview_warehouse_devices')
+
+
+	
+
+@login_required
 def viewinventorylogs(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -3008,7 +3131,7 @@ def admineditstaffprofile(request,id):
 	else:
 		return render(request,'pagenotfound.html',{})
 
-
+@login_required
 def expire_lab_device(request,id):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -3028,7 +3151,7 @@ def expire_lab_device(request,id):
 		'lab':lab,				
 	}
 	return render(request,'Labs/expire_lab_device.html',context)
-
+@login_required
 def view_expired_lab_devices(request,pk):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)

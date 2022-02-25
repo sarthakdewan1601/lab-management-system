@@ -63,6 +63,7 @@ urlpatterns = [
     path('admin-dashboard/current-year-leaves/leave/<pk>', views.adminEditLeave, name='adminEditLeave'),
     path('admin-dashboard/current-year-leaves/remove-leave/<pk>', views.removeLeave, name='removeLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
+     path('admin-dashboard/labs-list/edit-lab/<pk>', views.admineditlab, name='admineditlab'),
     path('admin-dashboard/labs-list/add-lab', views.adminaddlab, name='adminaddlab'),
     path('admin-dashboard/rooms/', views.adminviewrooms, name='adminviewrooms'),
     path('admin-dashboard/rooms/add-room/', views.adminaddroom, name='adminaddroom'),
@@ -100,9 +101,13 @@ urlpatterns = [
     path('admin-dashboard/type-of-devices/edit-type-of-device/<id>', views.admineditTypeOfDevice, name='admineditTypeOfDevice'),
     path('admin-dashboard/Assign-office/load_previous_assigned_staff',views.load_prev_assigned_offices,name='ajax_load_prev_assigned_offices'),
     path('admin-dashboard/view-devices',views.adminviewdevices,name='adminviewdevices'),
+    path('admin-dashboard/view-devices/delete-device/<id>',views.admin_delete_device,name='admin_delete_device'),
     path('admin-dashboard/view-devices/view-warehouse-devices',views.adminview_warehouse_devices,name='adminview_warehouse_devices'),
     path('admin-dashboard/view-devices/view-assigned-devices',views.adminview_assigned_devices,name='adminview_assigned_devices'),
     path('admin-dashboard/view-devices/view-assigned-devices/add-device/',views.adminadd_device,name='adminadd_device'),
+    path('admin-dashboard/view-devices/view-warehouse-devices/add-device/',views.adminadd_warehouse_device,name='adminadd_warehouse_device'),
+    path('admin-dashboard/view-devices/view-warehouse-devices/edit-device/<id>',views.adminedit_warehouse_device,name='adminedit_warehouse_device'),
+    path('admin-dashboard/view-devices/view-assigned-devices/edit-device/<id>',views.adminedit_assigned_device,name='adminedit_assigned_device'),
     
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
