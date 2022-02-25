@@ -51,34 +51,7 @@
     {% endfor %}
     </tbody>
 </table>
-    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Device ID</th>
-            <th scope="col">Device Category</th>
-            <th scope="col">Devices Descirption</th>
-            {% if staff.designation.designation == "Lab Attendant" or "Lab Technician" %}
-               <th scope="col">Add Complaint</th>
-               <th scope="col" >All Complaints</th>
-            {% endif %}
-          </tr>
-        </thead>
-        
-        <tbody>
-        {% for device in devices %}
-          <tr class="table-success" style = "text-align: center;">
-            <td scope="row">{{forloop.counter}}</td>
-            <td>{{ device.device_id }}</td>
-            <td>{{ device.name.category }}</td>
-            <td>{{ device.description }}</td>
-            {% if staff.designation.designation ==  "Lab Attendant" or "Lab Technician" %}
-            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
-            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
-            {%endif%}
-          </tr>
-        {% endfor %}
-        </tbody>
+   
     </table>
 </div><br><br><hr>
 <h5 class = "lab-add-h5" style = "text-align: center;"> If you want to view expired devices <a href="{% url 'main:view_expired_lab_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>

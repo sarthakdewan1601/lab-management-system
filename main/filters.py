@@ -48,3 +48,10 @@ class filterExpiredDevices(django_filters.FilterSet):
     class Meta:
         model=Devices
         fields=['name']
+
+class filterStaff(django_filters.FilterSet):
+    Name=CharFilter(field_name='name',lookup_expr='icontains')
+    Email=CharFilter(field_name='email',lookup_expr='icontains')
+    class Meta:
+        model=Staff
+        fields=['category','designation','agency','room']

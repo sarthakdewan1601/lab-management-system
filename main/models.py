@@ -191,7 +191,7 @@ class Lab(models.Model):
     technician = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='technician',blank=True)
 
     def __str__(self): 
-        return self.lab.room_id+ "Attendant: "+self.attendant.name+'Technician: '+ self.technician.name
+        return self.lab.room_id+ "Attendant: "+str(self.attendant) + 'Technician: ' + str(self.technician)
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=20, blank=False, null=False,unique=True)
