@@ -1,5 +1,8 @@
+from email import message
+from pydoc import describe
 import threading
 import datetime
+from unicodedata import decimal
 from django.conf import settings
 from email.message import EmailMessage
 from django.contrib.auth import login, logout
@@ -18,7 +21,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
-from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
+from matplotlib.style import context
+from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability, comparedates
 from django.core.mail import EmailMessage
 
 from .models import *
@@ -399,7 +403,6 @@ def user_profile(request):
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
-			print("Hello")
 			staff = Staff.objects.get(user_obj=request.user)			
 			complaints = Complaint.objects.filter(isActive=True).all()
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
@@ -530,10 +533,56 @@ def requestleave(request):
 		leave_type=TotalLeaves.objects.get(id=leaveSelection)
 		substituteName = Staff.objects.get(id=substitute)
 		multipleLeaves = None
+		halfLeaveCheckbox = None
+
 		try:
 			multipleLeaves = form['multipleLeaveCheckbox']
 		except Exception as e:
 			print(e)
+		
+		try:
+			halfLeaveCheckbox = form['halfLeaveCheckbox']
+		except Exception as e:
+			print(e)
+
+		if halfLeaveCheckbox is not None:
+			halfLeaveType = form['halfLeaveSelect']
+			type_of_leave = None
+			if halfLeaveType == 'first_half':
+				type_of_leave = 'FIRST_HALF'
+			else:
+				type_of_leave = 'SECOND_HALF'
+
+			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, 0.5)
+			if leaveAvailability:
+				fromDateMonth = fromDate.split("-")[1]
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName, month=fromDateMonth, year=year, type=type_of_leave)
+				userstatus.save()
+
+				customMessage1 = staff.name + " requested for leave"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(substituteName.id)+' '+substituteName.name, 
+					message=customMessage1,
+					notification_type = 'LEAVE',
+					taskId = userstatus.id
+				)
+				notification.save()
+				# print(notification)
+				customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+				notification, was_created = Notification.objects.get_or_create(
+					sender=staff, 
+					reciever=str(staff.id) + ' ' + staff.name, 
+					message=customMessage2,
+					notification_type = 'LEAVE',
+					taskId=userstatus.id
+				) 
+				notification.save()
+
+				return redirect('main:userLeaves')
+			else:
+				messages.error(request, f'You cannot take more than {leaveAvailabilityCount} leaves of this type')
+				return redirect("main:requestleave")				
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
@@ -541,7 +590,7 @@ def requestleave(request):
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			if leaveAvailability:
 				fromDateMonth = fromDate.split("-")[1]
-				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName, month=fromDateMonth, year=year)
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName, month=fromDateMonth, year=year, type='MULTI')
 				userstatus.save()
 				##notification
 				customMessage1 = staff.name + " requested for leave"
@@ -574,7 +623,7 @@ def requestleave(request):
 			if leaveAvailability:
 				year=datetime.datetime.now().year
 				fromDateMonth = fromDate.split("-")[1]
-				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName, month=fromDateMonth, year=year)
+				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff, leave_type=leave_type, from_date=fromDate, to_date=fromDate, reason=reason, substitute=substituteName, month=fromDateMonth, year=year, type='FULL_DAY')
 				userstatus.save()
 				##notification
 
@@ -752,15 +801,17 @@ def approveRequest(request, pk):
 			taskId=str(leave.id)
 		)
 		notification.save()
-
-		
-		# 1) ki user leaves taken hai uss user ka usko update 
+		getTotalLeaveDays = -1
 		userleavetaken = UserLeavesTaken.objects.get(staff=leave.staff,leave_taken=leave.leave_type)
-		getTotalLeaveDays = 1
-		if leave.to_date:
-			getTotalLeaveDays = getNumberOfDays(leave.from_date, leave.to_date)
+
+		if leave.type == 'FULL_DAY':
+			userleavetaken.count += 1
+		elif leave.type == 'MULTI':
+			userleavetaken.count += getNumberOfDays(leave.from_date, leave.to_date)
+		else:
+			userleavetaken.count += 0.5
 		
-		userleavetaken.count += getTotalLeaveDays
+		print("userleavetaken.count, getTotalLeaveDays ", userleavetaken.count, type(userleavetaken.count))
 		userleavetaken.save()
 		
 		return redirect("main:adminRequestedLeaves")
@@ -1297,8 +1348,17 @@ def leaveUsersHistory(request):
 			if leave.admin_approval:
 				leaves.append(leave)
 
-		# make query set
 
+		# removing multiple entries
+		# newLeaves = []
+		# for leave in leaves:
+		# 	if not len(newLeaves):
+		# 		newLeaves.append(leave)
+			
+		# 	for i in newLeaves:
+		# 		if not leave.staff == i.staff and not leave.leave_type == i.leave_type:
+		# 			newLeaves.append(leave)
+		
 		currLeaveCount = []
 		for leave in leaves:
 			array = {};
@@ -1316,7 +1376,10 @@ def leaveUsersHistory(request):
 			)
 			countDays = 0
 			for a in leavesThisMonth:
-				countDays += getNumberOfDays(a.from_date, a.to_date)
+				if a.type == 'FULL_DAY' or a.type == 'MULTI':
+					countDays += getNumberOfDays(a.from_date, a.to_date)
+				else:
+					countDays += 0.5
 			days=[]
 			for x in leavesThisMonth:
 				if x.from_date==x.to_date:
@@ -2781,6 +2844,7 @@ def adminadd_device(request):
 		else:
 			return render(request,'pagenotfound.html')
 
+@login_required
 def viewinventorylogs(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2792,6 +2856,7 @@ def viewinventorylogs(request):
 	}
 	return render(request,'inventory/viewinventorylogs.html',context)
 
+@login_required
 def admineditstaffprofile(request,id):
 	if request.user.is_staff:
 		staff = Staff.objects.get(id=id)	
@@ -2826,3 +2891,200 @@ def admineditstaffprofile(request,id):
 			return render(request, "admin/admineditstaffprofile.html", context)		
 	else:
 		return render(request,'pagenotfound.html',{})
+
+
+
+
+@login_required
+def jobALerts(request):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+
+	staffJobs = StaffJobs.objects.filter(staff=staff, rejected=False)
+	rejectedJobs = StaffJobs.objects.filter(staff=staff, rejected = True)
+	jobs = []
+
+	for staffJob in staffJobs:
+		job = Jobs.objects.get(id=staffJob.job.id)
+		if job.active and not staffJob.completed:
+			jobs.append(job)
+
+	context = {
+		'staff' : staff,
+		'notification_count':notification_count,
+		"jobs":jobs,
+		"rejectedJobs":rejectedJobs
+	}
+	return render(request, "jobs/jobs.html", context)
+
+@login_required
+def completeJob(request, id):
+	staff = Staff.objects.get(user_obj = request.user)
+	job = Jobs.objects.get(id=id)
+	staffJob = StaffJobs.objects.get(job=job, staff=staff)
+
+	if comparedates(job.date):
+		staffJob.completed = True
+		staffJob.message = 'Job Completed'
+		staffJob.save()
+
+	else:
+		# send message
+		pass
+
+	return redirect('main:jobALerts')
+
+@login_required
+def rejectJobRequest(request, id):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	job = Jobs.objects.get(id=id)
+	if request.method == "POST":
+		form = request.POST
+		message = form['reason']
+		staffJob = StaffJobs.objects.get(job=job, staff=staff)
+		staffJob.rejected = True
+		staffJob.message = message
+		staffJob.save()
+		return redirect('main:jobALerts')
+	else:	
+		context = {
+		'staff' : staff,
+		'notification_count':notification_count,			
+		'job':job,
+		}
+		return render(request, "jobs/rejectJob.html", context)
+
+@login_required
+def jobDetailsUser(request, id):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	job = Jobs.objects.get(id=id)
+
+	context = {
+		'staff' : staff,
+		'notification_count':notification_count,
+		"job": job,
+	}
+	return render(request, 'jobs/jobDetails.html', context)
+
+@login_required
+def viewrejectedJobs(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	staffJobs = StaffJobs.objects.filter(staff=staff, rejected=True, completed=False)
+	print(staffJobs)
+	context = {
+		'staff' : staff,
+		'notification_count':notification_count,
+		'staffJobs': staffJobs
+	}
+	return render(request, 'jobs/rejectedJobs.html', context)
+
+@login_required
+def viewCompletedJobs(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	staffJobs = StaffJobs.objects.filter(staff=staff, completed=True, rejected=False).order_by('-id')
+	
+	context = {
+		'staff' : staff,
+		'notification_count':notification_count,
+		'staffJobs': staffJobs
+	}
+	return render(request, 'jobs/completedJobs.html', context)
+
+@login_required
+def adminJobALerts(request):
+	if not request.user.is_staff:
+		return render(request,'pagenotfound.html',{})
+	
+	admin=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(admin.id)
+	jobs = Jobs.objects.all().order_by("-id")
+	context = {
+		'staff' : admin,
+		'notification_count':notification_count,
+		"jobs": jobs
+	}
+	return render(request, 'jobs/admin-jobs.html', context)
+
+@login_required
+def jobDetails(request, id):
+	if not request.user.is_staff:
+		return render(request,'pagenotfound.html',{})
+	
+	admin=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(admin.id)
+	job = Jobs.objects.get(id=id)
+	users = StaffJobs.objects.filter(job=job)
+	context = {
+		'staff' : admin,
+		'notification_count':notification_count,
+		"job": job,
+		"users":users
+	}
+	return render(request, 'jobs/adminJobDetails.html', context)
+
+@login_required
+def addNewJob(request):
+	if not request.user.is_staff:
+		return render(request,'pagenotfound.html',{})
+
+	admin=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(admin.id)
+	if request.method == "POST":
+		form = request.POST
+		title = form['jobTitle']
+		des = form['jobDes']
+		date = form['jobdate']
+		staffUsers = form['jobUsers']
+		staffUsers=request.POST.getlist('jobUsers')
+		job, was_created = Jobs.objects.get_or_create(title=title, description=des, date=date)
+		job.save()
+		for id in staffUsers:
+			user = Staff.objects.get(id=id)
+			staffUser, was_created = StaffJobs.objects.get_or_create(job=job, staff=user)
+			staffUser.save()
+
+		return redirect('main:adminJobALerts')
+
+
+	else:
+		category = Category.objects.get(category='Faculty')
+		staff_list = Staff.objects.exclude(category=category)
+		context = {
+			'staff' : admin,
+			'notification_count':notification_count,
+			'staff_list': staff_list
+		}
+		return render(request, 'jobs/addNewJob.html', context)
+
+@login_required
+def closeJob(request, id):
+	if not request.user.is_staff:
+		return render(request,'pagenotfound.html',{})
+	admin = Staff.objects.get(user_obj = request.user)
+	job = Jobs.objects.get(id=id)
+	staffJobs = StaffJobs.objects.filter(job=job)
+	completedJobs = []
+	users = []
+	for i in staffJobs:
+		if i.completed and not i.rejected:
+			completedJobs.append(i)
+			users.append(i.staff)
+	
+	# increase Compensatory by 1 of these users[]
+	compensatoryLeaveType = TotalLeaves.objects.get(LeaveName='Compensatory')
+
+
+	for user in users:
+		validity = datetime.datetime.now() + datetime.timedelta(days=90)
+		compensatoryLeaves, was_created = CompensatoryLeave.objects.get_or_create(staff=user, leave=compensatoryLeaveType, validity=validity)
+		compensatoryLeaves.save()
+		leave = UserLeavesTaken.objects.get(leave_taken=compensatoryLeaveType, staff=user)
+		leave.count += 1
+		leave.save()
+	job.active = False
+	job.save()
+	return redirect('main:adminJobALerts')

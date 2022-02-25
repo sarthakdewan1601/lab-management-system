@@ -116,7 +116,13 @@ class TotalLeaves(models.Model):
 
     def __str__(self):
         return self.LeaveName + "("+ str(self.year) + ")"
-    
+
+TYPE_OF_LEAVE = [
+    ('FULL_DAY', 'Full Day'),
+    ("MULTI", 'Multiple Leaves'),
+    ('FIRST_HALF', "First Half"),
+    ('SECOND_HALF', "Second half")
+]
 
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
@@ -132,6 +138,7 @@ class UserLeaveStatus(models.Model):
     rejected = models.BooleanField(default=False) 
     month = models.CharField(max_length=20, default=None, null=True, blank=False)
     year = models.IntegerField(default=None, null=True, blank=False)
+    type = models.CharField(max_length=20, choices=TYPE_OF_LEAVE, default=None)
 
     def __str__(self):
         return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name
@@ -155,7 +162,7 @@ class UserLeavesTaken(models.Model):
     # get object of staff after admin verification
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
     leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)      
-    count=models.IntegerField(default=0)
+    count=models.FloatField(default=0)
     def __str__(self):
         return self.staff.name + " " + str(self.leave_taken.LeaveName) + " "+ str(self.count)
 
@@ -354,3 +361,30 @@ class Class(models.Model):
 #list of staff jo faculty mai hai
 #Sarthak - Professor - Add Activity->click->view
 
+
+class Jobs(models.Model):
+    title=models.CharField(max_length=255, null=False, default=None)
+    description=models.TextField()
+    date = models.DateTimeField(null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+class StaffJobs(models.Model):
+    staff=models.ForeignKey(Staff, on_delete=models.CASCADE)
+    job=models.ForeignKey(Jobs, on_delete=models.CASCADE)
+    rejected = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
+    message = models.TextField(default=None, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.job.date) + " " + self.staff.name + " rejected: "+ str(self.rejected) + " <-> completed: " + str(self.completed)
+
+class CompensatoryLeave(models.Model):
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, null=False)
+    validity = models.DateField(null=False, default=None, blank=True)
+    leave = models.ForeignKey(TotalLeaves, on_delete=models.CASCADE, null=False, default=None)
+
+    def __str__(self):
+        return self.staff.name + " " + str(self.validity)

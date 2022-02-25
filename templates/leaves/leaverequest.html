@@ -6,16 +6,34 @@
     const toDateToggle = ()=> {
       const checkbox = document.getElementById('multipleLeaveCheckbox');
       const toDateDisplay = document.getElementById('toDate');
-       
+      const halfLeaveMain = document.getElementsByClassName('halfLeaveMain')
+
       if(checkbox.checked ) {
-        toDateDisplay.style.display = "block";
+        halfLeaveMain[0].style.display = 'none';
+        toDateDisplay.style.display = "flex";
         checkbox.value = 'checked';
         
       } else {
+        halfLeaveMain[0].style.display = 'flex';
         toDateDisplay.style.display = "none";
         checkbox.value = 'uncheck';
-       } 
+      } 
       //  console.log(checkbox.value)
+    }
+    const halfToggle = () => {
+      const halfLeavecheckbox = document.getElementById('halfLeaveCheckbox');
+      const halfLeaveSelect = document.getElementById('halfLeaveSelect');
+      const mulLeave = document.getElementsByClassName('mulLeave');
+      
+      if(halfLeavecheckbox.checked) {
+        mulLeave[0].style.display = 'none';
+        halfLeaveSelect.style.display = 'block';
+        halfLeavecheckbox.value = 'checked';
+      } else {
+        mulLeave[0].style.display = 'flex';
+        halfLeaveSelect.style.display = 'none';
+        halfLeavecheckbox.value = 'uncheck';
+      }
     }
   </script>
 {% endblock head %}
@@ -41,7 +59,6 @@
                 <label for="leaveSelection" class="col-sm-2 col-form-label">Select Leave</label>
                 <div class="col-sm-10 col-lg-4">
                 <select class="form-select" aria-label="Default select example" id="leaveSelection" name="leaveSelection" required>
-                    <option selected>---------</option>
                     {% for leave in totalLeavesCurrYear %}
                         <option value="{{leave.id}}">{{leave.LeaveName}}</option>
                     {% endfor %}
@@ -49,7 +66,21 @@
                 </div>
               </div>
 
-              <div class="mb-3 row">
+              <div class="mb-3 row halfLeaveMain">
+                <label for="multipleLeaveCheckbox" class="col-sm-2 col-form-label">Half Leave?</label>
+                <div class="col-lg-1">
+                    <input type="checkbox" id="halfLeaveCheckbox" name="halfLeaveCheckbox" onclick="halfToggle()" value="uncheck">
+                </div>
+                <div class="col-sm-10 col-lg-4" id="halfLeaveSelect" style="display: none;">
+                    <select name="halfLeaveSelect" id="halfLeaveSelect" required>
+                      <option selected>-----</option>
+                      <option value="first_half">First Half</option>
+                      <option value="second_half">Second Half</option>
+                    </select>
+                </div>
+              </div>
+
+              <div class="mb-3 row mulLeave">
                 <label for="multipleLeaveCheckbox" class="col-sm-2 col-form-label">Multiple Leaves? </label>
                 <div class="col-sm-10 col-lg-4">
                     <input type="checkbox" id="multipleLeaveCheckbox" name="multipleLeaveCheckbox" onclick="toDateToggle()" value="uncheck">
@@ -71,10 +102,10 @@
               </div>
 
               <div class="mb-3 row">
-                <label for="substitute" class="col-sm-2 col-form-label">substitutes</label>
+                <label for="substitute" class="col-sm-2 col-form-label">Substitutes</label>
                 <div class="col-sm-10 col-lg-4">
                 <select class="form-select" aria-label="Default select example" id="substitute" name="substitute">
-                    <option selected>---------</option>
+                    <option selected>-------</option>
                     {% for substitute in substitutes %}
                         <option value="{{substitute.id}}">{{substitute.name}}</option>
                     {% endfor %}

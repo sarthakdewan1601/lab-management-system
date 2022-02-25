@@ -75,6 +75,10 @@ a {
   margin: 10px 0 0 50px;
 }
 
+/* #halfLeaveToggle{
+  display: none;
+} */
+
 @media (min-width: 1024px) {
   .container {
     width: 60%;

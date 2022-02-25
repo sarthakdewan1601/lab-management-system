@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Create New Job</h2>
+    <div class="container">
+
+          <form method="POST">
+               {% csrf_token %}
+               <div class="mb-3 row">
+                    <label for="jobTitle" class="col-sm-2 col-form-label">Job Title</label>
+                    <div class="col-sm-10 col-lg-4">
+                         <input type="text" id="jobTitle" name="jobTitle" required>
+                    </div>
+               </div>
+               <div class="mb-3 row">
+                    <label for="jobdate" class="col-sm-2 col-form-label">Job Date</label>
+                    <div class="col-sm-10 col-lg-4">
+                         <input type="datetime-local" id="jobdate" name="jobdate" required>
+                    </div>
+               </div>
+               <div class="mb-3 row">
+                    <label for="jobDes" class="col-sm-2 col-form-label">Job Description</label>
+                    <div class="col-sm-10 col-lg-4">
+                      <textarea name="jobDes" id="jobDes" cols="30" rows="5" required></textarea>
+                    </div>
+               </div>
+               <div class="mb-3 row">
+                    <label for="jobUsers" class="col-sm-2 col-form-label">Staff Members</label>
+                    <div class="col-lg-4">
+                         <select name="jobUsers" id="jobUsers" multiple required>
+                              {% for staff in staff_list %}
+                                   <option value={{staff.id}}>{{staff.name}}</option>
+                              {% endfor %}
+                         </select>
+                    </div>
+               </div>
+               <div class="mb-3 row">
+                    <div class="col-sm-10 col-lg-4">
+                      <button type="submit" class="btn btn-dark btn-sm">Create</button>
+                   </div>
+                </div>
+          </form>
+
+    </div>
+     
+</section>
+
+{% endblock body %}

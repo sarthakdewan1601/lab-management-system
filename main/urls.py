@@ -118,5 +118,18 @@ urlpatterns = [
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
     path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
-    path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
+    path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints'),
+
+    #jobs
+    path('jobs/', views.jobALerts, name='jobALerts'),
+    path('jobs/details/<id>', views.jobDetailsUser, name='jobDetailsUser'),
+    path('jobs/reject-job/<id>', views.rejectJobRequest, name='rejectJobRequest'),
+    path('jobs/complete-job/<id>', views.completeJob, name='completeJob'),
+    path('jobs/rejected-leaves', views.viewrejectedJobs, name='viewrejectedJobs'),
+    path('jobs/completed-leaves', views.viewCompletedJobs, name='viewCompletedJobs'),
+    path('admin-jobs/', views.adminJobALerts, name='adminJobALerts'),
+    path('admin-jobs/add-new-job', views.addNewJob, name='addNewJob'),
+    path('admin-jobs/view-job/<id>', views.jobDetails, name='jobDetails'),
+    path('admin;jobs/close-job/<id>', views.closeJob, name='closeJob'),
+
 ]

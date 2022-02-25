@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">All Jobs</h2>
+
+    <div class="container">
+     
+     <div class="courses-table">
+         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+             <thead>
+               <tr>
+                 <th scope="col" >Job</th>
+                 <th scope="col" >Date</th>
+                 <th scope="col" >Job Status</th>
+                 <th scope="col" >View Details</th>
+               </tr>
+             </thead>
+     
+             <tbody>
+                  {% for job in jobs %}
+               <tr class="table-success" style = "text-align: center;">
+                    <td>{{job.title}}</td>
+                    <td>{{job.date}}</td>
+                    {% if job.active %}
+                      <td>Active</td>
+                    {% else %}
+                      <td>Closed</td>
+                    {% endif %}
+                    <td><a class="text-dark text-decoration-underline" href="{% url 'main:jobDetails' id=job.id %}">View Job</a></td>
+               </tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+         <Button class="btn btn-dark btn-sm"><a style="color: white;" href="{% url 'main:addNewJob' %}">Add Job</a></Button>
+     </div>
+     
+</section>
+
+{% endblock body %}

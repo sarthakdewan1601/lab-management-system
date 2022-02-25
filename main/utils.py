@@ -55,3 +55,9 @@ def checkLeaveAvailability(leaveType, user, count):
     else:
         return True, None, None
 
+def comparedates(date):
+    # d1 = datetime.datetime(2018, 5, 3)
+    # d2 = datetime.datetime(2018, 6, 1)
+    # d1 = datetime.now()
+    # print("d1, d2 ", d1, date)
+    return True
