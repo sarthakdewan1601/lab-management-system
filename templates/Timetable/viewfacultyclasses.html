@@ -6,9 +6,13 @@
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 <section class="sectionLogin">
   <br>
-  <h2 style = "text-align: center;">Faculty Classes</h2><br><br>
+  <h2 style = "text-align: center;">Faculty Classes</h2>
 
 <div class="container">
+  <div class="col-lg-12" style = "text-align: right;">
+    <a href = "{% url 'main:viewallfacultyclasses' id=staff.id %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">View All Classes</button></a>
+  </div>
+  <br>
     <div class="labs-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -39,7 +43,6 @@
             </tbody>
           </table>
         </div>
-        <a href="{% url 'main:viewallfacultyclasses' id=staff.id %}" class="btn btn-dark btn-sm">View All Classes</a>
     </div>
     </section>
 {% endblock body %}
