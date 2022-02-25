@@ -9,7 +9,7 @@ from geopy.distance import geodesic
 
 from lms.settings import EMAIL_HOST_USER
 from .tokens import generate_token
-
+from datetime import datetime
 from .models import *
 
 
@@ -37,14 +37,12 @@ def send_email(current_site,user,name=None,mess="confirm your registration",link
 def getNumberOfDays(fromDate, toDate):
     if not toDate:
         return 1
-    toDate = str(toDate)
-    fromDate = str(fromDate)
-    print(toDate, fromDate)
-    fromDateNumber = fromDate.split("-")[2]
-    todateNumber = toDate.split("-")[2]
+        
+    fromDate = datetime.strptime(fromDate, '%Y-%m-%d')
+    toDate = datetime.strptime(toDate, '%Y-%m-%d')
+    delta = toDate - fromDate
 
-    count = int(todateNumber) - int(fromDateNumber)
-    return count + 1
+    return delta.days
 
 def checkLeaveAvailability(leaveType, user, count):
     currLeave = UserLeavesTaken.objects.get(staff=user, leave_taken=leaveType)

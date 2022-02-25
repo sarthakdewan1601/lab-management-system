@@ -132,6 +132,10 @@
               {{ complaint.escalated_at }} 
               {% endif %}
             </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalation_note }} 
+              {% endif %}
             <td>{{ complaint.work_Done }} </td>
             <td>{{ complaint.who_resolved.name }}</td>
                 </tr>

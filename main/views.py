@@ -402,7 +402,7 @@ def user_profile(request):
 			# print("Hello")
 			staff_labTech = Staff.objects.get(user_obj=request.user)			
 
-			complaints = Complaint.objects.filter(isActive=True, assigned_to=staff_labTech)
+			# complaints = Complaint.objects.filter(isActive=True, assigned_to=staff_labTech)
 			userLabs = Lab.objects.filter(technician = staff_labTech).order_by('id').all()
 
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
