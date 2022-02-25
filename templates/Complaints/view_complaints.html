@@ -19,6 +19,7 @@
         <th scope="col">Room Name</th>
         <th scope="col">Device Number</th>
         <th scope="col">Complaint</th>
+        <th scope="col">Assigned To</th>
         <th scope="col" style="text-align: center;">Resolve Complaint</th>
         {% comment %}
         <th scope="col" style="text-align: center;">Complaint Status</th>
@@ -33,6 +34,7 @@
             <td>{{ active_complaint.device.room.name }}</td>
             <td>{{ active_complaint.device.device_id }} </td>
             <td>{{ active_complaint.complaint }}</td>
+            <td>{{ active_complaint.assigned_to.name }}</td>
             <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
 
             {% comment %}
@@ -60,7 +62,9 @@
         <th scope="col">Room Name</th>
         <th scope="col">Device Number</th>
         <th scope="col">Complaint</th>
+        <th scope="col">Assigned To</th>
         <th scope = "col"> Work Done </th>
+        <th scope = "col"> Work Done By </th>
         {% comment %}
         <th scope="col" style="text-align: center;">Resolve Complaint</th>
         <th scope="col" style="text-align: center;">Complaint Status</th>
@@ -75,7 +79,9 @@
             <td>{{ resolved_complaint.device.room.name }}</td>
             <td>{{ resolved_complaint.device.device_id }} </td>
             <td>{{ resolved_complaint.complaint }}</td>
+            <td>{{ resolved_complaint.assigned_to.name }}</td>
             <td>{{ resolved_complaint.work_Done }}</td>
+            <td>{{ resolved_complaint.who_resolved.name }}</td>
         </tr>
         {% endfor %}
         </tbody>

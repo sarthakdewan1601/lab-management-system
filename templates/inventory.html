@@ -20,45 +20,57 @@
   </div>
   <br>
     <div class="inventory-table">
-        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
-            <thead>
-              <tr>
-                <th scope="col" >Item Id</th>
-                <th scope="col" >Item Name</th>
-                <th scope="col" >Item Description</th>
-                <th scope="col" >Date Alloted</th>
-                <th scope="col" >Add Complaint</th>
-                <th scope="col" >All Complaints</th>
-              </tr>
-            </thead>
-    
-            <tbody>
-              {% for device in inventory %}
-              {% if device.is_requested_for_return %}
-              <tr class="table-success" style = "text-align: center;color: red;">
-                <td>{{device.device.device_id}}</td>
-                <td>{{device.device.name}}</td>
-                <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td> 
-                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="btn btn-dark btn-sm" type="submit">Add Complaint </button></a></td>
-                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="btn btn-dark btn-sm" type="submit">View All Complaints </button></a></td>                    
-              </tr>
-              {% else %}
-              <tr class="table-success" style = "text-align: center;color: green;">
-                <td>{{device.device.device_id}}</td>
-                <td>{{device.device.name}}</td>
-                <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td> 
-                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="btn btn-dark btn-sm" type="submit">Add Complaint </button></a></td>   
-                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="btn btn-dark btn-sm" type="submit">View All Complaints </button></a></td>                  
-              </tr>
-              {% endif %} 
-              {% endfor %}
-            </tbody>
-          </table>
+
+      <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Total Devices Alloted</th>
+            <th scope="col">Active devices</th>
+            <th scope="col">Expired Devices</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          <tr class="table-success" style = "text-align: center;">
+            <td>{{ all_devices_len }}</td>
+            <td>{{ active_devices_len }}</td>
+            <td>{{ expired_devices_len }}</td>
+          </tr>
+        </tbody>
+    </table>
+    <div class = "lab-computers">
+      <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Device Type</th>
+            <th scope="col">Count</th>
+            <th scope="col">View Devices</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+        {% for instance in unique_device_type_and_counts %}
+          <tr class="table-success" style = "text-align: center;">
+            <td scope="row">{{forloop.counter}}</td>
+            <td>{{ instance.0 }}</td>
+            <td>{{ instance.1 }}</td>
+            
+            <td><a href="{% url 'main:view_inventory_devices' device_type=instance.0 %}"><button class="lab-submitButton" type="submit">View Devices </button></a></td>
+            
+          </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+        
+          <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
+          <p style = "text-align: center;">If you want to view your Inventory Logs <a href = "{%url 'main:viewinventorylogs'%}">click here</a></p>
+          <p style = "text-align: center;">If you want to view your Expired Devices <a href = "{%url 'main:view_expired_inventory_devices'%}">click here</a></p>
         </div>
     </div> 
+    </div>
     {% else %}  
       <h1>Office : No office Assigned </h1> 
     {% endif %}
+    </section>
 {% endblock body %}

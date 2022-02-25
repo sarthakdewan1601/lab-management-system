@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">{{lab.lab.name}} ({{lab.lab.room_id}})</h2>
+<div class="container">
+<div class="wrapper_">
+<div class = "lab-h1">
+    <h3 style = "text-align: center;">Devices </h3>
+</div>
+<div class = "lab-computers">    
+    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Device ID</th>
+            <th scope="col">Device Category</th>
+            <th scope="col">Devices Descirption</th>
+            {% if staff.designation.designation == "Lab Attendant" %}
+               <th scope="col">Add Complaint</th>
+               <th scope="col" >All Complaints</th>
+               <th scope="col" >Expire Device</th>
+            {% endif %}
+          </tr>
+        </thead>
+        
+        <tbody>
+        {% for device in devices %}
+          <tr class="table-success" style = "text-align: center;">
+            <td scope="row">{{forloop.counter}}</td>
+            <td>{{ device.device_id }}</td>
+            <td>{{ device.name.category }}</td>
+            <td>{{ device.description }}</td>
+            {% if staff.designation.designation ==  "Lab Attendant" or staff.designation.designation ==  "Lab Technician" %}
+            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td> 
+            <td><a href="{% url 'main:expire_lab_device' id=device.id %}"><button class="lab-submitButton" type="submit">Expire Device </button> </a></td>                   
+            {%endif%}
+          </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+</section>
+{% endblock body %}

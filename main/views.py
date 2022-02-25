@@ -1,10 +1,11 @@
+from enum import unique
 import threading
 import datetime
 from django.conf import settings
 from email.message import EmailMessage
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-
+import pandas as pd
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -20,6 +21,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes,  force_text
 from main.utils import generate_token, getNumberOfDays, checkLeaveAvailability
 from django.core.mail import EmailMessage
+from django.utils.dateparse import parse_date
 
 from .models import *
 from .forms import *
@@ -229,8 +231,7 @@ def login_request(request):
 @login_required
 def logout_request(request, id):
 	staff = Staff.objects.get(id=id)
-	userEmail = staff.email
-	user = User.objects.get(email=userEmail)
+	user = User.objects.get(email=staff.email)
 	user.save()
 	logout(request)
 	messages.info(request, "You have successfully logged out.")
@@ -338,18 +339,18 @@ def	passwordChange(request, id):
 
 
 
-@login_required
-def home(request):
-	staff=Staff.objects.get(user_obj=request.user)
-	notification_count=get_notifications(staff.id)
-	if request.user.is_staff:
-		a = User.objects.get(email=request.user)
-		print(a)
-		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
+# @login_required
+# def home(request):
+# 	staff=Staff.objects.get(user_obj=request.user)
+# 	notification_count=get_notifications(staff.id)
+# 	if request.user.is_staff:
+# 		a = User.objects.get(email=request.user)
+# 		print(a)
+# 		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
 
-	staff = Staff.objects.get(user_obj=request.user)
-	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
+# 	staff = Staff.objects.get(user_obj=request.user)
+# 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+# 	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
 
 	# except:
 	# 	tech = Technician.objects.get(tech_id=request.user.username)
@@ -369,25 +370,20 @@ def user_profile(request):
 	userEmail = request.user.email
 	staff = Staff.objects.get(email=userEmail)
 	notification_count=get_notifications(staff.id)
-	print(notification_count)
+	# print(notification_count)
 
 	if staff.category.category == "Lab Staff":
 		# print("hi")
 		# for admin 
-		print(staff.designation.designation)
-		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
+		# print(staff.designation.designation)
+		if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor"  or staff.designation.designation == "Lab Associate":
 			# labs = Lab.objects.get().all()
 			#notifications=Notification.objects.filter(reciever='admin').all()
 			return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
-
-		
-		if staff.designation.designation == "Lab Associate":
-			pass
-
 		
 		if staff.designation.designation == "Lab Attendant":
 			staff_1 = Staff.objects.get(user_obj=request.user)
-			userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
+			userLabs = Lab.objects.filter(attendant = staff_1).order_by('id').all()
 
 			#leaves=Leaves.objects.get(staff=staff)
 			context = {
@@ -399,16 +395,18 @@ def user_profile(request):
 			# pass
 			
 		if staff.designation.designation == "Lab Technician":
-			print("Hello")
-			staff = Staff.objects.get(user_obj=request.user)			
-			complaints = Complaint.objects.filter(isActive=True).all()
+			# print("Hello")
+			staff_labTech = Staff.objects.get(user_obj=request.user)			
+
+			complaints = Complaint.objects.filter(isActive=True, assigned_to=staff_labTech)
+			userLabs = Lab.objects.filter(technician = staff_labTech).order_by('id').all()
+
 			current_notifications = Notification.objects.filter(reciever='Lab Technician').order_by('id').all()
 
-
-
 			context = { 
-				"staff":staff,
-				"complaints": complaints,
+				'userLabs' : userLabs,
+				"staff": staff_labTech,
+				# "complaints": complaints,
 				"notifications": current_notifications,
 				'notification_count':notification_count,
 			}
@@ -517,6 +515,7 @@ def requestleave(request):
 	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
 		form=request.POST
+		print(form)
 		# form data
 		applicant=form['applicant']
 		leaveSelection=form['leaveSelection']
@@ -537,10 +536,16 @@ def requestleave(request):
 
 		if multipleLeaves is not None:
 			toDate=form['toDate']
+
+			# print("debug toData -->>",toDate)		#debug
+
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
+
+			# print("DEBUG countOfLeaves -->>",countOfLeaves)		#debug
+
 			leaveAvailability, leaveAvailabilityCount, leaveAvailabilityMessage = checkLeaveAvailability(leave_type, staff, countOfLeaves)
 			if leaveAvailability:
-				fromDateMonth = fromDate.split("-")[1]
+				fromDateMonth = fromDate.split("-")[1]						#check 
 				userstatus,wascreated=UserLeaveStatus.objects.get_or_create(staff=staff,leave_type=leave_type,from_date=fromDate,to_date=toDate, reason=reason,substitute=substituteName, month=fromDateMonth, year=year)
 				userstatus.save()
 				##notification
@@ -668,7 +673,7 @@ def approveLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	#for admin
-	if request.user.is_staff:
+	if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 		#return HttpResponse(201)
 		context={
 			'staff':staff,
@@ -845,20 +850,23 @@ def viewprevleaves(request):
 @login_required	
 def complaint(request, pk):
 	device = Devices.objects.get(id=pk)
+	technician = Lab.objects.get(lab=device.room).technician
+	
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.method == 'POST':
 		form = ComplaintForm(request.POST)
 		if form.is_valid():
 			dev = device
-			dev.is_working=False
+			# dev.is_working=False
 			dev.save()
 			complaint=form.cleaned_data['complaint']
 			# staff=Staff.objects.get(user_obj=request.user)	
 			complaint, was_created = Complaint.objects.get_or_create(
 				created_by=staff,
 				device=dev,
-				complaint=complaint
+				complaint=complaint,
+				assigned_to = technician
 			)
 			complaint.save()
 
@@ -1034,15 +1042,49 @@ def lab(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	lab = Lab.objects.get(id=pk)
-	devices=Devices.objects.filter(room=lab.lab).order_by("id").all()
+	all_devices_len=len(Devices.objects.filter(room=lab.lab,in_inventory=False))
+	devices=Devices.objects.filter(room=lab.lab,is_working=True,in_inventory=False).order_by("id").all()
+	active_devices_len=(len(devices))
+	expired_devices_len=all_devices_len-active_devices_len
+	unique_device_types=[device.name for device in devices]
+	print(expired_devices_len)
+	
+	unique_device_types=list(set(unique_device_types))
+	unique_device_counts=[len(Devices.objects.filter(name=type,room=lab.lab,is_working=True,in_inventory=False)) for type in unique_device_types]
+	# print(unique_device_counts)
+	unique_device_type_and_counts=zip(unique_device_types,unique_device_counts)
+
+	# print(unique_device_type_and_counts)
+	# print(unique_device_type_and_counts)
 	context = {
 		'staff':staff,
 		'devices': devices,
 		'labid': pk,
 		'lab': lab,
 		'notification_count':notification_count,
+		'unique_device_type_and_counts':unique_device_type_and_counts,
+		'active_devices_len':active_devices_len,
+		'expired_devices_len':expired_devices_len,
+		'all_devices_len':all_devices_len,
 	}
 	return render(request, "Labs/lab.html", context)
+def view_lab_devices(request,device_type,lab):
+	# print('hi')
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	lab=Lab.objects.get(id=lab)
+	device_type=CategoryOfDevice.objects.get(category=device_type)
+	devices=Devices.objects.filter(room=lab.lab,name=device_type,is_working=True,in_inventory=False)
+	# print(devices)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+		'devices':devices,
+		'lab':lab,
+	}
+	return render(request,'Labs/view_lab_devices.html',context)
+
+
 
 @login_required
 def add_devices(request, pk):
@@ -1053,7 +1095,7 @@ def add_devices(request, pk):
 	# print('hi')
 	if request.method == 'POST':
 		form = NewComputerForm(request.POST)
-		print('hi')
+		# print('hi')
 		# print(form.is_valid()
 		if form.is_valid():
 			# print('hi again')
@@ -1085,6 +1127,55 @@ def add_devices(request, pk):
 		}
 		return render(request, 'Labs/add_computer.html', context)
 
+
+def escalation(request, pk):
+	staff= Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	complaint = Complaint.objects.get(id=pk)
+
+	if request.method == 'POST':
+
+		complaint.escalated=True
+		complaint.escalated_by=staff
+		complaint.escalation_note=request.POST['escalate_note']
+		complaint.escalated_at= timezone.now()
+		complaint.save()
+		device=Devices.objects.get(id=complaint.device.id)
+		complaints=Complaint.objects.filter(device=device,isActive=True)
+		if(len(list(complaints))==0):
+			device.is_working=True
+		device.save()
+		# notification = Notification.objects.get(taskId=complaint.id, reciever='admin')
+		# notification.isActive = False
+		# notification.expired=True
+
+		notification, was_created = Notification.objects.get_or_create(
+				sender=staff, 
+				reciever='admin', 
+				message="Complaint, " + '"' +complaint.complaint + '"' + ', complaintID:'+str(complaint.id) +", has been escalated",
+				notification_type = 'ESCALATION',
+				taskId=complaint.id
+			)			
+		
+		notification.save()
+		# notification_resolve.save()
+
+		if request.user.is_staff:
+			return redirect("main:adminComplaints")
+
+		else:
+			return redirect("main:user_profile")
+		
+	else:   
+		admin_status = request.user.is_staff
+		context={
+			"staff":staff,
+			'complaint':complaint,
+			'admin_status': admin_status,
+			'notification_count':notification_count,
+		}
+		return render(request, 'Complaints/escalation.html', context)
+
 @login_required
 def resolveConflict(request, pk):
 	staff = Staff.objects.get(user_obj=request.user)
@@ -1098,9 +1189,9 @@ def resolveConflict(request, pk):
 		complaint.save()
 		device=Devices.objects.get(id=complaint.device.id)
 		complaints=Complaint.objects.filter(device=device,isActive=True)
-		if(len(list(complaints))==0):
-			device.is_working=True
-		device.save()
+		# if(len(list(complaints))==0):
+		# 	device.is_working=True
+		# device.save()
 		notification = Notification.objects.get(taskId=complaint.id, reciever='Lab Technician')
 		# notification.isActive = False
 		notification.expired=True
@@ -1134,10 +1225,11 @@ def resolveConflict(request, pk):
 
 def viewdevicecomplaints(request,id):
 	staff = Staff.objects.get(user_obj=request.user)
+	print("is_staff --->>>", staff.user_obj.is_staff)	#debug
 	notification_count=get_notifications(staff.id)
 	device=Devices.objects.get(id=id)
-	active_compaints=Complaint.objects.filter(device=device,isActive=True,created_by=staff)
-	resolved_complaints=Complaint.objects.filter(device=device,isActive=False,created_by=staff)
+	active_compaints=Complaint.objects.filter(device=device,isActive=True)
+	resolved_complaints=Complaint.objects.filter(device=device,isActive=False)
 	context={
 		'staff':staff,
 		'device':device,
@@ -1157,8 +1249,16 @@ def adminStaff(request):
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
 		staffs = Staff.objects.all().order_by('-designation')
-		
-		return render(request, "admin/adminStaffs.html", {"staffs":staffs, "staff":staff,'notification_count':notification_count,})
+
+		myFilter = filterStaff(request.GET,queryset=staffs)
+		staffs=myFilter.qs
+		context={
+			'staff':staff,
+			'staffs':staffs,
+			'myFilter':myFilter,
+			'notification_count':notification_count,
+		}
+		return render(request, "admin/adminStaffs.html",context)
 	else:
 		return render(request, "pagenotfound.html")
 
@@ -1269,8 +1369,8 @@ def leaveUsersHistory(request):
 
 	if request.method == "POST":
 		form = request.POST
-		# print(form)
-		monthForm = form["month"]
+		print(form)
+		month = form["month"]
 		year = form["year"]
 		type = form['leaveType']
 		download=''
@@ -1281,24 +1381,25 @@ def leaveUsersHistory(request):
 		
 		all = "------"
 		leaveType = ''
-		allLeavesStatus = None
+		allLeavesStatus =None
+		# print(allLeavesStatus)
 		if type == '':
 			all = "All"
 			leaveType = TotalLeaves.objects.all()
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-id")
 		else:
 			leaveType = TotalLeaves.objects.get(id=type)
 			all = leaveType.LeaveName
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=monthForm, year=year, leave_type=leaveType).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year, leave_type=leaveType).order_by("-id")
 
-
+		print(allLeavesStatus)
 		leaves = []
 		for leave in allLeavesStatus:
 			if leave.admin_approval:
 				leaves.append(leave)
 
 		# make query set
-
+		print(leaves)
 		currLeaveCount = []
 		for leave in leaves:
 			array = {};
@@ -1310,7 +1411,7 @@ def leaveUsersHistory(request):
 			totalLeavesTakenOfThisType = leaveTakenObj.count
 			leavesThisMonth = UserLeaveStatus.objects.filter(
 				staff=currUser, 
-				month=monthForm,
+				month=month,
 				leave_type=currType,
 				admin_approval=True	
 			)
@@ -1331,7 +1432,8 @@ def leaveUsersHistory(request):
 							days.append(start)
 						start+=1
 
-			# print(days)
+			print(days)
+			print(currLeaveCount)
 			s=""
 			for i in days:
 				s+=str(i)+','
@@ -1370,7 +1472,7 @@ def leaveUsersHistory(request):
 
 		defaultParams = {
 			'year':year,
-			'month':str(monthForm),
+			'month':str(month),
 			'leavee': all
 		}
 		context = {
@@ -2134,15 +2236,89 @@ def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
-	active_inventory=[i for i in inventory if i.device.is_working==True]
-	inactive_inventory=[i for i in inventory if i.device.is_working==False]
-	# print(len(inventory))
+	room=staff.room
+	if room:
+		all_devices=[i.device for i in inventory]
+		all_devices_len=len(all_devices)
+		active_devices=[device for device in all_devices if device.is_working==True]
+		active_devices_len=(len(active_devices))
+		expired_devices_len=all_devices_len-active_devices_len
+		unique_device_types=[device.name for device in active_devices]
+		print(expired_devices_len)
+		
+		unique_device_types=list(set(unique_device_types))
+		unique_device_counts=[len([device for device in active_devices if device.name==type]) for type in unique_device_types]
+		# print(unique_device_counts)
+		unique_device_type_and_counts=zip(unique_device_types,unique_device_counts)
+
+		context={
+			'staff':staff,
+			'active_devices_len':active_devices_len,
+			'expired_devices_len':expired_devices_len,
+			'all_devices_len':all_devices_len,
+			'unique_device_type_and_counts':unique_device_type_and_counts,
+			'notification_count':notification_count,
+		}
+		return render(request,'inventory.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
+@login_required
+def view_inventory_devices(request,device_type):
+	# print('hi')
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device_type=CategoryOfDevice.objects.get(category=device_type)
+	inventory_devices=StaffInventory.objects.filter(staff=staff)
+	devices=[i for i in inventory_devices if i.device.name==device_type]
+	devices=[device for device in devices if device.device.is_working==True]
+	# print(devices)
 	context={
 		'staff':staff,
-		'inventory':inventory,
+		'notification_count':notification_count,
+		'devices':devices,
+		'lab':lab,
+	}
+	return render(request,'inventory/view_inventory_devices.html',context)
+@login_required
+def expire_inventory_devices(request,id):
+	staff = Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device=StaffInventory.objects.get(id=id)
+	if request.method == 'POST':
+		reason=request.POST['reason']
+		device=device.device
+		device.is_working=False
+		device.not_working_reason=reason
+		device.who_expired=staff
+		device.save()
+		return redirect('main:viewinventory')
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	    'device':device,				
+	}
+	return render(request,'inventory/expire_inventory_devices.html',context)
+def view_expired_inventory_devices(request):
+	# print('hi')
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	devices=StaffInventory.objects.filter(staff=staff)
+	devices=[device for device in devices if device.device.is_working==False]
+	all_devices= Devices.objects.filter(id__in={instance.device.id for instance in devices})
+	print(all_devices)
+	myFilter = filterExpiredDevices(request.GET,queryset=all_devices)
+	all_devices=myFilter.qs
+	devices=[device for device in devices if device.device in all_devices]
+	print(devices)
+	context={
+		'staff':staff,
+		'devices':devices,
+		'myFilter':myFilter,
 		'notification_count':notification_count,
 	}
-	return render(request,'inventory.html',context)
+	return render(request,'Inventory/view_expired_inventory_devices.html',context)
+
 
 @login_required
 def adminviewinventory(request,id):
@@ -2163,10 +2339,10 @@ def loaddevices(request,id):
 	name=CategoryOfDevice.objects.get(id=name_id)
 	# print(name.category)
 	X=[]
-	devices=Devices.objects.filter(name=name,room=None,in_inventory=False)
+	devices=Devices.objects.filter(name=name,room=None,in_inventory=False,is_working=True)
 	# print(devices)
 	X.extend(devices)
-	devices=Devices.objects.filter(name=name,room=room,in_inventory=False)
+	devices=Devices.objects.filter(name=name,room=room,in_inventory=False,is_working=True)
 	# print(devices)
 	X.extend(devices)
 	# print(X)
@@ -2294,11 +2470,20 @@ def adminviewrooms(request):
 	notification_count=get_notifications(staff.id)
 	rooms=Room.objects.all()
 	myFilter = filterRoom(request.GET,queryset=rooms)
+	# try:
 	rooms=myFilter.qs
+	# except:
+	# 	rooms = []
+		# message_to_display= 'No rooms added on this floor'
+	
+	print('rooms: ', rooms)
+	# currFloor = rooms[0].floor
+	# print(currFloor)
 	context={
 		'staff':staff,
 		'rooms':rooms,
 		'myFilter':myFilter,
+		# 'currFloor':currFloor,
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewrooms.html',context)
@@ -2454,6 +2639,27 @@ def adminaddlab(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/addlab.html',context)
+
+def admineditlab(request,pk):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		lab_instance=Lab.objects.get(id=pk)
+		form=NewLabForm(instance=lab_instance)
+		if request.method == 'POST':
+			form=NewLabForm(request.POST,instance=lab_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminLabs')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/addlab.html',context)
+	else:
+		return render(request,'pagenotfound.html')
+
 
 @login_required
 def load_prev_assigned_offices(request):
@@ -2614,7 +2820,7 @@ def viewallfacultyclasses(request,id):
 		'notification_count':notification_count,
 	}
 	return render(request,'Timetable/viewallfacultyclasses.html',context)
-	
+@login_required
 def adminviewbranches(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2628,7 +2834,7 @@ def adminviewbranches(request):
 		return render(request,'admin/adminviewbranches.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminaddbranch(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2647,7 +2853,7 @@ def adminaddbranch(request):
 		return render(request,'admin/adminaddbranch.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def admineditbranch(request,id):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2667,7 +2873,7 @@ def admineditbranch(request,id):
 		return render(request,'admin/adminaddbranch.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminviewTypeOfDevices(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2682,7 +2888,7 @@ def adminviewTypeOfDevices(request):
 	else:
 		return render(request,'pagenotfound.html')
 	
-
+@login_required
 def adminaddTypeOfDevice(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2701,7 +2907,7 @@ def adminaddTypeOfDevice(request):
 		return render(request,'admin/adminaddTypeOfDevice.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def admineditTypeOfDevice(request,id):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
@@ -2721,7 +2927,7 @@ def admineditTypeOfDevice(request,id):
 		return render(request,'admin/adminaddTypeOfDevice.html',context)
 	else:
 		return render(request,'pagenotfound.html')
-
+@login_required
 def adminviewdevices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2730,7 +2936,7 @@ def adminviewdevices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminviewdevices.html',context)
-	
+@login_required	
 def adminview_warehouse_devices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2744,7 +2950,7 @@ def adminview_warehouse_devices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminview_warehouse_devices.html',context)
-	
+@login_required	
 def adminview_assigned_devices(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2761,17 +2967,21 @@ def adminview_assigned_devices(request):
 		'notification_count':notification_count,
 	}
 	return render(request,'admin/adminview_assigned_devices.html',context)
-
+@login_required
 def adminadd_device(request):
 		if request.user.is_staff:
 			staff=Staff.objects.get(user_obj=request.user)
 			notification_count=get_notifications(staff.id)
 			form=NewDeviceForm
 			if request.method == 'POST':
-					form=NewDeviceForm(request.POST)
-					if form.is_valid:
-						form.save()
-						return redirect('main:adminview_assigned_devices')
+				device_id=form['device_id']
+				if Devices.objects.filter(device_id=device_id).exists():
+					messages.error(request, "Device with this id already exists")
+					return redirect('main:adminadd_assigned_device')
+				form=NewDeviceForm(request.POST)
+				if form.is_valid:
+					form.save()
+					return redirect('main:adminview_assigned_devices')
 			context={
 					'staff':staff,
 					'notification_count':notification_count,
@@ -2781,6 +2991,100 @@ def adminadd_device(request):
 		else:
 			return render(request,'pagenotfound.html')
 
+@login_required
+def adminedit_assigned_device(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		device_instance=Devices.objects.get(id=id)
+		form=NewDeviceForm(instance=device_instance)
+		if request.method == 'POST':
+			device_id=form['device_id']
+			if Devices.objects.filter(device_id=device_id).exists():
+				messages.error(request, "Device with this id already exists")
+				return redirect('main:adminedit_assigned_device',id=id)
+			form=NewDeviceForm(request.POST,instance=device_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminview_assigned_devices')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminadd_assigned_devices.html',context)
+	else:
+			return render(request,'pagenotfound.html')
+
+@login_required
+def adminadd_warehouse_device(request):
+		if request.user.is_staff:
+			staff=Staff.objects.get(user_obj=request.user)
+			notification_count=get_notifications(staff.id)
+			form=NewWareHouseDeviceForm
+			if request.method == 'POST':
+					print(request.POST)
+					form=request.POST
+					device_id=form['device_id']
+					if Devices.objects.filter(device_id=device_id).exists():
+						messages.error(request, "Device with this id already exists")
+						return redirect('main:adminadd_warehouse_device')
+					# print(device_id)
+					form=NewWareHouseDeviceForm(request.POST)
+					if form.is_valid:
+						form.save()
+						return redirect('main:adminview_warehouse_devices')
+			context={
+					'staff':staff,
+					'notification_count':notification_count,
+					'form':form,
+			}
+			return render(request,'admin/adminadd_warehouse_device.html',context)
+		else:
+			return render(request,'pagenotfound.html')
+
+@login_required
+def adminedit_warehouse_device(request,id):
+	if request.user.is_staff:
+		staff=Staff.objects.get(user_obj=request.user)
+		notification_count=get_notifications(staff.id)
+		device_instance=Devices.objects.get(id=id)
+		form=NewWareHouseDeviceForm(instance=device_instance)
+		if request.method == 'POST':
+			form=request.POST
+			device_id=form['device_id']
+			print(device_id)
+			if Devices.objects.filter(device_id=device_id).exists():
+				messages.error(request, "Device with this id already exists")
+				return redirect('main:adminedit_warehouse_device',id=id)
+			form=NewWareHouseDeviceForm(request.POST,instance=device_instance)
+			if form.is_valid:
+				form.save()
+				return redirect('main:adminview_warehouse_devices')
+		context={
+			'staff':staff,
+			'form':form,
+			'notification_count':notification_count,
+		}
+		return render(request,'admin/adminadd_warehouse_device.html',context)
+	else:
+			return render(request,'pagenotfound.html')
+@login_required
+def admin_delete_device(request,id):
+	device=Devices.objects.get(id=id)
+	check=False
+	if device.room:
+		check=True
+	device.delete()
+	if check:
+		return redirect('main:adminview_assigned_devices')
+	else:
+		return redirect('main:adminview_warehouse_devices')
+
+
+	
+
+@login_required
 def viewinventorylogs(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
@@ -2826,3 +3130,42 @@ def admineditstaffprofile(request,id):
 			return render(request, "admin/admineditstaffprofile.html", context)		
 	else:
 		return render(request,'pagenotfound.html',{})
+
+@login_required
+def expire_lab_device(request,id):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	device=Devices.objects.get(id=id)
+	lab=Lab.objects.get(lab=device.room)
+	if request.method == 'POST':
+		reason=request.POST['reason']
+		device.is_working=False
+		device.not_working_reason=reason
+		device.who_expired=staff
+		device.save()
+		return redirect('main:lab',pk=lab.id)
+	context={
+		'staff':staff,
+		'notification_count':notification_count,
+	    'device':device,
+		'lab':lab,				
+	}
+	return render(request,'Labs/expire_lab_device.html',context)
+@login_required
+def view_expired_lab_devices(request,pk):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	lab=Lab.objects.get(id=pk)
+	room=Room.objects.get(id=lab.lab.id)
+	devices=Devices.objects.filter(room=room,is_working=False)
+	myFilter = filterExpiredDevices(request.GET,queryset=devices)
+	devices=myFilter.qs
+	context={
+		'staff':staff,
+		'devices':devices,
+		'myFilter':myFilter,
+		'notification_count':notification_count,
+		'lab':lab,
+	}
+	return render(request,'Labs/view_expired_lab_devices.html',context)
+

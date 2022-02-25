@@ -32,6 +32,8 @@
                 <th scope="col" >Device Location</th>
                 <th scope="col" >In inventory</th>
                 <th scope="col" >Is Working</th>
+                <th scope="col" >Edit device</th>
+                <th scope="col" >Delete device</th>
                 
               </tr>
             </thead>
@@ -45,10 +47,13 @@
                 <td> Ware House</td>
                 <td>{{device.in_inventory}}</td>
                 <td>{{device.is_working}}</td>
+                <td class="table-success"><a href=" {% url 'main:adminedit_warehouse_device' id=device.id  %} " style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>
+                <td><a href="{%url 'main:admin_delete_device' id=device.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
             </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+        <p>If you want to add a device, <a href = "{% url 'main:adminadd_warehouse_device' %}">click here</a></p>
 </div>
 {% endblock body %}
