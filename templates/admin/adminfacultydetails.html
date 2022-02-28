@@ -11,7 +11,10 @@
   <br>
 
 
-
+  <div class="col-lg-12" style = "text-align: right;">
+    <a style="color: white;text-decoration: none;" href="{% url 'main:addFaculty' %}"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Add Faculty</button></a>
+  </div>
+  <br>
 <div class="labs-table">
     <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
@@ -30,18 +33,16 @@
           <tr class="table-success" style = "text-align: center;">
             <td class="table-success">{{x.name}}</td>
             <!-- % url 'main:add_classes' id=labid % -->
-            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroups' id=x.id %}" style = "color : black;text-decoration: none;"> View Groups </a></td>
-            <td style = "text-align: center;"><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black;text-decoration: none;"> View Courses </a></td>
-            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroupcourses' id=x.id %}" style = "color : black;text-decoration: none;">View</a></td>
-            <td style = "text-align: center;"><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black;text-decoration: none;">View</a></td>
-            <td style = "text-align: center;"><a href = "{% url 'main:viewfacultytimetable' id=x.id %}" style = "color : black;text-decoration: none;text-align: center;"><i class="fa-regular fa-calendar"></i></a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroups' id=x.id %}" style = "color : black;text-decoration: underline;"> View </a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black;text-decoration: underline;"> View </a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewgroupcourses' id=x.id %}" style = "color : black;text-decoration: underline;">View</a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black;text-decoration: underline;">View</a></td>
+            <td style = "text-align: center;"><a href = "{% url 'main:viewfacultytimetable' id=x.id %}" style = "color : black;text-align: center;"><i class="fa-regular fa-calendar"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-      <div class="col-lg-12">
-        <button class="btn btn-dark"><a style="color: white;text-decoration: none;" href="{% url 'main:addFaculty' %}">Add Faculty</a></button>
-      </div>
+      
       
     </div>
   </section>

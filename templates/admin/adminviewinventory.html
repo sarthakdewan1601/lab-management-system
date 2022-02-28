@@ -8,16 +8,18 @@
 <section class="sectionLogin">
   <br>
 <div class="container">
-  <h1 style = "text-align: center;"> Items Alloted to {{inventorystaff.name}}</h1>
-  <br>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
-  {% if inventorystaff.room.room_id %}
-    <h1>Office : {{inventorystaff.room.room_id}}</h1> 
-  {% else %}  
-    <h1>Office : No office Assigned</h1> 
-  {% endif %}
-  <h2> Items Alloted to You</h2>
 
+  {% if inventorystaff.room.room_id %}
+    <h1 style = "text-align: center;">Office : {{inventorystaff.room.room_id}}</h1> 
+  {% else %}  
+    <h1 style = "text-align: center;">Office : No office Assigned</h1> 
+  {% endif %}
+  <div class="col-lg-12" style = "text-align: right;">
+    
+    <a href = "{%url 'main:allotdevices' id=inventorystaff.id%}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Allot Items</button></a>
+  </div>
+  <br>
+  <h1 style = "text-align: center;"> Items Alloted to {{inventorystaff.name}}</h1><br><br>
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -26,6 +28,9 @@
                 <th scope="col" >Item Name</th>
                 <th scope="col" >Item Description</th>
                 <th scope="col" >Date Alloted</th>
+                <th scope="col">Add Complaint</th>
+                <th scope="col" >All Complaints</th>
+                <th scope="col" >Expire Device</th> 
               </tr>
             </thead>
     
@@ -36,23 +41,30 @@
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td>     
+                <td>Not Applicable</td>   
+                <td>Not Applicable</td>
+                <td>Not Applicable</td>  
               </tr>
               {% else %}
               <tr style="color: green;" class="table-success">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td>
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>   
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>
+                <td><a href="{% url 'main:expire_inventory_device' id=device.id %}"><button class="lab-submitButton" type="submit">Expire Device </button> </a></td>                 
+             
+                                   
               </tr>
               {% endif %}
               {% endfor %}
             </tbody>
         </table>
+        <br> <br>
   <h1 style = "text-align: center;"> Items Request for Return by {{inventorystaff.name}}</h1>
-  <br>
-  <h2>Office : {{inventorystaff.room.room_id}}</h2> <br>
-  <h2> Items Request for Return</h2>
+  <br> <br>
     <div class="inventory-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -80,7 +92,6 @@
               {% endfor %}
             </tbody>
           </table>
-          <p style = "text-align: center;">If you want to Allot Items <a href = "{%url 'main:allotdevices' id=inventorystaff.id%}">click here</a></p>
         </div>
     </div>
     </div>

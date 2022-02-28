@@ -10,11 +10,16 @@
 <br>
 
 {% if staff.room.room_id %}
-  <h1>Office : {{staff.room.room_id}}</h1> 
+  <h3 style = "text-align: center;">Office : {{staff.room.room_id}}</h3> 
 
-<h2> Items Alloted to You </h2>
+<h4 style = "text-align: center;"> Items Alloted to You </h4>
 <div class="container">
-
+  <div class="col-lg-12" style = "text-align: right;">
+    <a href = "{%url 'main:viewinventorylogs'%}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">Inventory Logs</button></a>
+    <a href="{%url 'main:view_expired_inventory_devices'%}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"> Expired Devices</button></a>
+    <a href="{%url 'main:devicesreturnrequest' id=staff.id%}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-minus"></i> Return an Item</button></a>
+  </div>
+  <br>
     <div class="inventory-table">
 
       <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
@@ -52,16 +57,16 @@
             <td>{{ instance.0 }}</td>
             <td>{{ instance.1 }}</td>
             
-            <td><a href="{% url 'main:view_inventory_devices' device_type=instance.0 %}"><button class="lab-submitButton" type="submit">View Devices </button></a></td>
+            <td><a href="{% url 'main:view_inventory_devices' device_type=instance.0 %}">View Devices</a></td>
             
           </tr>
         {% endfor %}
         </tbody>
     </table>
         
-          <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
-          <p style = "text-align: center;">If you want to view your Inventory Logs <a href = "{%url 'main:viewinventorylogs'%}">click here</a></p>
-          <p style = "text-align: center;">If you want to view your Expired Devices <a href = "{%url 'main:view_expired_inventory_devices'%}">click here</a></p>
+          <!-- <p style = "text-align: center;">If you want to return for an Item <a href = "{%url 'main:devicesreturnrequest' id=staff.id%}">click here</a></p>
+          <p style = "text-align: center;">If you want to view your Inventory Logs <a href = "{%url 'main:viewinventorylogs'%}">click here</a></p> -->
+          <!-- <p style = "text-align: center;">If you want to view your Expired Devices <a href = "{%url 'main:view_expired_inventory_devices'%}">click here</a></p> -->
         </div>
     </div> 
     </div>

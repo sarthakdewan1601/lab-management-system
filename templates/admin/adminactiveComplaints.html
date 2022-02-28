@@ -7,6 +7,17 @@
   <br>
   <h2 style = "text-align: center;"> Active Complaints</h2>
 <div class="container mt-5">
+  <div class="col">
+    <div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
+        <form method="get">
+          {% load crispy_forms_tags %}
+            {{myFilter.form|crispy}}
+            <br>
+            <button class="btn btn-dark btn-sm" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+<br>
 <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>

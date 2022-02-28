@@ -9,10 +9,9 @@
       const halfLeaveMain = document.getElementsByClassName('halfLeaveMain')
 
       if(checkbox.checked ) {
-        halfLeaveMain[0].style.display = 'none';
         toDateDisplay.style.display = "flex";
         checkbox.value = 'checked';
-        
+        halfLeaveMain[0].style.display = 'none';
       } else {
         halfLeaveMain[0].style.display = 'flex';
         toDateDisplay.style.display = "none";
@@ -97,7 +96,7 @@
               <div class="mb-3 row" id="toDate" style="display: none;">
                 <label for="toDate" class="col-sm-2 col-form-label">To Date</label>
                 <div class="col-sm-10 col-lg-4">
-                  <input type="date" id="date" name="toDate" value="{{to_date|date:'Y-m-d' }}">
+                  <input type="date" id="date" name="toDate" value="{{to_date|date:'Y-m-d' }}" required>
                 </div>  
               </div>
 

@@ -6,11 +6,14 @@
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">Add class</h2>
-<form method="post" id="coursesform" data-courses-url="{% url 'main:ajax_load_groupcourses' %}" >
+    <div class="container" style="background-color: rgba(245, 245, 245,0.4);margin-top:20px">
+<form method="post" id="coursesform" data-courses-url="{% url 'main:ajax_load_groupcourses' %}" style = "padding:40px" >
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit">
+    <br>
+    <input type="submit" value="Submit" class = "btn btn-sm btn-dark">
 </form>
+</div>
 </section>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

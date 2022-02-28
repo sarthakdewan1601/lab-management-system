@@ -8,6 +8,10 @@
   <br>
   <h2 style = "text-align: center;"> Type of Devices</h2>
 <div class="container">
+  <div class="col-lg-12" style = "text-align: right;">
+    <a href = "{% url 'main:adminaddTypeOfDevice' %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Type Of Device</button></a>
+  </div>
+  <br>
     <div class="groups-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -29,7 +33,6 @@
             </tbody>
           </table>
         </div>
-        <p>If you want to add a Type of Device, <a href = "{% url 'main:adminaddTypeOfDevice' %}">click here</a></p>
     </div>
     </section>
 {% endblock body %}

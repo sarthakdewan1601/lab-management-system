@@ -184,11 +184,11 @@ class Complaint(models.Model):
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-    def __str__(self):
-        return "Complaint for lab " + str(self.device.room.room_id)
+    # def __str__(self):
+        # return "Complaint for lab " + str(self.device.room.room_id)
    
 class Lab(models.Model):
-    lab=models.ForeignKey(Room,on_delete=CASCADE)
+    lab=models.ForeignKey(Room,on_delete=CASCADE,unique = True)
     attendant = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='attendant',blank=True)
     technician = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='technician',blank=True)
 

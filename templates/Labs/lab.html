@@ -7,10 +7,21 @@
   <br>
   <h2 style = "text-align: center;">{{lab.lab.name}} ({{lab.lab.room_id}})</h2>
 <div class="container">
-<div class="wrapper_">
+  {% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst" or staff.designation.designation == "Lab Attendant" %}
+  <div class="col-lg-12" style = "text-align: center;">
+    <a href = "{% url 'main:viewtimetable_wrtlab' id=labid %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">View Time Table</button></a>
+    <a href = "{% url 'main:viewLabClasses' id=labid %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">View Lab Classes</button></a>
+    <a href = "{% url 'main:view_expired_lab_devices' pk=labid %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">View Expired Devices</button></a>
+  </div>
+  {% endif %}
+  <br>
 <div class = "lab-h1">
     <h3 style = "text-align: center;">Devices </h3>
 </div>
+<div class="col-lg-12" style = "text-align: right;">
+  <a href = "{% url 'main:add_devices' pk=labid %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Device</button></a>
+</div>
+<br>
 <div class = "lab-computers">
   <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead class="thead-dark">
@@ -46,19 +57,12 @@
         <td scope="row">{{forloop.counter}}</td>
         <td>{{ instance.0 }}</td>
         <td>{{ instance.1 }}</td>
-        <td><a href="{% url 'main:view_lab_devices' device_type=instance.0 lab=lab.id %}"><button class="lab-submitButton" type="submit">View Devices </button></a></td>
+        <td><a href="{% url 'main:view_lab_devices' device_type=instance.0 lab=lab.id %}">View Devices</a></td>
       </tr>
     {% endfor %}
     </tbody>
 </table>
    
     </table>
-</div><br><br><hr>
-<h5 class = "lab-add-h5" style = "text-align: center;"> If you want to view expired devices <a href="{% url 'main:view_expired_lab_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
-<h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
-{% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst" or staff.designation.designation == "Lab Attendant" %}
-<h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>
-{%endif%}
-<h5 class = "lab-add-h5" style = "text-align: center;"> If you want to add Devices <a href="{% url 'main:add_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
 </div></section>
 {% endblock body %}

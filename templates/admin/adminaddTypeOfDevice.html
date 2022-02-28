@@ -8,8 +8,8 @@
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Add Type of Device</h2>
-<div class="container">
-    <form method="post">
+<div class="container" style="background-color: rgba(245, 245, 245,0.4);">
+    <form method="post" style = "padding: 30px;">
         {% csrf_token %}
         {{ form|crispy }}
         <br>
