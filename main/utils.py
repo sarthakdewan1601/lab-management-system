@@ -1,4 +1,6 @@
-import moment
+# import moment
+from asyncore import ExitNow
+from audioop import tomono
 from datetime import datetime
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
@@ -9,7 +11,7 @@ from geopy.distance import geodesic
 
 from lms.settings import EMAIL_HOST_USER
 from .tokens import generate_token
-
+from datetime import datetime
 from .models import *
 
 
@@ -37,17 +39,18 @@ def send_email(current_site,user,name=None,mess="confirm your registration",link
 def getNumberOfDays(fromDate, toDate):
     if not toDate:
         return 1
-    toDate = str(toDate)
-    fromDate = str(fromDate)
-    print(toDate, fromDate)
-    fromDateNumber = fromDate.split("-")[2]
-    todateNumber = toDate.split("-")[2]
 
-    count = int(todateNumber) - int(fromDateNumber)
-    return count + 1
+    return (datetime.strptime(toDate, '%Y-%m-%d') - datetime.strptime(fromDate, '%Y-%m-%d')).days + 1
 
 def checkLeaveAvailability(leaveType, user, count):
     currLeave = UserLeavesTaken.objects.get(staff=user, leave_taken=leaveType)
+    if leaveType.LeaveName=='Compensatory':
+        available_leaves=len(CompensatoryLeave.objects.filter(staff=user))
+        if count+currLeave.count > available_leaves:
+            return False,available_leaves-currLeave.count,"leave count exceeded"
+        else:
+            return True,None,None
+		
     print("currLeaveeeee ", currLeave)
     if count + currLeave.count > leaveType.count:
         # if count exceed
@@ -55,3 +58,9 @@ def checkLeaveAvailability(leaveType, user, count):
     else:
         return True, None, None
 
+def comparedates(date):
+    # d1 = datetime.datetime(2018, 5, 3)
+    # d2 = datetime.datetime(2018, 6, 1)
+    # d1 = datetime.now()
+    # print("d1, d2 ", d1, date)
+    return True

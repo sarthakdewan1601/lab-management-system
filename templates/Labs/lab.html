@@ -12,37 +12,49 @@
     <h3 style = "text-align: center;">Devices </h3>
 </div>
 <div class = "lab-computers">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Total Devices</th>
+        <th scope="col">Active devices</th>
+        <th scope="col">Expired Devices</th>
+      </tr>
+    </thead>
     
-    <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Device ID</th>
-            <th scope="col">Device Category</th>
-            <th scope="col">Devices Descirption</th>
-            {% if staff.designation.designation == "Lab Attendant" %}
-               <th scope="col">Add Complaint</th>
-               <th scope="col" >All Complaints</th>
-            {% endif %}
-          </tr>
-        </thead>
-        
-        <tbody>
-        {% for device in devices %}
-          <tr class="table-success" style = "text-align: center;">
-            <td scope="row">{{forloop.counter}}</td>
-            <td>{{ device.device_id }}</td>
-            <td>{{ device.name.category }}</td>
-            <td>{{ device.description }}</td>
-            {% if staff.designation.designation ==  "Lab Attendant" %}
-            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
-            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>                    
-            {%endif%}
-          </tr>
-        {% endfor %}
-        </tbody>
+    <tbody>
+      <tr class="table-success" style = "text-align: center;">
+        <td>{{ all_devices_len }}</td>
+        <td>{{ active_devices_len }}</td>
+        <td>{{ expired_devices_len }}</td>
+      </tr>
+    </tbody>
+</table>
+<div class = "lab-computers">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Device Type</th>
+        <th scope="col">Count</th>
+        <th scope="col">View Devices</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+    {% for instance in unique_device_type_and_counts %}
+      <tr class="table-success" style = "text-align: center;">
+        <td scope="row">{{forloop.counter}}</td>
+        <td>{{ instance.0 }}</td>
+        <td>{{ instance.1 }}</td>
+        <td><a href="{% url 'main:view_lab_devices' device_type=instance.0 lab=lab.id %}"><button class="lab-submitButton" type="submit">View Devices </button></a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+</table>
+   
     </table>
 </div><br><br><hr>
+<h5 class = "lab-add-h5" style = "text-align: center;"> If you want to view expired devices <a href="{% url 'main:view_expired_lab_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
 <h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
 {% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst" or staff.designation.designation == "Lab Attendant" %}
 <h5 class = "viewtimetable" style = "text-align: center;"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>

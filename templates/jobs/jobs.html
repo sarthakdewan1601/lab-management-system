@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Your Jobs</h2>
+
+    <div class="container">
+     
+     <div class="courses-table">
+         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+             <thead>
+               <tr>
+                 <th scope="col">Job</th>
+                 <th scope="col">Date</th>
+                 <th scope="col">View Details</th>
+                 <th scope="col">Complete </th>
+                 <th scope="col">Reject ?</th>
+               </tr>
+             </thead>
+     
+             <tbody>
+               {% for job in jobs %}
+                  {% if not job.rejected and not job.completed %}
+                    <tr class="table-success" style = "text-align: center;">
+                         <td>{{job.title}}</td>
+                         <td>{{job.date}}</td>
+                         <td><a class="text-dark text-decoration-underline" href="{% url 'main:jobDetailsUser' id=job.id %}">View Job</a></td>
+                         <td><a href="{% url 'main:completeJob' id=job.id %}"><i style="color: rgb(0, 97, 0);" class="fas fa-check"></i></a></td>
+                         <td><a href="{% url 'main:rejectJobRequest' id=job.id %}"><i style="color: rgb(172, 0, 0);" class="fa-solid fa-ban"></i></a></td>
+                    </tr>
+                    {% endif %}
+               {% endfor %}
+             </tbody>
+           </table>
+     </div>
+     <div class="courses-table mt-5">
+        <Button class="btn btn-dark btn-md"><a style="color: #fff" href="{% url 'main:viewrejectedJobs' %}">View rejected Jobs</a></Button>
+        <Button class="btn btn-dark btn-md"><a style="color: #fff" href="{% url 'main:viewCompletedJobs' %}">View Completed</a></Button>
+     </div>
+    </div>
+
+</section>
+{% endblock body %}

@@ -52,6 +52,9 @@
         <li class="nav-link nav_text navLink">
           <a href="{% url 'main:viewinventory' %}" style="text-decoration: none; color : white">Inventory</a> 
         </li>
+        <li class="nav-link nav_text navLink">
+          <a href="{% url 'main:jobALerts' %}" style="text-decoration: none; color : white">Your Jobs</a> 
+        </li>
         {% if staff.designation.designation == 'Lab Technician'%}
         <li class="nav-link nav_text navLink">
             <a href = "{% url 'main:viewcomplaints' %}" style="text-decoration: none; color : white">Complaints</a>
