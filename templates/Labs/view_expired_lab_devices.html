@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+
+
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Expired Devices of Lab - {{lab.lab.room_id}}</h2>
+<div class="container">
+  
+    <div class="col">
+        <div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
+            <form method="get">
+              {% load crispy_forms_tags %}
+                {{myFilter.form|crispy}}
+                <br>
+                <button class="btn btn-dark btn-sm" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <br>
+    <div class="courses-table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+            <thead>
+              <tr>
+                <th scope="col" >Device ID</th>
+                <th scope="col" >Device Type</th>
+                <th scope="col" >Device Description</th>
+                <th scope="col" >Reason to expire</th>
+                <th scope="col" >Device expired by</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for device in devices %}
+              <tr class="table-success">
+                <td>{{device.device_id}}</td>
+                <td>{{device.name.category}}</td>
+                <td>{{device.description}}</td>
+                <td>{{device.not_working_reason}}</td>
+                <td>{{device.who_expired.name}}({{device.who_expired.designation.designation}})</td>
+                
+            </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+</div>
+</section>
+{% endblock body %}

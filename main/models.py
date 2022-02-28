@@ -1,8 +1,4 @@
 
-from calendar import month
-from random import choice
-from statistics import mode
-from tkinter.messagebox import NO
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from email.policy import default
@@ -31,7 +27,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(('email address'), unique=True)
     is_email_verified = models.BooleanField(default=False)   
-
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -73,20 +69,19 @@ class Room(models.Model):
     floor = models.IntegerField(blank=False, null=False, default=0)
     is_lab=models.BooleanField(default=False)
     def __str__(self):
-        return self.room_id + ' ('+self.name+')'
+        return self.room_id
 
 
 class Staff(models.Model):
     user_obj = models.ForeignKey(User, on_delete=CASCADE, blank=False, null=False, default=None)
     name=models.CharField(max_length=100)
-    initials=models.CharField(max_length=4,null=True,blank=False,default=None)
+    initials=models.CharField(max_length=4,null=True,blank=True,default=None)
     mobile_number=models.IntegerField()
     email=models.EmailField()
     category=models.ForeignKey('Category',on_delete=CASCADE)
     designation=models.ForeignKey('Designation',on_delete=CASCADE)
     agency = models.ForeignKey('Agency',on_delete=CASCADE)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
-    
     
     def __str__(self):
         return self.name + " " + self.designation.designation
@@ -176,22 +171,29 @@ class Complaint(models.Model):
     complaint=models.TextField(blank=False)
     created_at=models.DateTimeField(auto_now_add=True)
     isActive=models.BooleanField(default=True)
+
+    assigned_to = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='assignedtechnician',blank=True)
+
+    escalated = models.BooleanField(default=False)
+    escalated_by = models.ForeignKey(Staff,null=True,blank=True,related_name='escalatedBy',on_delete=CASCADE)
+    escalated_at = models.DateTimeField(null=True, blank=True)
+    escalation_note= models.TextField(blank=False, default=None, null=True)
+
+    
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
-    # date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return "Complaint for lab " + str(self.device.room.room_id)
    
 class Lab(models.Model):
     lab=models.ForeignKey(Room,on_delete=CASCADE)
-    staff = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, blank=True)
+    attendant = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='attendant',blank=True)
+    technician = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='technician',blank=True)
 
     def __str__(self): 
-        return self.lab.room_id+ " ("+self.staff.name+')'
-
-
-
+        return self.lab.room_id+ "Attendant: "+str(self.attendant) + 'Technician: ' + str(self.technician)
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=20, blank=False, null=False,unique=True)
@@ -200,6 +202,8 @@ class Devices(models.Model):
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
     is_working=models.BooleanField(default=True)
+    not_working_reason=models.TextField(default=None,blank=True,null=True)
+    who_expired = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
 
 
     def __str__(self):
@@ -238,6 +242,7 @@ NOTIFICATION_FIELDS = [
     ('LEAVE_REJECTED', 'Leave Rejected'),
     ('INVENTORY','Inventory'),  
     ('TECH_RESOLVE', 'Technician Resolved'),
+    ('ESCALATION', 'Escalation'),
 ] 
 
 class Notification(models.Model):
@@ -351,7 +356,7 @@ class Class(models.Model):
     tools_used=models.CharField(max_length=2048,default=None)
 
     def __str__(self):
-        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course_name + ' ' + self.day + self.faculty_group_course.group.group_id
+        return  self.lab.lab.room_id + self.faculty.name + ' '+ self.faculty_group_course.course.course.course_name + ' ' + self.day + self.faculty_group_course.group.groups.group_id
 
 #Adogra professor:-> dbms coe2
 #Adogra professor-> ds coe1
@@ -385,6 +390,7 @@ class CompensatoryLeave(models.Model):
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE, null=False)
     validity = models.DateField(null=False, default=None, blank=True)
     leave = models.ForeignKey(TotalLeaves, on_delete=models.CASCADE, null=False, default=None)
-
+    time_created = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
     def __str__(self):
         return self.staff.name + " " + str(self.validity)
