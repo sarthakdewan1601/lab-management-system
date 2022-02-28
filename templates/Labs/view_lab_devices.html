@@ -19,11 +19,11 @@
             <th scope="col">Device ID</th>
             <th scope="col">Device Category</th>
             <th scope="col">Devices Descirption</th>
-            {% if staff.designation.designation == "Lab Attendant" %}
+          
                <th scope="col">Add Complaint</th>
                <th scope="col" >All Complaints</th>
                <th scope="col" >Expire Device</th>
-            {% endif %}
+            
           </tr>
         </thead>
         
@@ -34,11 +34,10 @@
             <td>{{ device.device_id }}</td>
             <td>{{ device.name.category }}</td>
             <td>{{ device.description }}</td>
-            {% if staff.designation.designation ==  "Lab Attendant" or staff.designation.designation ==  "Lab Technician" %}
-            <td><a href="{% url 'main:complaint' pk=device.id %}">Add Complaint</a></td>
-            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}">View All Complaints</a></td> 
-            <td><a href="{% url 'main:expire_lab_device' id=device.id %}">Expire Device</a></td>                   
-            {%endif%}
+           
+            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+            <td><a href="{% url 'main:viewdevicecomplaints' id=device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td> 
+            <td><a href="{% url 'main:expire_lab_device' id=device.id %}"><button class="lab-submitButton" type="submit">Expire Device </button> </a></td>                   
           </tr>
         {% endfor %}
         </tbody>
