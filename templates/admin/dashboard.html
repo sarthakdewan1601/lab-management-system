@@ -11,86 +11,99 @@
 <div class="container">
     <div class="row" >
         <div class="card-group" style = "margin: 20px;">
-            <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+            <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                 <div class="card-body">
                     <h5 class="card-title">Staff Members</h5>
                     <a href="{% url 'main:adminStaff' %}" class="btn btn-dark btn-sm">View Staff</a>
                 </div>
+            </div>
+            <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card-body">
+                    <h5 class="card-title">Jobs</h5>
+                    <a href="{% url 'main:adminJobALerts' %}" class="btn btn-dark btn-sm">View Jobs</a>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+            </div>
+                <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Labs</h5>
                         <a href="{% url 'main:adminLabs' %}" class="btn btn-dark btn-sm">View Labs</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
-                    <div class="card-body">
-                        <h5 class="card-title">Complaints</h5>
-                        <a href="{% url 'main:adminComplaints' %}" class="btn btn-dark btn-sm">View Complaints</a>
-                    </div>
-                </div>
         </div>
         <div class="card-group" style = "margin: 20px;">
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 "  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Leave</h5>
                         <a href="{% url 'main:adminLeaves' %}" class="btn btn-dark btn-sm">Patterns</a>
                         <a href="{% url 'main:leaveUsersHistory' %}" class="btn btn-dark btn-sm ml-5">History</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 "  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Faculty</h5>
                         <a href="{% url 'main:adminfacultydetails' %}" class="btn btn-dark btn-sm">View Faculty Details</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
-                        <h5 class="card-title">Rooms</h5>
-                        <a href="{% url 'main:adminviewrooms' %}" class="btn btn-dark btn-smbtn btn-dark btn-sm">View Rooms</a>
+                        <h5 class="card-title">Complaints</h5>
+                        <a href="{% url 'main:adminComplaints' %}" class="btn btn-dark btn-sm">View Complaints</a>
                     </div>
                 </div>
+
         </div>
         <div class="card-group" style = "margin: 20px;">
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 "  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Courses</h5>
                         <a href="{% url 'main:viewallcourses' %}" class="btn btn-dark btn-sm">View Courses</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 "  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Groups</h5>
                         <a href="{% url 'main:viewallgroups' %}" class="btn btn-dark btn-sm">View Groups</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 "  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Assign-Office</h5>
                         <a href="{% url 'main:adminassignoffice' %}" class="btn btn-dark btn-sm">Assign Office</a>
                     </div>
                 </div>
-        </div>
-        <div class="card-group" style = "margin: 20px;">
-                <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
-                <div class="card-body">
-                    <h5 class="card-title">Devices</h5>
-                    <a href="{% url 'main:adminviewdevices' %}" class="btn btn-dark btn-sm">View all devices</a>
                 </div>
+            </div>
+            <div class="card-group" style = "margin: 20px;">
+
+                <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                    <div class="card-body">
+                        <h5 class="card-title">Devices</h5>
+                        <a href="{% url 'main:adminviewdevices' %}" class="btn btn-dark btn-sm">View all devices</a>
+                    </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                    
+                <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">View Branches</h5>
                         <a href="{% url 'main:adminviewbranches' %}" class="btn btn-dark btn-sm">View Branches</a>
                     </div>
                 </div>
-                <div class="card col-lg-3 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                <div class="card col-lg-4 " style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
                     <div class="card-body">
                         <h5 class="card-title">Type of devices</h5>
                         <a href="{% url 'main:adminviewTypeOfDevices' %}" class="btn btn-dark btn-sm">View all Types of devices</a>
                     </div>
                 </div>
-        </div>
+            </div>
+
+            <div class="card-group" style = "margin: 20px;">
+                <div class="col-lg-4"  style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                    <div class="card-body">
+                        <h5 class="card-title">Rooms</h5>
+                        <a href="{% url 'main:adminviewrooms' %}" class="btn btn-dark btn-smbtn btn-dark btn-sm">View Rooms</a>
+                    </div>
+                </div>
+            </div>
         
     </div>
             

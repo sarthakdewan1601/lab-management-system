@@ -22,6 +22,9 @@ urlpatterns = [
     path('profile/edit-profile/<pk>',views.editProfile, name='editProfile'),
     path('complaint/<pk>',views.complaint, name='complaint'),
     path("lab/<pk>", views.lab, name='lab'),
+    path('lab/view_lab_devices/<device_type>/<lab>',views.view_lab_devices,name='view_lab_devices'),
+    path('lab/expire-device/<id>',views.expire_lab_device,name='expire_lab_device'),
+    path('lab/view-expired-devices/<pk>',views.view_expired_lab_devices,name='view_expired_lab_devices'),
     path("add/<pk>",views.add_devices,name='add_devices'),
     path('complaint-resolve/<pk>', views.resolveConflict, name='resolveConflict'),
     path('profile/leaves/', views.userLeaves, name="userLeaves"),
@@ -60,6 +63,7 @@ urlpatterns = [
     path('admin-dashboard/current-year-leaves/leave/<pk>', views.adminEditLeave, name='adminEditLeave'),
     path('admin-dashboard/current-year-leaves/remove-leave/<pk>', views.removeLeave, name='removeLeave'),
     path('admin-dashboard/labs-list/', views.adminLabs, name='adminLabs'),
+    path('admin-dashboard/labs-list/edit-lab/<pk>', views.admineditlab, name='admineditlab'),
     path('admin-dashboard/labs-list/add-lab', views.adminaddlab, name='adminaddlab'),
     path('admin-dashboard/rooms/', views.adminviewrooms, name='adminviewrooms'),
     path('admin-dashboard/rooms/add-room/', views.adminaddroom, name='adminaddroom'),
@@ -97,9 +101,13 @@ urlpatterns = [
     path('admin-dashboard/type-of-devices/edit-type-of-device/<id>', views.admineditTypeOfDevice, name='admineditTypeOfDevice'),
     path('admin-dashboard/Assign-office/load_previous_assigned_staff',views.load_prev_assigned_offices,name='ajax_load_prev_assigned_offices'),
     path('admin-dashboard/view-devices',views.adminviewdevices,name='adminviewdevices'),
+    path('admin-dashboard/view-devices/delete-device/<id>',views.admin_delete_device,name='admin_delete_device'),
     path('admin-dashboard/view-devices/view-warehouse-devices',views.adminview_warehouse_devices,name='adminview_warehouse_devices'),
     path('admin-dashboard/view-devices/view-assigned-devices',views.adminview_assigned_devices,name='adminview_assigned_devices'),
     path('admin-dashboard/view-devices/view-assigned-devices/add-device/',views.adminadd_device,name='adminadd_device'),
+    path('admin-dashboard/view-devices/view-warehouse-devices/add-device/',views.adminadd_warehouse_device,name='adminadd_warehouse_device'),
+    path('admin-dashboard/view-devices/view-warehouse-devices/edit-device/<id>',views.adminedit_warehouse_device,name='adminedit_warehouse_device'),
+    path('admin-dashboard/view-devices/view-assigned-devices/edit-device/<id>',views.adminedit_assigned_device,name='adminedit_assigned_device'),
     
     #timetable paths
     path('timetable/view-lab/<id>',views.viewtimetable_wrtlab,name='viewtimetable_wrtlab'),
@@ -119,5 +127,21 @@ urlpatterns = [
     path('inventory/load-devices/<id>', views.loaddevices, name='ajax_load_devices'), # AJAX
     path('inventory/return-devices/<id>',views.devicesreturnrequest,name='devicesreturnrequest'),
     path('inventory/inventory-logs/',views.viewinventorylogs,name='viewinventorylogs'),
-    path('complaints/viewdevicecomplaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints')
+    path('complaints/view-device-complaints/<id>',views.viewdevicecomplaints,name='viewdevicecomplaints'),
+    path('inventory/view-expired-inventory-devices/',views.view_expired_inventory_devices,name='view_expired_inventory_devices'),
+    path('inventory/view-inventory-devices/<device_type>',views.view_inventory_devices,name='view_inventory_devices'),
+    path('inventory/view-inventory-devices/expire-inventory-device/<id>',views.expire_inventory_devices,name='expire_inventory_device'),
+
+    #jobs
+    path('jobs/', views.jobALerts, name='jobALerts'),
+    path('jobs/details/<id>', views.jobDetailsUser, name='jobDetailsUser'),
+    path('jobs/reject-job/<id>', views.rejectJobRequest, name='rejectJobRequest'),
+    path('jobs/complete-job/<id>', views.completeJob, name='completeJob'),
+    path('jobs/rejected-leaves', views.viewrejectedJobs, name='viewrejectedJobs'),
+    path('jobs/completed-leaves', views.viewCompletedJobs, name='viewCompletedJobs'),
+    path('admin-jobs/', views.adminJobALerts, name='adminJobALerts'),
+    path('admin-jobs/add-new-job', views.addNewJob, name='addNewJob'),
+    path('admin-jobs/view-job/<id>', views.jobDetails, name='jobDetails'),
+    path('admin;jobs/close-job/<id>', views.closeJob, name='closeJob'),
+
 ]

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Job Details</h2>
+<div class="container">
+     <h3>Title: {{job.title}}</h3>
+     <h5>Date: {{job.date}}</h5>
+     <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3 row">
+               <label for="reason" class="col-sm-2 col-form-label">Reason</label>
+               <div class="col-sm-10 col-lg-4">
+                    <textarea name="reason" id="reason" cols="50" rows="5"></textarea>
+               </div>
+          </div>
+          <div class="mb-3 row">
+               <div class="col-sm-10 col-lg-4">
+                 <button type="submit" class="btn btn-dark btn-sm">Respond</button>
+              </div>
+           </div>
+     </form>
+</div>
+
+</div>
+</section>
+
+{% endblock body %}

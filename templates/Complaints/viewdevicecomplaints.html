@@ -64,9 +64,9 @@
         <th scope="col">Assigned To</th>
         <th scope="col">Complaint Created At</th>
         <th scope="col">Complaint Reason</th>
-        <th scope="col">Escalated By</th>
-        <th scope="col">Escalated At</th>
-        <th scope="col">Escalation Note</th>
+
+
+
         <th scope="col" style="text-align: center;">Resolve Complaint</th>
         <th scope="col" style="text-align: center;">Escalate Complaint</th>
       </tr>
@@ -79,17 +79,13 @@
                 <td>{{ active_complaint.assigned_to.name }}</td>
                 <td>{{ active_complaint.created_at }}</td>
                 <td>{{ active_complaint.complaint }} </td>
-                <td>{{ active_complaint.escalated_by }} </td>
-                <td>{{ active_complaint.escalated_at }} </td>
-                <td>
-                {% if active_complaint.escalated %}
-                {{ active_complaint.escalation_note }} 
-                {% endif %}
-                </td>
                 <td><a href="{% url 'main:resolveConflict' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td>
+                {% if not active_complaint.escalated %}
                 <td>
-                  {% if not active_complaint.escalated %}
+                  
                   <a href="{% url 'main:escalate' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Escalate</a>
+                  {% else %}
+                  <td>Already Escalated</td>
                   {% endif %}
                 </td>
 

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Job Details</h2>
+     <div class="container">
+          <div class="card p-5 card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+                    <p>Title: {{job.title}}</p>
+                    <p>Date: {{job.date}}</p>
+                    <p>Description: {{job.description}}</p>
+                    <p>Job Status: 
+                         {% if job.active %}
+                              Active
+                         {% else %}
+                              Closed
+                         {% endif %}
+                    </p>
+          </div>
+
+          <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+               <thead>
+                 <tr>
+                   <th scope="col">Assigned Users</th>
+                   <th scope="col">Status</th>
+                   <th scope="col">Message</th>
+                 </tr>
+               </thead>
+       
+               <tbody>
+                    {% for user in users %}
+                 <tr class="table-success" style = "text-align: center;">
+                      <td>{{user.staff.name}}</td>
+                      {% if user.rejected %}
+                         <td style="color: rgb(172, 0, 0);">Rejected</td>
+                         <td>{{ user.message }}</td>
+                      {% elif user.completed %}
+                         <td style="color: rgb(0, 97, 0);">Completed</td>
+                         <td>{{ user.message }}</td>
+                      {% elif not user.rejected and not user.completed %}
+                         <td>Pending</td>
+                         <td>---</td>
+                      {% endif %}
+                 </tr>
+                 {% endfor %}
+               </tbody>
+             </table>
+
+             {% if job.active %}
+               <Button class="btn btn-dark btn-md"><a style="color: white;" href="{% url 'main:closeJob' id=job.id %}">Close Job</a></Button>
+             {% endif %}
+     </div>
+
+</div>
+</section>
+
+{% endblock body %}

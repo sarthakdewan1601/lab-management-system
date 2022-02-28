@@ -1,4 +1,6 @@
 # import moment
+from asyncore import ExitNow
+from audioop import tomono
 from datetime import datetime
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
@@ -42,6 +44,13 @@ def getNumberOfDays(fromDate, toDate):
 
 def checkLeaveAvailability(leaveType, user, count):
     currLeave = UserLeavesTaken.objects.get(staff=user, leave_taken=leaveType)
+    if leaveType.LeaveName=='Compensatory':
+        available_leaves=len(CompensatoryLeave.objects.filter(staff=user))
+        if count+currLeave.count > available_leaves:
+            return False,available_leaves-currLeave.count,"leave count exceeded"
+        else:
+            return True,None,None
+		
     print("currLeaveeeee ", currLeave)
     if count + currLeave.count > leaveType.count:
         # if count exceed
@@ -49,3 +58,9 @@ def checkLeaveAvailability(leaveType, user, count):
     else:
         return True, None, None
 
+def comparedates(date):
+    # d1 = datetime.datetime(2018, 5, 3)
+    # d2 = datetime.datetime(2018, 6, 1)
+    # d1 = datetime.now()
+    # print("d1, d2 ", d1, date)
+    return True

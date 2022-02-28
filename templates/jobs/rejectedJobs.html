@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'navbar.html' with staff=staff notification_count=notification_count %}
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Rejected Jobs</h2>
+<div class="container">
+    <div class="card p-5 card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+     <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
+          <thead>
+            <tr>
+              <th scope="col">Job</th>
+              <th scope="col">Date</th>
+              <th scope="col">Job Status</th>
+              <th scope="col">Your Response</th>
+            </tr>
+          </thead>
+  
+          <tbody>
+            {% for job in staffJobs %}
+              <tr class="table-success" style = "text-align: center; color: rgb(172, 0, 0);">               
+                      <td>{{job.job.title}}</td>
+                      <td>{{job.job.date}}</td>
+                      {% if job.active %}
+                        <td>Active</td>
+                      {% else %}
+                        <td>Closed</td>
+                      {% endif %}
+                      <td>{{job.message}}</td>
+                 </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+</section>
+
+{% endblock body %}

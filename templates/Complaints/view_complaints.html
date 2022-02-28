@@ -63,12 +63,8 @@
             {% if complaint.isActive %}
             <td>Active</td>
             {% else %}
-            <td>Resolved</td>
+            <td><a href="{% url 'main:escalate' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Escalate</a></td>
             {% endif %}
-
-            {% endcomment %}
-
-
         </tr>
         {% endfor %}
         </tbody>

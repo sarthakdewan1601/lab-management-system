@@ -1,8 +1,4 @@
 
-from calendar import month
-from random import choice
-from statistics import mode
-from tkinter.messagebox import NO
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from email.policy import default
@@ -73,7 +69,7 @@ class Room(models.Model):
     floor = models.IntegerField(blank=False, null=False, default=0)
     is_lab=models.BooleanField(default=False)
     def __str__(self):
-        return self.room_id + ' ('+self.name+')'
+        return self.room_id
 
 
 class Staff(models.Model):
@@ -86,7 +82,6 @@ class Staff(models.Model):
     designation=models.ForeignKey('Designation',on_delete=CASCADE)
     agency = models.ForeignKey('Agency',on_delete=CASCADE)
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
-    
     
     def __str__(self):
         return self.name + " " + self.designation.designation
@@ -116,7 +111,13 @@ class TotalLeaves(models.Model):
 
     def __str__(self):
         return self.LeaveName + "("+ str(self.year) + ")"
-    
+
+TYPE_OF_LEAVE = [
+    ('FULL_DAY', 'Full Day'),
+    ("MULTI", 'Multiple Leaves'),
+    ('FIRST_HALF', "First Half"),
+    ('SECOND_HALF', "Second half")
+]
 
 class UserLeaveStatus(models.Model):
     staff=models.ForeignKey('Staff', on_delete=CASCADE, related_name='user')
@@ -132,6 +133,7 @@ class UserLeaveStatus(models.Model):
     rejected = models.BooleanField(default=False) 
     month = models.CharField(max_length=20, default=None, null=True, blank=False)
     year = models.IntegerField(default=None, null=True, blank=False)
+    type = models.CharField(max_length=20, choices=TYPE_OF_LEAVE, default=None)
 
     def __str__(self):
         return self.staff.name + " --> " + self.leave_type.LeaveName + " --> " +  self.substitute.name
@@ -155,7 +157,7 @@ class UserLeavesTaken(models.Model):
     # get object of staff after admin verification
     staff=models.ForeignKey('Staff',on_delete=CASCADE)
     leave_taken = models.ForeignKey('TotalLeaves',on_delete=CASCADE)      
-    count=models.IntegerField(default=0)
+    count=models.FloatField(default=0)
     def __str__(self):
         return self.staff.name + " " + str(self.leave_taken.LeaveName) + " "+ str(self.count)
 
@@ -175,12 +177,12 @@ class Complaint(models.Model):
     escalated = models.BooleanField(default=False)
     escalated_by = models.ForeignKey(Staff,null=True,blank=True,related_name='escalatedBy',on_delete=CASCADE)
     escalated_at = models.DateTimeField(null=True, blank=True)
-    escalation_note= models.TextField(blank=False)
+    escalation_note= models.TextField(blank=False, default=None, null=True)
 
     
     work_Done=models.TextField(max_length=1024,blank=True)
     who_resolved = models.ForeignKey(Staff, null=True, blank=True,related_name='resolver', on_delete=models.SET_NULL)      # if is_active == false toh who_resolved mein vo person daal do
-    # date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return "Complaint for lab " + str(self.device.room.room_id)
@@ -191,7 +193,7 @@ class Lab(models.Model):
     technician = models.ForeignKey("Staff", on_delete=SET_NULL, null=True, related_name='technician',blank=True)
 
     def __str__(self): 
-        return self.lab.room_id+ "Attendant: "+self.attendant.name+'Technician: '+ self.technician.name
+        return self.lab.room_id+ "Attendant: "+str(self.attendant) + 'Technician: ' + str(self.technician)
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=20, blank=False, null=False,unique=True)
@@ -200,6 +202,8 @@ class Devices(models.Model):
     room=models.ForeignKey('Room',blank=True,null=True,on_delete=SET_NULL,default=None)
     in_inventory=models.BooleanField(default=False)
     is_working=models.BooleanField(default=True)
+    not_working_reason=models.TextField(default=None,blank=True,null=True)
+    who_expired = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
 
 
     def __str__(self):
@@ -362,3 +366,31 @@ class Class(models.Model):
 #list of staff jo faculty mai hai
 #Sarthak - Professor - Add Activity->click->view
 
+
+class Jobs(models.Model):
+    title=models.CharField(max_length=255, null=False, default=None)
+    description=models.TextField()
+    date = models.DateTimeField(null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+class StaffJobs(models.Model):
+    staff=models.ForeignKey(Staff, on_delete=models.CASCADE)
+    job=models.ForeignKey(Jobs, on_delete=models.CASCADE)
+    rejected = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
+    message = models.TextField(default=None, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.job.date) + " " + self.staff.name + " rejected: "+ str(self.rejected) + " <-> completed: " + str(self.completed)
+
+class CompensatoryLeave(models.Model):
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, null=False)
+    validity = models.DateField(null=False, default=None, blank=True)
+    leave = models.ForeignKey(TotalLeaves, on_delete=models.CASCADE, null=False, default=None)
+    time_created = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+    def __str__(self):
+        return self.staff.name + " " + str(self.validity)
