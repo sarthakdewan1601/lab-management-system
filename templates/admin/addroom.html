@@ -8,8 +8,8 @@
 <section class="sectionLogin">
   <br>
   <h2 style = "text-align: center;">Add Rooms</h2>
-<div class="container">
-    <form method="post">
+<div class="container" style="background-color: rgba(245, 245, 245,0.4);margin-top:20px">
+    <form method="post" style = "padding:40px">
         {% csrf_token %}
         {{ form|crispy }}
         <br>

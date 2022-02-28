@@ -8,6 +8,10 @@
   <br>
   <h2 style = "text-align: center;">Labs</h2>
 <div class="container">
+  <div class="new-user-form" style = "text-align: right;">
+    <a href="{% url 'main:adminaddlab' %}" style = "color: white;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Lab</button></a>
+</div>
+<br>
 <div class="labs-table">
     <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
         <thead>
@@ -35,9 +39,7 @@
         </tbody>
       </table>
 
-    <div class="new-user-form">
-        <h6 style = "text-align: center;">If you want to add a Lab,<a href="{% url 'main:adminaddlab' %}">click here</a></h6>
-    </div>
+    
     </div>
 </div>
 </section>

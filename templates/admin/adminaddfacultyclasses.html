@@ -17,8 +17,8 @@
   <h2 style = "text-align: center;">Add Faculty Class</h2>
 <div class = "container">
     <h4 class = "heading-3" style = "text-align: center;"> Faculty: {{ faculty.name }}</h4>
-    <div class = "form-add-computer">
-        <form method="POST">
+    <div class = "form-add-computer" style="background-color: rgba(245, 245, 245,0.4);">
+        <form method="POST" style = "padding: 30px;">
             {% csrf_token %}
             {{form|crispy}}
             <br>

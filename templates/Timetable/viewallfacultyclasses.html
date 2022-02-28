@@ -10,8 +10,9 @@
     <div class="col">
         <div class=" card card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
             <form method="get">
-                {{myFilter.form}}
-                <br><br>
+              {%load crispy_forms_tags %} 
+                {{myFilter.form|crispy}}
+                <br>
                 <button class="btn btn-dark btn-sm" type="submit">Filter Search</button>
             </form>
         </div>

@@ -559,7 +559,7 @@ def requestleave(request):
 				)
 				notification.save()
 				# print(notification)
-				customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+				customMessage2 = "Your request for " + leave_type.LeaveName + " leave is placed"
 				notification, was_created = Notification.objects.get_or_create(
 					sender=staff, 
 					reciever=str(staff.id) + ' ' + staff.name, 
@@ -593,7 +593,7 @@ def requestleave(request):
 				)
 				notification.save()
 
-				customMessage2 = "your request for " + leave_type.LeaveName + " leave is placed"
+				customMessage2 = "Your request for " + leave_type.LeaveName + " leave is placed"
 				notification, was_created = Notification.objects.get_or_create(
 					sender=staff, 
 					reciever=str(staff.id) + ' ' + staff.name, 
@@ -781,7 +781,7 @@ def approveRequest(request, pk):
 	notification, was_created = Notification.objects.get_or_create(
 		sender=leave.substitute,
 		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
-		message="your " + str(leave.leave_type.LeaveName) + " leave application was approved by " + str(leave.substitute.name),
+		message="Your " + str(leave.leave_type.LeaveName) + " leave application was approved by " + str(leave.substitute.name),
 		notification_type="LEAVE_ACCEPTED",
 		taskId=str(leave.id)
 	)
@@ -805,7 +805,7 @@ def declineRequest(request, pk):
 		notification, was_created = Notification.objects.get_or_create(
 			sender=sender,
 			reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
-			message="your " + str(leave.leave_type.LeaveName) + " leave application was declined by admin",
+			message="Your " + str(leave.leave_type.LeaveName) + " leave application was declined by admin",
 			notification_type="LEAVE_REJECTED",
 			taskId=str(leave.id)
 		)
@@ -823,7 +823,7 @@ def declineRequest(request, pk):
 	notification, was_created = Notification.objects.get_or_create(
 		sender = sender,
 		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
-		message="your " + str(leave.leave_type.LeaveName) + " leave application was declined by " + str(sender.name),
+		message="Your " + str(leave.leave_type.LeaveName) + " leave application was declined by " + str(sender.name),
 		notification_type="LEAVE_REJECTED",
 		taskId = str(leave.id)
 	)
@@ -2464,7 +2464,7 @@ def devicesreturnrequest(request,id):
 			inventory_device=StaffInventory.objects.get(id=dev_id)
 			inventory_device.is_requested_for_return=True
 			inventory_device.save()
-		customMessage2 = "your request for Return of devices is placed"
+		customMessage2 = "Your request for Return of devices is placed"
 		notification, was_created = Notification.objects.get_or_create(
 			sender=staff, 
 			reciever=str(staff.id) + ' ' + staff.name, 

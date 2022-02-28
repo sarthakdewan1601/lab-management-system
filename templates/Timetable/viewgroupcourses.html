@@ -7,6 +7,10 @@
   <br>
   <h2 style = "text-align: center;">Group-Courses</h2>
 <div class="container" style = "margin-top: 30px;">
+  <div class="col-lg-12" style = "text-align: right;">
+    <a href = "{% url 'main:viewallfacultygroupcourses' id=staff.id %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;">View All Group-Course</button></a>
+  </div>
+  <br>
     <div class="courses-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;margin-bottom:50px">
             <thead>
@@ -30,7 +34,6 @@
             </tbody>
           </table>
         </div>
-        <a href="{% url 'main:viewallfacultygroupcourses' id=staff.id %}" class="btn btn-dark btn-sm">View All Groups-Courses</a>
     </div>
     </section>
 {% endblock body %}

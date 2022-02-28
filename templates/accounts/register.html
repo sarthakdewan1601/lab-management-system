@@ -54,12 +54,14 @@
 <div class="container p-5">
   
 
-  <div class="section text-light p-5 text-center rounded-3 mainWrapperLogin" style = "background-color: rgba(20, 18, 18, 0.9);margin:20px;border:1px solid black">
-<div class = "heading">
+  <div class="section text-dark p-5 text-center rounded-3 mainWrapperLogin" style = "text-align: left; background-color: rgba(245, 245, 245, 0.4);">
+<!-- <div class = "heading">
   <h1>LAB MANAGEMENT SYSTEM</h1>  
-</div>
+</div> -->
 <div class="container py-5">
-	<h1>Register</h1>
+	<div class="text-start heading">
+    <h1 class="display-3" style="color: rgb(43, 179, 224);">Register</h1>
+  </div>
 	<div class="control_form">
 
 
@@ -91,27 +93,31 @@
 
 
 
-    <div class="mb-3 row">
-      
+    <div class="mb-3 input-group">
+      <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-list"></i></span>
       <select class="form-select" aria-label="Default select example" id="category" name="category">
         <option selected id="selectedCategory">Select Category</option>
       </select>
     </div>
-    <div class="mb-3 row">
+    <div class="mb-3 input-group">
+      <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-user-group"></i></span>
       <select class="form-select" aria-label="Default select example" id="designation" name="designation">        
-        <option id="selectedDesignation"> select Designation </option>
+        <option id="selectedDesignation"> Select Designation </option>
         </select>
     </div>
-    <div class="mb-3 row">
+    <div class="mb-3 input-group">
+      <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-layer-group"></i></span>
         <select class="form-select" aria-label="Default select example" id="agency" name="agency">        
-          <option id="selectedAgency"> select Agency </option>
+          <option id="selectedAgency"> Select Agency </option>
           </select>
     </div>
 
     <div class="mb-3 row">
-      <button type="submit" class="btn btn-info">Register</button>
+      <button type="submit" class="btn btn-lg btn-dark">Register</button>
     </div>
-
+    <div>
+      <p>Already a member? <a href = "{% url 'main:login' %}" style = "color: rgb(14, 131, 233);">Click here</a></p>
+    </div>
     </form>
   </div>
 </div>

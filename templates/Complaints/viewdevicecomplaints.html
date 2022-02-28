@@ -6,11 +6,12 @@
 
 <section class="sectionLogin">
   <br>
-  <h2 style = "text-align: center;"> Device Complaint</h2>
+  <h3 style = "text-align: center;"> Device id : {{device.device_id}}</h3>
+  <h3 style = "text-align: center;">Device Category :{{device.name}}</h3>
+  <br>
 <div class="container">
 
-<h1> Device id : {{device.device_id}}</h1>
-<h1>Device Category :{{device.name}}</h1>
+
 
 <h2> Escalated Complaints </h2>
 
@@ -151,6 +152,7 @@
             </td>
             <td>{{ complaint.work_Done }} </td>
             <td>{{ complaint.who_resolved.name }}</td>
+            <td></td>
                 </tr>
         {% endfor %}
         </tbody>

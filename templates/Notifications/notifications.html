@@ -6,13 +6,14 @@
 <section class="sectionLogin">
     <br>
     <h2 style = "text-align: center;">Notifications</h2>
-<div class="container" style = "text-align: center;background-color: rgba(245, 245, 245, 0.4);">
+<div class="container" style = "text-align: left;background-color: rgba(245, 245, 245, 0.4);">
     <br>
     {% for notification in notifications %}
 
         {% if notification.checked %}
         
         <i class="fa-solid fa-circle-arrow-right" style = "color: red;"></i>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <a href="{% url 'main:handleNotification' pk=notification.id %}" style = "text-decoration: none;
             color:black;text-align: center;">  
             {{ notification.message }}
@@ -21,6 +22,7 @@
             <br><br>
         {% else %}
         <i class="fa-solid fa-circle-arrow-right" style = "color: green;"></i>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <a href="{% url 'main:handleNotification' pk=notification.id %}" style = "text-decoration: none;
             color:black;text-align: center;">  
             {{ notification.message }}

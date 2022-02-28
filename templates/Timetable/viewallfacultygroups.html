@@ -7,12 +7,14 @@
 
 <section class="sectionLogin">
   <br>
-  <h2 style = "text-align: center;">All groups</h2><br><br>
+  <h2 style = "text-align: center;">All groups</h2>
 <div class="container">
     <div class="col">
         <div class=" card card-body" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
             <form method="get">
-                {{myFilter.form}}
+              {%load crispy_forms_tags %} 
+                {{myFilter.form|crispy}}
+                <br>
                 <button class="btn btn-dark btn-sm" type="submit">Filter Search</button>
             </form>
         </div>

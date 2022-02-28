@@ -12,7 +12,7 @@
   <h2 style = "text-align: center;">EDIT PROFILE</h2>
 <div class="container">
 <br/><br/>
-<div class = "form-control" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
+<div class = "form-control" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black;padding : 40px">
     <form method="POST">
             {% csrf_token %}
             {% if user.is_staff %}
@@ -64,7 +64,7 @@
             
             <div class="mb-3 row">
               <div class="col-sm-10 col-lg-4">
-                <button type="submit" class="btn btn-secondary"> Update Profile </button>
+                <button type="submit" class="btn btn-dark btn-sm"> Update Profile </button>
               </div>
             </div>  
             {% endif %}   

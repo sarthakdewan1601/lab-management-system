@@ -9,6 +9,11 @@
 
 
 <div class="container">
+  <div class="col-lg-12" style = "text-align: right;">
+    <a href="{% url 'main:viewallfacultygroups' id=faculty.id %}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"> View all Groups</button></a>
+    <a href = "{% url 'main:adminaddgroup' id=faculty.id%}" style="color: white;text-decoration: none;"><button class="btn btn-dark" style = "border-radius: 20px;"><i class="fa-solid fa-plus"></i> Group</button></a>
+  </div>
+  <br>
     <div class="groups-table">
         <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
@@ -34,8 +39,6 @@
             </tbody>
           </table>
         </div>
-        <p>If you want to add a group <a href = "{% url 'main:adminaddgroup' id=faculty.id%}">click here</a></p>
-        <a href="{% url 'main:viewallfacultygroups' id=faculty.id %}" class="btn btn-primary">View All Groups</a>
     </div>
     </section>
 {% endblock body %}
