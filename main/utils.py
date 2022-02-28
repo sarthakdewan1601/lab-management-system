@@ -37,12 +37,8 @@ def send_email(current_site,user,name=None,mess="confirm your registration",link
 def getNumberOfDays(fromDate, toDate):
     if not toDate:
         return 1
-        
-    fromDate = datetime.strptime(fromDate, '%Y-%m-%d')
-    toDate = datetime.strptime(toDate, '%Y-%m-%d')
-    delta = toDate - fromDate
 
-    return delta.days
+    return (datetime.strptime(toDate, '%Y-%m-%d') - datetime.strptime(fromDate, '%Y-%m-%d')).days + 1
 
 def checkLeaveAvailability(leaveType, user, count):
     currLeave = UserLeavesTaken.objects.get(staff=user, leave_taken=leaveType)
