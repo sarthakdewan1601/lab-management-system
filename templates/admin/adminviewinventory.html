@@ -26,6 +26,9 @@
                 <th scope="col" >Item Name</th>
                 <th scope="col" >Item Description</th>
                 <th scope="col" >Date Alloted</th>
+                <th scope="col">Add Complaint</th>
+                <th scope="col" >All Complaints</th>
+                <th scope="col" >Expire Device</th> 
               </tr>
             </thead>
     
@@ -36,14 +39,22 @@
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td>     
+                <td>Not Applicable</td>   
+                <td>Not Applicable</td>
+                <td>Not Applicable</td>  
               </tr>
               {% else %}
               <tr style="color: green;" class="table-success">
                 <td>{{device.device.device_id}}</td>
                 <td>{{device.device.name}}</td>
                 <td>{{device.device.description}}</td>
-                <td>{{device.date_added}}</td>                     
+                <td>{{device.date_added}}</td>
+                <td><a href="{% url 'main:complaint' pk=device.device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>   
+                <td><a href="{% url 'main:viewdevicecomplaints' id=device.device.id %}"><button class="lab-submitButton" type="submit">View All Complaints </button></a></td>
+                <td><a href="{% url 'main:expire_inventory_device' id=device.id %}"><button class="lab-submitButton" type="submit">Expire Device </button> </a></td>                 
+             
+                                   
               </tr>
               {% endif %}
               {% endfor %}

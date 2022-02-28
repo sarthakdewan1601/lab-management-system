@@ -38,7 +38,11 @@
           {% if active_complaint.escalated %}
 
             <td>{{ active_complaint.created_by.name }}</td>
+            {% if active_complaint.assigned_to%}
             <td>{{ active_complaint.assigned_to.name }}</td>
+            {% else %}
+            <td>All Technicians </td>
+            {%endif%}
             <td>{{ active_complaint.created_at }}</td>
             <td>{{ active_complaint.complaint }} </td>
             <td>{{ active_complaint.escalated_by }} </td>
@@ -76,7 +80,11 @@
           {% for active_complaint in active_complaints %}
             <tr class="table-success" style = "text-align: center;">
                 <td>{{ active_complaint.created_by.name }}</td>
+                {% if active_complaint.assigned_to %}
                 <td>{{ active_complaint.assigned_to.name }}</td>
+                {% else %}
+                <td>All Technicians </td>
+                {% endif %}
                 <td>{{ active_complaint.created_at }}</td>
                 <td>{{ active_complaint.complaint }} </td>
                 <td>{{ active_complaint.escalated_by }} </td>
@@ -119,7 +127,11 @@
         {% for complaint in resolved_complaints %}
         <tr class="table-success" style = "text-align: center;">
             <td>{{ complaint.created_by.name }}</td>
-            <td>{{ complaint.assigned_to.name }}</td>
+            {% if active_complaint.assigned_to %}
+            <td>{{ active_complaint.assigned_to.name }}</td>
+            {% else %}
+            <td>All Technicians </td>
+            {% endif %}
             <td>{{ complaint.created_at }}</td>
             <td>{{ complaint.complaint }} </td>
             <td>
@@ -130,6 +142,11 @@
             <td>
               {% if complaint.escalated %}
               {{ complaint.escalated_at }} 
+              {% endif %}
+            </td>
+            <td>
+              {% if complaint.escalated %}
+              {{ complaint.escalation_note }} 
               {% endif %}
             </td>
             <td>{{ complaint.work_Done }} </td>

@@ -55,3 +55,10 @@ class filterStaff(django_filters.FilterSet):
     class Meta:
         model=Staff
         fields=['category','designation','agency','room']
+
+
+class filterActiveComplaints(django_filters.FilterSet):
+    class Meta:
+        model=Complaint
+        fields=['device','created_by','assigned_to','escalated','escalated_by']
+
