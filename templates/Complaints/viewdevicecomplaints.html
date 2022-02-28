@@ -9,7 +9,6 @@
   <h3 style = "text-align: center;"> Device id : {{device.device_id}}</h3>
   <h3 style = "text-align: center;">Device Category :{{device.name}}</h3>
   <br>
-  <h1 style = "text-align: center;"> Active Complaints</h1>
 <div class="container">
 
 
@@ -100,7 +99,7 @@
         </tbody>
   </table>
   <br>
-  <h1 style = "text-align: center;"> Resolved Complaints </h1>
+  <h2> Resolved Complaints </h2>
 
   <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
@@ -136,6 +135,7 @@
             </td>
             <td>{{ complaint.work_Done }} </td>
             <td>{{ complaint.who_resolved.name }}</td>
+            <td></td>
                 </tr>
         {% endfor %}
         </tbody>
