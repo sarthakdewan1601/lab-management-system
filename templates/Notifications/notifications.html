@@ -13,6 +13,7 @@
         {% if notification.checked %}
         
         <i class="fa-solid fa-circle-arrow-right" style = "color: red;"></i>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <a href="{% url 'main:handleNotification' pk=notification.id %}" style = "text-decoration: none;
             color:black;text-align: center;">  
             {{ notification.message }}
@@ -21,6 +22,7 @@
             <br><br>
         {% else %}
         <i class="fa-solid fa-circle-arrow-right" style = "color: green;"></i>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <a href="{% url 'main:handleNotification' pk=notification.id %}" style = "text-decoration: none;
             color:black;text-align: center;">  
             {{ notification.message }}
