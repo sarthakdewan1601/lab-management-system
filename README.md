@@ -10,6 +10,7 @@ As soon as the device is functioning again,the technician can remove the complai
 
 # Steps to run the project in your system
 
+<br>
 1. start virtual env
 <br>
 2. $ pip install -r requirements.txt
@@ -17,3 +18,4 @@ As soon as the device is functioning again,the technician can remove the complai
 3. $ python manage.py crontab add (might have to run twice for it to run)
 <br>
 4. $ python manage.py runserver
+<br>
